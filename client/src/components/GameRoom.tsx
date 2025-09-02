@@ -104,6 +104,8 @@ const GameRoom: React.FC<GameRoomProps> = ({
     }
   }, [playerId, currentPlayer, players]);
 
+
+
   const handleServerMessage = React.useCallback((message: GameMessage) => {
     switch (message.type) {
       case 'error':
@@ -159,6 +161,8 @@ const GameRoom: React.FC<GameRoomProps> = ({
         if (message.currentPlayer) {
           setCurrentPlayer(message.currentPlayer);
         }
+        
+
         break;
       case 'card_played':
         console.log('收到出牌訊息:', {
@@ -394,57 +398,147 @@ const GameRoom: React.FC<GameRoomProps> = ({
       )}
 
               <div className="players-container">
-          {/* 顯示已加入的玩家 */}
-          {players.map((player, index) => (
-            <div key={player.id} className={`player ${player.id === playerId ? 'current-player' : 'other-player'}`}>
-              {/* 玩家標籤 */}
-              <div className="player-label">
-                {player.id === playerId ? (
-                  <span className="my-label">👤 我</span>
-                ) : (
-                  <span className="other-label">玩家 {index + 1}</span>
+                {/* 上方玩家 */}
+                {players.length >= 1 && (
+                  <div className={`player top ${players[0].id === currentPlayer && gameState === 'playing' ? 'current-player' : ''}`}>
+                    <div className="player-info-container">
+                      <div className="player-label">
+                        {players[0].id === playerId ? (
+                          <span className="my-label">👤 我</span>
+                        ) : (
+                          <span className="other-label">上方玩家</span>
+                        )}
+                      </div>
+                      
+                      <h3 className="player-name">
+                        {players[0].name}
+                      </h3>
+                      
+                      {gameState === 'waiting' && (
+                        <div className="player-status">
+                          <p className="status-text">
+                            {players[0].ready ? '✅ 已準備' : '⏳ 未準備'}
+                          </p>
+                        </div>
+                      )}
+                      
+                      {players[0].id === currentPlayer && gameState === 'playing' && (
+                        <div className="current-turn-indicator">
+                          🎯 當前回合
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 )}
+                
+                {/* 右方玩家 */}
+                {players.length >= 2 && (
+                  <div className={`player right ${players[1].id === currentPlayer && gameState === 'playing' ? 'current-player' : ''}`}>
+                    <div className="player-info-container">
+                      <div className="player-label">
+                        {players[1].id === playerId ? (
+                          <span className="my-label">👤 我</span>
+                        ) : (
+                          <span className="other-label">右方玩家</span>
+                        )}
+                      </div>
+                      
+                      <h3 className="player-name">
+                        {players[1].name}
+                      </h3>
+                      
+                      {gameState === 'waiting' && (
+                        <div className="player-status">
+                          <p className="status-text">
+                            {players[1].ready ? '✅ 已準備' : '⏳ 未準備'}
+                          </p>
+                        </div>
+                      )}
+                      
+                      {players[1].id === currentPlayer && gameState === 'playing' && (
+                        <div className="current-turn-indicator">
+                          🎯 當前回合
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+                
+                {/* 左方玩家 */}
+                {players.length >= 3 && (
+                  <div className={`player left ${players[2].id === currentPlayer && gameState === 'playing' ? 'current-player' : ''}`}>
+                    <div className="player-info-container">
+                      <div className="player-label">
+                        {players[2].id === playerId ? (
+                          <span className="my-label">👤 我</span>
+                        ) : (
+                          <span className="other-label">左方玩家</span>
+                        )}
+                      </div>
+                      
+                      <h3 className="player-name">
+                        {players[2].name}
+                      </h3>
+                      
+                      {gameState === 'waiting' && (
+                        <div className="player-status">
+                          <p className="status-text">
+                            {players[2].ready ? '✅ 已準備' : '⏳ 未準備'}
+                          </p>
+                        </div>
+                      )}
+                      
+                      {players[2].id === currentPlayer && gameState === 'playing' && (
+                        <div className="current-turn-indicator">
+                          🎯 當前回合
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+                
+                {/* 下方玩家（自己） */}
+                {players.length >= 4 && (
+                  <div className={`player bottom ${players[3].id === currentPlayer && gameState === 'playing' ? 'current-player' : ''}`}>
+                    <div className="player-info-container">
+                      <div className="player-label">
+                        <span className="my-label">👤 我</span>
+                      </div>
+                      
+                      <h3 className="player-name">
+                        {players[3].name}
+                      </h3>
+                      
+                      {gameState === 'waiting' && (
+                        <div className="player-status">
+                          <p className="status-text">
+                            {players[3].ready ? '✅ 已準備' : '⏳ 未準備'}
+                          </p>
+                        </div>
+                      )}
+                      
+                      {players[3].id === currentPlayer && gameState === 'playing' && (
+                        <div className="current-turn-indicator">
+                          🎯 當前回合
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+                
+                {/* 顯示等待中的玩家格子 */}
+                {Array.from({ length: 4 - players.length }, (_, index) => (
+                  <div key={`waiting-${index}`} className="player waiting-player">
+                    <div className="player-info-container">
+                      <div className="player-label">
+                        <span className="other-label">等待玩家 {index + 1}</span>
+                      </div>
+                      <h3 className="waiting-title">等待玩家中</h3>
+                      <div className="waiting-indicator">⏳</div>
+                    </div>
+                  </div>
+                ))}
               </div>
-              
-              {/* 玩家名稱 */}
-              <h3 className={`player-name ${player.id === playerId ? 'my-name' : ''}`}>
-                {player.name}
-              </h3>
-              
-              {/* 玩家狀態 */}
-              <div className="player-status">
-                <p className={`status-text ${player.ready ? 'ready-status' : 'not-ready-status'}`}>
-                  {player.ready ? '✅ 已準備' : '⏳ 未準備'}
-                </p>
-              </div>
-              
-              {/* 遊戲中顯示剩餘牌數 */}
-              {gameState === 'playing' && (
-                <div className="card-count">
-                  <p>🃏 剩餘牌數：{player.cardCount || 13}</p>
-                </div>
-              )}
-              
-              {/* 當前回合指示器 */}
-              {player.id === currentPlayer && gameState === 'playing' && (
-                <div className="current-turn-indicator">
-                  🎯 當前回合
-                </div>
-              )}
-            </div>
-          ))}
-          
-          {/* 顯示等待中的玩家格子 */}
-          {Array.from({ length: 4 - players.length }, (_, index) => (
-            <div key={`waiting-${index}`} className="player waiting-player">
-              <div className="player-label">
-              <span className="other-label">玩家 {players.length + index + 1}</span>
-              </div>
-              <h3 className="waiting-title">等待玩家中</h3>
-              <div className="waiting-indicator">⏳</div>
-            </div>
-          ))}
-        </div>
 
       {gameState === 'waiting' && (
         <div className="waiting-section">
@@ -461,6 +555,23 @@ const GameRoom: React.FC<GameRoomProps> = ({
         </div>
       )}
 
+      {/* 等待狀態時也顯示手牌（如果有的話） */}
+      {gameState === 'waiting' && myHand.length > 0 && (
+        <div className="first-person-hand">
+          <div className="hand-title">我的手牌</div>
+          <div className="hand-container">
+            {myHand.map((card, index) => (
+              <div
+                key={index}
+                className={`hand-card-3d ${getCardColor(card.suit)}`}
+              >
+                {card.suit}{card.rank}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {gameState === 'playing' && (
         <div className="game-section">
           <div className="played-cards">
@@ -473,23 +584,26 @@ const GameRoom: React.FC<GameRoomProps> = ({
               ))}
             </div>
           </div>
+        </div>
+      )}
 
-          <div className="my-hand">
-            <h3>我的手牌</h3>
-            <div className="cards-display">
-              {myHand.map((card, index) => (
-                <button
-                  key={index}
-                  className={`card hand-card ${getCardColor(card.suit)} ${isMyTurn ? 'clickable' : ''}`}
-                  onClick={() => handlePlayCard(index)}
-                  disabled={!isMyTurn}
-                >
-                  {card.suit}{card.rank}
-                </button>
-              ))}
-            </div>
-                          {isMyTurn && <p className="turn-indicator">輪到您出牌了！</p>}
+      {/* 第一視角手牌區域 - 固定在畫面最下方 */}
+      {gameState === 'playing' && (
+        <div className="first-person-hand">
+          <div className="hand-title">我的手牌</div>
+          <div className="hand-container">
+            {myHand.map((card, index) => (
+              <button
+                key={index}
+                className={`hand-card-3d ${getCardColor(card.suit)} ${isMyTurn ? 'clickable' : ''}`}
+                onClick={() => handlePlayCard(index)}
+                disabled={!isMyTurn}
+              >
+                {card.suit}{card.rank}
+              </button>
+            ))}
           </div>
+          {isMyTurn && <div className="turn-indicator-3d">輪到您出牌了！</div>}
         </div>
       )}
 

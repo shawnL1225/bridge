@@ -39,6 +39,21 @@ function getCardValue(rank) {
   return parseInt(rank);
 }
 
+// 排序卡牌
+function sortCards(cards) {
+  // 花色優先級：♠(0) < ♥(1) < ♦(2) < ♣(3)
+  const suitOrder = { '♠': 0, '♥': 1, '♦': 2, '♣': 3 };
+  
+  return cards.sort((a, b) => {
+    // 先按花色排序
+    if (suitOrder[a.suit] !== suitOrder[b.suit]) {
+      return suitOrder[a.suit] - suitOrder[b.suit];
+    }
+    // 花色相同時，按大小排序（小到大）
+    return a.value - b.value;
+  });
+}
+
 // 洗牌
 function shuffleDeck(deck) {
   for (let i = deck.length - 1; i > 0; i--) {
@@ -54,6 +69,12 @@ function dealCards(deck, numPlayers) {
   for (let i = 0; i < deck.length; i++) {
     hands[i % numPlayers].push(deck[i]);
   }
+  
+  // 對每個玩家的手牌進行排序
+  hands.forEach(hand => {
+    sortCards(hand);
+  });
+  
   return hands;
 }
 
@@ -256,7 +277,16 @@ function startGame(roomId) {
   
   game.gameState = 'playing';
   game.currentPlayer = 0;
-  game.turnOrder = game.players.map(p => p.id);
+  
+  // 設定順時針回合順序：上→右→下→左
+  // 假設玩家加入順序為：players[0]=上, players[1]=右, players[2]=左, players[3]=下
+  // 但實際遊戲順序應該是：上→右→下→左
+  game.turnOrder = [
+    game.players[0].id,  // 上方玩家
+    game.players[1].id,  // 右方玩家  
+    game.players[3].id,  // 下方玩家（自己）
+    game.players[2].id   // 左方玩家
+  ];
   
   // 為每個玩家發送對應的手牌
   game.players.forEach((player, index) => {
@@ -268,7 +298,7 @@ function startGame(roomId) {
     }));
   });
   
-  console.log(`房間 ${roomId} 遊戲開始`);
+  console.log(`房間 ${roomId} 遊戲開始，回合順序：`, game.turnOrder);
 }
 
 // 處理出牌
