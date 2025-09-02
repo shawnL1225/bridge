@@ -189,7 +189,7 @@ function handleJoinRoom(playerId, roomId, playerName) {
   
   // 發送房間資訊
   player.ws.send(JSON.stringify({
-    type: 'room_joined',
+    type: 'room_info',
     roomId: roomId,
     playerId: playerId,
     players: game.players.map(p => ({ id: p.id, name: p.name, ready: p.ready }))

@@ -69,15 +69,6 @@ const GameRoom: React.FC<GameRoomProps> = ({
       }));
     };
     
-    ws.onmessage = (event) => {
-      try {
-        const message = JSON.parse(event.data);
-        handleServerMessage(message);
-      } catch (error) {
-        console.error('解析訊息錯誤:', error);
-      }
-    };
-    
     ws.onerror = (error) => {
       console.error('WebSocket 錯誤:', error);
       setMessage('連線錯誤，請檢查網路連線');
@@ -97,35 +88,23 @@ const GameRoom: React.FC<GameRoomProps> = ({
     };
   }, [roomId, playerName]);
 
-  // 監聽 playerId 和 currentPlayer 的變化，自動設定 isMyTurn
+  // 設定 isMyTurn, message
   useEffect(() => {
-    console.log('useEffect 觸發 - playerId 或 currentPlayer 改變:', {
-      playerId,
-      currentPlayer,
-      players: players
-    });
-    
     if (currentPlayer && playerId) {
       const newIsMyTurn = currentPlayer === playerId;
       setIsMyTurn(newIsMyTurn);
       
       // 在這裡設定訊息，確保狀態同步
       if (newIsMyTurn) {
-        setMessage('遊戲開始！輪到您出牌了');
+        setMessage('輪到您出牌了');
       } else {
         const currentPlayerName = players.find(p => p.id === currentPlayer)?.name || '未知';
-        setMessage(`遊戲開始！輪到 ${currentPlayerName} 出牌`);
+        setMessage(`輪到 ${currentPlayerName} 出牌`);
       }
-      
-      console.log('狀態同步後設定回合:', {
-        currentPlayer,
-        playerId,
-        isMyTurn: newIsMyTurn
-      });
     }
   }, [playerId, currentPlayer, players]);
 
-  const handleServerMessage = (message: GameMessage) => {
+  const handleServerMessage = React.useCallback((message: GameMessage) => {
     switch (message.type) {
       case 'error':
         const errorMsg = message.message || '發生錯誤';
@@ -135,18 +114,13 @@ const GameRoom: React.FC<GameRoomProps> = ({
           onRoomError(errorMsg);
         }
         break;
-      case 'room_joined':
+      case 'room_info': // load room players info
         if (message.players) setPlayers(message.players);
         if (message.playerId) setPlayerId(message.playerId);
-        
-        // 記錄 playerId 與 players 狀態
-        console.log('room_joined: playerId =', message.playerId, 'players =', message.players);
         break;
-      case 'player_joined':
-        // 當新玩家加入房間時，更新玩家列表
+      case 'player_joined': // A new player joined
         if (message.player) {
           setPlayers(prev => {
-            // 檢查玩家是否已經存在
             const exists = prev.find(p => p.id === message.player!.id);
             if (exists) {
               return prev; // 玩家已存在，不重複添加
@@ -178,16 +152,12 @@ const GameRoom: React.FC<GameRoomProps> = ({
         console.log('遊戲開始訊息:', message);
         setGameState('playing');
         
-        // 檢查是否收到手牌，避免重複設置
         if (message.hand && message.hand.length > 0 && myHand.length === 0) {
-          console.log('遊戲開始時收到手牌:', message.hand);
           setMyHand(message.hand);
-          console.log('手牌已更新:', message.hand);
         }
         
         if (message.currentPlayer) {
           setCurrentPlayer(message.currentPlayer);
-          // 移除這裡的訊息設定，讓 useEffect 處理
         }
         break;
       case 'card_played':
@@ -267,7 +237,21 @@ const GameRoom: React.FC<GameRoomProps> = ({
         setMessage(message.message || '遊戲因玩家斷線而結束');
         break;
     }
-  };
+  }, [playerId, players, currentPlayer, gameState, isMyTurn, myHand.length, onRoomError]);
+
+  // Update handleServerMessage for handling WebSocket messages
+  useEffect(() => {
+    if (wsRef.current) {
+      wsRef.current.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data);
+          handleServerMessage(message);
+        } catch (error) {
+          console.error('解析訊息錯誤:', error);
+        }
+      };
+    }
+  }, [handleServerMessage]);
 
   const handleReady = () => {
     if (wsRef.current) {
@@ -328,8 +312,6 @@ const GameRoom: React.FC<GameRoomProps> = ({
     // 等待伺服器回應來更新回合狀態
     setMessage('等待其他玩家出牌...');
   };
-
-
 
   const handleLeaveRoom = () => {
     if (wsRef.current) {
