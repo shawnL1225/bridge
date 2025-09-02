@@ -1,0 +1,146 @@
+.App {
+  text-align: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
+  color: #ffffff;
+}
+
+.App-header {
+  background: linear-gradient(135deg, #2d2d2d 0%, #3d3d3d 100%);
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border-bottom: 2px solid #4a4a4a;
+  position: relative;
+}
+
+.App-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+}
+
+.App-header h1 {
+  margin: 0;
+  font-size: 2.5rem;
+  color: #ffffff;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 215, 0, 0.3);
+  letter-spacing: 2px;
+}
+
+/* 全局按鈕樣式 */
+button {
+  background: linear-gradient(135deg, #4a4a4a 0%, #5a5a5a 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border: 1px solid #3a3a3a;
+}
+
+button:hover {
+  background: linear-gradient(135deg, #5a5a5a 0%, #6a6a6a 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* 全局輸入框樣式 */
+input {
+  padding: 12px 16px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+}
+
+input:focus {
+  outline: none;
+  border-color: #212529;
+  box-shadow: 0 0 0 3px rgba(33, 37, 41, 0.1);
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+  .App-header h1 {
+    font-size: 2rem;
+  }
+  
+  button {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+  
+  input {
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+}
+
+/* 錯誤訊息橫幅樣式 */
+.error-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+  color: white;
+  padding: 16px;
+  box-shadow: 0 4px 20px rgba(255, 107, 107, 0.3);
+  border-bottom: 2px solid #e74c3c;
+}
+
+.error-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.error-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.error-text {
+  font-size: 16px;
+  font-weight: 600;
+  flex-grow: 1;
+}
+
+.error-close-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.error-close-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
