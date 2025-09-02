@@ -331,9 +331,9 @@ function handlePlayCard(playerId, cardIndex) {
     playerId: playerId,
     card: card,
     currentPlayer: game.turnOrder[game.currentPlayer],
-    remainingCards: game.players.map(p => ({
+    remainingCards: game.players.map((p, index) => ({
       playerId: p.id,
-      count: game.hands[game.players.indexOf(p)].length
+      count: game.hands[index].length
     }))
   });
   

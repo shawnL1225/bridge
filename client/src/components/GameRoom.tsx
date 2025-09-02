@@ -184,20 +184,17 @@ const GameRoom: React.FC<GameRoomProps> = ({
           });
         }
         
-        // 更新其他玩家的手牌數量
+        // 更新其他玩家的手牌數量（只更新其他玩家，自己的手牌已經在出牌時更新）
         if (message.remainingCards) {
           setPlayers(prev => 
             prev.map(p => {
+              // 跳過自己，因為自己的手牌已經更新
+              if (p.id === playerId) return p;
+              
               const remainingCard = message.remainingCards!.find((rc: { playerId: string; count: number }) => rc.playerId === p.id);
               return remainingCard ? { ...p, cardCount: remainingCard.count } : p;
             })
           );
-          
-          // 更新自己的手牌數量
-          const myRemainingCard = message.remainingCards.find((rc: { playerId: string; count: number }) => rc.playerId === playerId);
-          if (myRemainingCard) {
-            setMyHand(prev => prev.slice(0, myRemainingCard.count));
-          }
         }
         
         // 根據是否輪到自己來設定訊息
@@ -300,6 +297,9 @@ const GameRoom: React.FC<GameRoomProps> = ({
       console.log('無效的牌索引:', cardIndex);
       return;
     }
+    
+    // 立即從手牌中移除出掉的牌
+    setMyHand(prev => prev.filter((_, index) => index !== cardIndex));
     
     // 發送出牌訊息
     if (wsRef.current) {
