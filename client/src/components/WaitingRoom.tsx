@@ -3,6 +3,7 @@ import { Player } from '../App';
 import './WaitingRoom.css';
 
 interface WaitingRoomProps {
+  message: string;
   players: Player[];
   playerId: string;
   isReady: boolean;
@@ -11,6 +12,7 @@ interface WaitingRoomProps {
 }
 
 const WaitingRoom: React.FC<WaitingRoomProps> = ({
+  message,
   players,
   playerId,
   isReady,
@@ -19,6 +21,14 @@ const WaitingRoom: React.FC<WaitingRoomProps> = ({
 }) => {
   return (
     <div className="waiting-room">
+      {message && (
+      <div className="game-message-banner">
+        <div className="message-content">
+          <span className="message-icon">💬</span>
+          <span className="message-text">{message}</span>
+        </div>
+      </div>
+      )}
       <div className="players-container">
         {/* 玩家 1 */}
         {players.length >= 1 && (

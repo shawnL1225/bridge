@@ -47,6 +47,9 @@ const GameRoom: React.FC<GameRoomProps> = ({
   const [isReady, setIsReady] = useState(false);
   const [playerId, setPlayerId] = useState<string>(''); // 內部管理playerId
   
+  // 添加每個玩家的出牌狀態
+  const [playerPlayedCards, setPlayerPlayedCards] = useState<{ [playerId: string]: Card[] }>({});
+  
   const wsRef = useRef<WebSocket | null>(null);
   const hasConnectedRef = useRef(false);
 
@@ -91,20 +94,20 @@ const GameRoom: React.FC<GameRoomProps> = ({
   }, [roomId, playerName]);
 
   // 設定 isMyTurn, message
-  useEffect(() => {
-    if (currentPlayer && playerId) {
-      const newIsMyTurn = currentPlayer === playerId;
-      setIsMyTurn(newIsMyTurn);
+  // useEffect(() => {
+  //   if (currentPlayer && playerId) {
+  //     const newIsMyTurn = currentPlayer === playerId;
+  //     setIsMyTurn(newIsMyTurn);
       
-      // 在這裡設定訊息，確保狀態同步
-      if (newIsMyTurn) {
-        setMessage('輪到您出牌了');
-      } else {
-        const currentPlayerName = players.find(p => p.id === currentPlayer)?.name || '未知';
-        setMessage(`輪到 ${currentPlayerName} 出牌`);
-      }
-    }
-  }, [playerId, currentPlayer, players]);
+  //     // 在這裡設定訊息，確保狀態同步
+  //     if (newIsMyTurn) {
+  //       setMessage('輪到您出牌了');
+  //     } else {
+  //       const currentPlayerName = players.find(p => p.id === currentPlayer)?.name || '未知';
+  //       setMessage(`輪到 ${currentPlayerName} 出牌`);
+  //     }
+  //   }
+  // }, [playerId, currentPlayer, players]);
 
 
 
@@ -155,6 +158,8 @@ const GameRoom: React.FC<GameRoomProps> = ({
       case 'game_started':
         console.log('遊戲開始訊息:', message);
         console.log('遊戲開始 players:', players);
+        console.log('遊戲開始 playerId:', playerId);
+        console.log('遊戲開始 isMyTurn:', message.currentPlayer === playerId);
         setGameState('playing');
         
         if (message.hand && message.hand.length > 0 && myHand.length === 0) {
@@ -163,6 +168,13 @@ const GameRoom: React.FC<GameRoomProps> = ({
         
         if (message.currentPlayer) {
           setCurrentPlayer(message.currentPlayer);
+          setIsMyTurn(message.currentPlayer === playerId);
+          if (message.currentPlayer === playerId) {
+            setMessage('輪到您出牌了');
+          } else {
+            const currentPlayerName = players.find(p => p.id === message.currentPlayer)?.name || '未知';
+            setMessage(`輪到 ${currentPlayerName} 出牌`);
+          }
         }
         
 
@@ -178,6 +190,15 @@ const GameRoom: React.FC<GameRoomProps> = ({
         if (message.card) {
           setPlayedCards(prev => [...prev, message.card!]);
           setLastPlayedCard(message.card);
+          
+          // 更新出牌玩家的出牌歷史
+          if (message.playerId && message.card) {
+            const playerId = message.playerId as string;
+            setPlayerPlayedCards(prev => ({
+              ...prev,
+              [playerId]: [...(prev[playerId] || []), message.card!]
+            }));
+          }
         }
         
         // 更新當前玩家和下一個玩家
@@ -185,10 +206,6 @@ const GameRoom: React.FC<GameRoomProps> = ({
           setCurrentPlayer(message.currentPlayer);
           // 只有當 currentPlayer 等於自己的 playerId 時，才是自己的回合
           setIsMyTurn(message.currentPlayer === playerId);
-          console.log('回合更新:', {
-            currentPlayer: message.currentPlayer,
-            isMyTurn: message.currentPlayer === playerId
-          });
         }
         
         // 更新其他玩家的手牌數量（只更新其他玩家，自己的手牌已經在出牌時更新）
@@ -204,10 +221,7 @@ const GameRoom: React.FC<GameRoomProps> = ({
           );
         }
         
-        // 根據是否輪到自己來設定訊息
-        if (isMyTurn) {
-          setMessage('輪到您出牌了！');
-        } else if (message.card) {
+        if (message.card) {
           const playerName = players.find(p => p.id === message.playerId)?.name || '未知玩家';
           setMessage(`${playerName} 出牌：${message.card.suit}${message.card.rank}`);
         }
@@ -352,13 +366,7 @@ const GameRoom: React.FC<GameRoomProps> = ({
               )}
               {gameState === 'playing' && (
                 <>
-                  <span className="status-icon">🎮</span>
                   <span className="status-text">遊戲進行中</span>
-                  {currentPlayer && (
-                    <span className="current-turn">
-                      輪到：{players.find(p => p.id === currentPlayer)?.name || '未知'}
-                    </span>
-                  )}
                 </>
               )}
               {gameState === 'finished' && (
@@ -388,18 +396,11 @@ const GameRoom: React.FC<GameRoomProps> = ({
         </div>
       </div>
 
-      {/* 遊戲訊息橫幅 */}
-      {message && (
-        <div className="game-message-banner">
-          <div className="message-content">
-            <span className="message-icon">💬</span>
-            <span className="message-text">{message}</span>
-          </div>
-        </div>
-      )}
+      
 
       {gameState === 'waiting' && (
         <WaitingRoom
+          message={message}
           players={players}
           playerId={playerId}
           isReady={isReady}
@@ -410,6 +411,7 @@ const GameRoom: React.FC<GameRoomProps> = ({
 
       {gameState === 'playing' && (
         <GameBoard
+          message={message}
           players={players}
           playerId={playerId}
           currentPlayer={currentPlayer}
@@ -417,6 +419,7 @@ const GameRoom: React.FC<GameRoomProps> = ({
           playedCards={playedCards}
           isMyTurn={isMyTurn}
           onPlayCard={handlePlayCard}
+          playerPlayedCards={playerPlayedCards}
         />
       )}
 
