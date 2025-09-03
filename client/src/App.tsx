@@ -52,7 +52,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>♠️ 撲克發牌系統 ♥️</h1>
+        <h1>Card Game</h1>
       </header>
       
       {/* 顯示錯誤訊息 */}

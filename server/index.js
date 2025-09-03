@@ -92,7 +92,12 @@ function createGame(roomId) {
     gameState: 'waiting', // waiting, playing, finished
     turnOrder: [],
     lastPlayedCard: null,
-    lastPlayerId: null
+    lastPlayerId: null,
+    // 橋牌相關狀態
+    currentTrick: 1,  // 當前墩數
+    trickCards: [],   // 當前墩的牌
+    trickCount: 0,    // 當前墩已出的牌數
+    playerPlayedCards: {} // 每個玩家的出牌歷史
   };
   
   games.set(roomId, game);
@@ -338,32 +343,88 @@ function handlePlayCard(playerId, cardIndex) {
   
   // 出牌
   hand.splice(cardIndex, 1);
-  game.playedCards.push(card);
-  game.lastPlayedCard = card;
-  game.lastPlayerId = playerId;
   
-  // 檢查遊戲是否結束
-  if (hand.length === 0) {
+  // 橋牌邏輯：將牌加入當前墩
+  game.trickCards.push({ card, playerId });
+  game.trickCount++;
+  
+  // 更新每個玩家的出牌歷史
+  if (!game.playerPlayedCards[playerId]) {
+    game.playerPlayedCards[playerId] = [];
+  }
+  game.playerPlayedCards[playerId].push(card);
+  
+  // 檢查是否完成一墩（4張牌）
+  const isTrickComplete = game.trickCount === 4;
+  
+  if (isTrickComplete) {
+    // 完成一墩，準備清空
+    console.log(`第 ${game.currentTrick} 墩完成`);
+    
+    // 廣播墩完成訊息
+    broadcastToRoom(player.roomId, {
+      type: 'trick_completed',
+      trickNumber: game.currentTrick,
+      trickCards: game.trickCards,
+      playerPlayedCards: game.playerPlayedCards
+    });
+    
+    // 延遲2秒後清空並開始下一墩
+    setTimeout(() => {
+      clearTrickAndStartNext(player.roomId);
+    }, 2000);
+    
+  } else {
+    // 下一回合
+    game.currentPlayer = (game.currentPlayer + 1) % 4;
+    
+    // 廣播出牌訊息
+    broadcastToRoom(player.roomId, {
+      type: 'card_played',
+      playerId: playerId,
+      card: card,
+      currentPlayer: game.turnOrder[game.currentPlayer],
+      currentTrick: game.currentTrick,
+      trickCount: game.trickCount,
+      playerPlayedCards: game.playerPlayedCards,
+      remainingCards: game.players.map((p, index) => ({
+        playerId: p.id,
+        count: game.hands[index].length
+      }))
+    });
+  }
+  
+  // 檢查遊戲是否結束（所有牌都出完）
+  if (hand.length === 0 && game.players.every((p, index) => game.hands[index].length === 0)) {
     endGame(player.roomId, playerId);
     return;
   }
   
-  // 下一回合
-  game.currentPlayer = (game.currentPlayer + 1) % 4;
+  console.log(`玩家 ${player.name} 出牌: ${card.suit}${card.rank}，第 ${game.currentTrick} 墩 (${game.trickCount}/4)`);
+}
+
+// 清空當前墩並開始下一墩
+function clearTrickAndStartNext(roomId) {
+  const game = games.get(roomId);
+  if (!game) return;
   
-  // 廣播出牌訊息
-  broadcastToRoom(player.roomId, {
-    type: 'card_played',
-    playerId: playerId,
-    card: card,
+  // 清空當前墩的牌
+  game.trickCards = [];
+  game.trickCount = 0;
+  
+  // 進入下一墩
+  game.currentTrick++;
+  
+  // 廣播清空訊息和下一墩開始
+  broadcastToRoom(roomId, {
+    type: 'trick_cleared',
+    currentTrick: game.currentTrick,
+    message: `第 ${game.currentTrick} 墩開始`,
     currentPlayer: game.turnOrder[game.currentPlayer],
-    remainingCards: game.players.map((p, index) => ({
-      playerId: p.id,
-      count: game.hands[index].length
-    }))
+    playerPlayedCards: {} // 清空出牌顯示
   });
   
-  console.log(`玩家 ${player.name} 出牌: ${card.suit}${card.rank}`);
+  console.log(`房間 ${roomId} 開始第 ${game.currentTrick} 墩`);
 }
 
 // 結束遊戲

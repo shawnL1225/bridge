@@ -221,11 +221,51 @@ const GameRoom: React.FC<GameRoomProps> = ({
           );
         }
         
-        if (message.card) {
+        // 設定橋牌相關訊息
+        if (message.currentTrick && message.trickCount !== undefined) {
+          if (message.currentPlayer === playerId) {
+            setMessage(`第 ${message.currentTrick} 墩 (${message.trickCount}/4) - 輪到您出牌！`);
+          } else {
+            const playerName = players.find(p => p.id === message.currentPlayer)?.name || '未知';
+            setMessage(`第 ${message.currentTrick} 墩 (${message.trickCount}/4) - 輪到 ${playerName}`);
+          }
+        } else if (message.card) {
           const playerName = players.find(p => p.id === message.playerId)?.name || '未知玩家';
           setMessage(`${playerName} 出牌：${message.card.suit}${message.card.rank}`);
         }
         break;
+      
+      case 'trick_completed':
+        console.log('墩完成:', message);
+        // 更新玩家出牌歷史
+        if (message.playerPlayedCards) {
+          setPlayerPlayedCards(message.playerPlayedCards);
+        }
+        setMessage(`第 ${message.trickNumber} 墩完成！準備清空...`);
+        break;
+      
+      case 'trick_cleared':
+        console.log('墩已清空:', message);
+        // 清空出牌顯示
+        setPlayerPlayedCards({});
+        
+        // 更新當前玩家
+        if (message.currentPlayer) {
+          setCurrentPlayer(message.currentPlayer);
+          setIsMyTurn(message.currentPlayer === playerId);
+        }
+        
+        // 設定新墩開始訊息
+        if (message.currentTrick) {
+          if (message.currentPlayer === playerId) {
+            setMessage(`第 ${message.currentTrick} 墩開始 - 輪到您出牌！`);
+          } else {
+            const playerName = players.find(p => p.id === message.currentPlayer)?.name || '未知';
+            setMessage(`第 ${message.currentTrick} 墩開始 - 輪到 ${playerName}`);
+          }
+        }
+        break;
+      
       case 'player_left':
         // 當玩家離開房間時，從玩家列表中移除
         if (message.playerId) {

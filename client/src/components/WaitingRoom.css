@@ -1,29 +1,29 @@
-/* 等待時水平排列四個玩家 */
+/* 等待時水平排列四個玩家 - 使用更高特異性覆蓋 */
 .waiting-room .players-container {
-  display: flex !important;
-  flex-direction: row !important;
-  justify-content: center !important;
-  align-items: center !important;
-  gap: 15px !important;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
   margin-bottom: 30px;
   position: relative;
-  min-height: 250px !important;
+  min-height: 250px;
   max-width: 100%;
   overflow: hidden;
 }
 
 
 
-/* 玩家卡片樣式 */
+/* 玩家卡片基礎樣式 */
 .waiting-room .player {
   background: rgba(255, 255, 255, 0.1);
-  padding: 20px !important;
+  padding: 20px;
   border-radius: 15px;
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   transition: all 0.3s ease;
-  width: 240px !important;
-  height: 200px !important;
+  width: 240px;
+  height: 200px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -33,17 +33,17 @@
   flex-shrink: 0;
 }
 
-/* 已準備的玩家卡片 */
-.player.ready {
+/* 已準備的玩家卡片 - 使用更高特異性 */
+.waiting-room .player.ready {
   background: linear-gradient(135deg, rgba(78, 205, 196, 0.2), rgba(68, 160, 141, 0.2));
   border: 2px solid #4ecdc4;
   box-shadow: 0 0 25px rgba(78, 205, 196, 0.3);
   transform: scale(1.02);
 }
 
-/* 已準備狀態的字體顏色 */
-.player.ready .status-text {
-  color: #4ecdc4 !important;
+/* 已準備狀態的字體顏色 - 使用更高特異性 */
+.waiting-room .player.ready .status-text {
+  color: #4ecdc4;
   font-weight: 600;
 }
 
