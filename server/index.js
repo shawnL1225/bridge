@@ -277,15 +277,11 @@ function startGame(roomId) {
   
   game.gameState = 'playing';
   game.currentPlayer = 0;
-  
-  // 設定順時針回合順序：上→右→下→左
-  // 假設玩家加入順序為：players[0]=上, players[1]=右, players[2]=左, players[3]=下
-  // 但實際遊戲順序應該是：上→右→下→左
   game.turnOrder = [
-    game.players[0].id,  // 上方玩家
-    game.players[1].id,  // 右方玩家  
-    game.players[3].id,  // 下方玩家（自己）
-    game.players[2].id   // 左方玩家
+    game.players[0].id,
+    game.players[1].id,
+    game.players[2].id,
+    game.players[3].id
   ];
   
   // 為每個玩家發送對應的手牌

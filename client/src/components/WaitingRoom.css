@@ -1,0 +1,141 @@
+/* 等待時水平排列四個玩家 */
+.waiting-room .players-container {
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 15px !important;
+  margin-bottom: 30px;
+  position: relative;
+  min-height: 250px !important;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+
+
+/* 玩家卡片樣式 */
+.waiting-room .player {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 20px !important;
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+  width: 240px !important;
+  height: 200px !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+/* 已準備的玩家卡片 */
+.player.ready {
+  background: linear-gradient(135deg, rgba(78, 205, 196, 0.2), rgba(68, 160, 141, 0.2));
+  border: 2px solid #4ecdc4;
+  box-shadow: 0 0 25px rgba(78, 205, 196, 0.3);
+  transform: scale(1.02);
+}
+
+/* 已準備狀態的字體顏色 */
+.player.ready .status-text {
+  color: #4ecdc4 !important;
+  font-weight: 600;
+}
+
+/* 玩家資訊容器 */
+.waiting-room .player-info-container {
+  text-align: center;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+
+
+/* 玩家標籤樣式 */
+.player-label {
+  margin-bottom: 6px;
+}
+
+.my-label {
+  background: linear-gradient(45deg, #4ecdc4, #44a08d);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(78, 205, 196, 0.3);
+}
+
+.other-label {
+  background: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.9);
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* 等待區域 */
+.waiting-section {
+  text-align: center;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 40px;
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  margin-bottom: 30px;
+}
+
+.waiting-section p {
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.ready-btn {
+  background: linear-gradient(45deg, #4ecdc4, #44a08d);
+  color: white;
+  border: none;
+  font-size: 1.2rem;
+  padding: 15px 30px;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+}
+
+.ready-btn:hover {
+  background: linear-gradient(45deg, #2d5a4f, #1e3d35);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(45, 90, 79, 0.4);
+}
+
+.cancel-ready-btn {
+  background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+  color: white;
+  border: none;
+  font-size: 1.2rem;
+  padding: 15px 30px;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+}
+
+.cancel-ready-btn:hover {
+  background: linear-gradient(45deg, #c44569, #b33939);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(196, 69, 105, 0.4);
+}
+
+
