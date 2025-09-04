@@ -77,13 +77,21 @@ const GameRoom: React.FC<GameRoomProps> = ({
   // 添加等待服務器確認狀態，防止重複出牌
   const [isWaitingServerConfirm, setIsWaitingServerConfirm] = useState(false);
   
-  // 添加每墩輸贏記錄（我方/對方陣營）
-  const [trickRecords, setTrickRecords] = useState<Array<{
-    trickNumber: number;
-    isOurTeam: boolean; // true為我方陣營，false為對方陣營
-    winnerName: string;
-    winningCard: Card;
-  }>>([]);
+  // 添加墩數統計狀態
+  const [trickStats, setTrickStats] = useState<{
+    declarerTeamTricks: number;
+    defenderTeamTricks: number;
+    trickRecords?: Array<{
+      playerId: string;
+      trickNumber: number;
+      isOurTeam: boolean;
+      winnerName: string;
+      winningCard: Card;
+    }>;
+  }>({ declarerTeamTricks: 0, defenderTeamTricks: 0 });
+  
+  // 添加最終遊戲結果狀態
+  const [gameResult, setGameResult] = useState<any>(null);
   
   const wsRef = useRef<WebSocket | null>(null);
   const hasConnectedRef = useRef(false);
@@ -300,19 +308,14 @@ const GameRoom: React.FC<GameRoomProps> = ({
           });
           setMessage(`第 ${message.trickNumber} 墩完成！${message.trickWinner.playerName} 拿下`);
           
-          // 記錄墩結果 - 判斷是我方陣營還是對方陣營獲勝
-          const playerIdx = players.findIndex(player => player.id === playerId);
-          const partnerIdx = (playerIdx + 2) % 4; // 對家位置
-          const partnerId = players[partnerIdx]?.id;
-          const winnerId = message.trickWinner.playerId;
-          const isOurTeam = winnerId === playerId || winnerId === partnerId;
-          
-          setTrickRecords(prev => [...prev, {
-            trickNumber: message.trickNumber,
-            isOurTeam: isOurTeam,
-            winnerName: message.trickWinner.playerName,
-            winningCard: message.trickWinner.winningCard
-          }]);
+          // 更新墩數統計（包含server端計算的trickRecords）
+          if (message.trickStats) {
+            setTrickStats({
+              declarerTeamTricks: message.trickStats.declarerTeamTricks,
+              defenderTeamTricks: message.trickStats.defenderTeamTricks,
+              trickRecords: message.trickStats.trickRecords
+            });
+          }
           
           // 只清除閃光效果，不重新啟用出牌（等服務器的 trick_cleared 事件）
           setTimeout(() => {
@@ -364,21 +367,40 @@ const GameRoom: React.FC<GameRoomProps> = ({
         break;
       case 'game_ended':
         setGameState('finished');
-        if (message.winner) {
-          setMessage(`遊戲結束！獲勝者：${message.winner.name}`);
-        }
-        break;
+        if (message.contractResult) {
+          setGameResult(message.contractResult);
+          
+          // 判斷當前玩家是否獲勝
+          const playerIdx = players.findIndex(player => player.id === playerId);
+          const declarerTeam = message.contractResult.teams?.declarer?.players || [];
+          const isPlayerInDeclarerTeam = declarerTeam.some((player: any) => player.id === playerId);
+          const contractMade = message.contractResult.result === 'contract_made';
+          const playerWon = (isPlayerInDeclarerTeam && contractMade) || (!isPlayerInDeclarerTeam && !contractMade);
+          
+                  setMessage(playerWon ? '恭喜勝利！' : '下局加油！');
+      }
+      
+      // 重設所有玩家準備狀態
+      setPlayers(prev => prev.map(player => ({ ...player, ready: false })));
+      break;
       case 'game_ended_disconnect':
         setGameState('finished');
         setMessage(message.message || '遊戲因玩家斷線而結束');
+        break;
+        
+      case 'players_ready_reset':
+        // 更新所有玩家的準備狀態
+        if (message.players) {
+          setPlayers(message.players);
+        }
         break;
       
       // 叫墩相關訊息處理
       case 'bidding_started':
         console.log('叫墩開始:', message);
         setGameState('bidding');
-        // 清空之前的墩記錄
-        setTrickRecords([]);
+        // 重置墩數統計（server端會提供新的數據）
+        setTrickStats({ declarerTeamTricks: 0, defenderTeamTricks: 0 });
         
         if (message.hand && message.hand.length > 0 && myHand.length === 0) {
           setMyHand(message.hand);
@@ -578,15 +600,6 @@ const GameRoom: React.FC<GameRoomProps> = ({
               )}
             </div>
           </div>
-          
-          {/* 合約顯示 - 在game-status-banner下方 */}
-          {gameState === 'playing' && finalContract && (
-            <div className="contract-display-header">
-              <span className="contract-info">
-                王牌: {finalContract.level}{finalContract.suit} by {finalContract.playerName}
-              </span>
-            </div>
-          )}
         </div>
         
         <div className="header-right" style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
@@ -606,7 +619,12 @@ const GameRoom: React.FC<GameRoomProps> = ({
         </div>
       </div>
 
-      
+       {/* 合約資訊顯示 */}
+          {finalContract && (
+              <div className="contract-info">
+                合約: {finalContract.level}{finalContract.suit} by {finalContract.playerName}
+              </div>
+          )}
 
       {gameState === 'waiting' && (
         <WaitingRoom
@@ -649,16 +667,100 @@ const GameRoom: React.FC<GameRoomProps> = ({
           trickWinner={trickWinner}
           isTrickCompleted={isTrickCompleted}
           isWaitingServerConfirm={isWaitingServerConfirm}
-          trickRecords={trickRecords}
+          trickStats={trickStats}
+          finalContract={finalContract}
         />
       )}
 
       {gameState === 'finished' && (
         <div className="game-ended">
-          <h3>遊戲結束</h3>
-          <button onClick={handleLeaveRoom} className="back-to-lobby-btn">
-            返回大廳
-          </button>
+          {gameResult ? (
+            (() => {
+              // 判斷當前玩家是否獲勝
+              const declarerTeam = gameResult.teams?.declarer?.players || [];
+              const isPlayerInDeclarerTeam = declarerTeam.some((player: any) => player.id === playerId);
+              const contractMade = gameResult.result === 'contract_made';
+              const playerWon = (isPlayerInDeclarerTeam && contractMade) || (!isPlayerInDeclarerTeam && !contractMade);
+              
+              return (
+                <div className="contract-result">
+                  <div className={`result-banner ${playerWon ? 'success' : 'failure'}`}>
+                    <h4>{playerWon ? '勝利' : '失敗'}</h4>
+                  </div>
+              
+              <div className="result-details">
+                <div className="team-results">
+                  <div className="team-info">
+                    <h5>莊家隊伍 ({gameResult.teams?.declarer?.tricks || 0} 墩)</h5>
+                    <p className="team-target">目標：{finalContract?.level ? 6 + finalContract.level : 0} 墩</p>
+                    {gameResult.teams?.declarer?.players?.map((player: any) => (
+                      <div key={player.id} className={`team-player ${gameResult.teams?.declarer?.won ? 'winner' : 'loser'}`}>
+                        {player.name}
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="team-info">
+                    <h5>防守隊伍 ({gameResult.teams?.defender?.tricks || 0} 墩)</h5>
+                    <p className="team-target">目標：{finalContract?.level ? 13 - (6 + finalContract.level) + 1 : 0} 墩</p>
+                    {gameResult.teams?.defender?.players?.map((player: any) => (
+                      <div key={player.id} className={`team-player ${gameResult.teams?.defender?.won ? 'winner' : 'loser'}`}>
+                        {player.name}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* 墩數詳細記錄 */}
+                {trickStats?.trickRecords && trickStats.trickRecords.length > 0 && (
+                  <div className="trick-records">
+                    <h5>墩數詳細記錄</h5>
+                    <div className="trick-list">
+                      {trickStats.trickRecords
+                        .filter(record => record.playerId === playerId)
+                        .map((record, index) => (
+                          <div key={index} className={`trick-record ${record.isOurTeam ? 'our-team' : 'their-team'}`}>
+                            <span>第 {record.trickNumber} 墩：</span>
+                            <span className={record.isOurTeam ? 'win' : 'lose'}>
+                              {record.isOurTeam ? '勝利' : '失敗'}
+                            </span>
+                            <span>贏家：{record.winnerName}</span>
+                            <span>贏牌：{record.winningCard.suit}{record.winningCard.rank}</span>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+              );
+            })()
+          ) : (
+            <h3>遊戲結束</h3>
+          )}
+          
+          <div className="game-actions">
+            <button onClick={() => {
+              // 發送重新開始遊戲訊息給 server
+              if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+                wsRef.current.send(JSON.stringify({
+                  type: 'restart_game'
+                }));
+              }
+              
+              // 清空 client 端狀態
+              setGameState('waiting');
+              setFinalContract(null);
+              setGameResult(null);
+              setTrickStats({ declarerTeamTricks: 0, defenderTeamTricks: 0, trickRecords: [] });
+              setIsReady(false); // 重設當前玩家的準備狀態
+            }} className="continue-game-btn">
+              繼續遊戲
+            </button>
+            <button onClick={handleLeaveRoom} className="back-to-lobby-btn">
+              返回大廳
+            </button>
+          </div>
         </div>
       )}
     </div>

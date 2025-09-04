@@ -105,6 +105,13 @@ function createGame(roomId) {
       passCount: 0,           // 連續pass次數
       finalContract: null,    // 最終合約 {playerId, playerName, level, suit}
       trumpSuit: null         // 王牌花色
+    },
+    // 墩數統計
+    trickStats: {
+      declarerTeamTricks: 0,  // 莊家隊伍拿到的墩數
+      defenderTeamTricks: 0,  // 防守隊伍拿到的墩數
+      
+      trickRecords: []        // 記錄每墩的記錄供客戶端顯示
     }
   };
   
@@ -244,6 +251,9 @@ function handleMessage(playerId, data) {
     case 'pass_bid':
       handlePassBid(playerId);
       break;
+    case 'restart_game':
+      handleRestartGame(playerId);
+      break;
   }
 }
 
@@ -352,6 +362,84 @@ function handlePlayerCancelReady(playerId) {
   }
 }
 
+// 處理重新開始遊戲
+function handleRestartGame(playerId) {
+  const player = players.get(playerId);
+  if (!player || !player.roomId) return;
+  
+  const game = games.get(player.roomId);
+  if (!game) return;
+  
+  // 檢查是否所有玩家都在房間中
+  if (game.players.length !== 4) {
+    player.ws.send(JSON.stringify({
+      type: 'error',
+      message: '需要4名玩家才能重新開始遊戲'
+    }));
+    return;
+  }
+  
+  // 重新開始遊戲
+  restartGame(player.roomId);
+}
+
+// 重新開始遊戲（重新發牌並重置所有狀態）
+function restartGame(roomId) {
+  const game = games.get(roomId);
+  if (!game) return;
+  
+  // 重新發牌
+  const deck = shuffleDeck(createDeck());
+  game.hands = dealCards(deck, 4);
+  
+  // 重置遊戲狀態
+  game.gameState = 'waiting';
+  game.currentPlayer = 0;
+  game.turnOrder = [];
+  game.playedCards = [];
+  game.lastPlayedCard = null;
+  game.lastPlayerId = null;
+  game.currentTrick = 1;
+  game.trickCards = [];
+  game.trickCount = 0;
+  game.playerPlayedCards = {};
+  
+  // 重置叫墩狀態
+  game.biddingState = {
+    currentBidder: 0,
+    bids: [],
+    passCount: 0,
+    finalContract: null,
+    trumpSuit: null
+  };
+  
+  // 重置墩數統計
+  game.trickStats = {
+    declarerTeamTricks: 0,
+    defenderTeamTricks: 0,
+    trickRecords: []
+  };
+  
+  // 重置所有玩家的準備狀態
+  game.players.forEach(player => {
+    player.ready = false;
+  });
+  
+  // 廣播遊戲重新開始訊息
+  broadcastToRoom(roomId, {
+    type: 'game_restarted',
+    message: '遊戲已重新開始，請重新準備'
+  });
+  
+  // 廣播所有玩家的準備狀態重置
+  broadcastToRoom(roomId, {
+    type: 'players_ready_reset',
+    players: game.players.map(p => ({ id: p.id, name: p.name, ready: p.ready }))
+  });
+  
+  console.log(`房間 ${roomId} 遊戲重新開始`);
+}
+
 // 開始遊戲（進入叫墩階段）
 function startGame(roomId) {
   const game = games.get(roomId);
@@ -373,6 +461,14 @@ function startGame(roomId) {
     passCount: 0,
     finalContract: null,
     trumpSuit: null
+  };
+  
+  // 重置墩數統計
+  game.trickStats = {
+    declarerTeamTricks: 0,
+    defenderTeamTricks: 0,
+    
+    trickRecords: []
   };
   
   // 為每個玩家發送叫墩開始訊息和手牌
@@ -657,7 +753,42 @@ function handlePlayCard(playerId, cardIndex) {
     const trickWinner = getTrickWinner(game.trickCards, game.biddingState.trumpSuit);
     const winnerPlayer = game.players.find(p => p.id === trickWinner.playerId);
 
-    // 廣播墩完成訊息，包含贏家資訊
+    // 統計墩數 - 判斷贏家屬於哪個隊伍
+    const winnerPlayerIndex = game.players.findIndex(p => p.id === trickWinner.playerId);
+    const contractPlayerIndex = game.players.findIndex(p => p.id === game.biddingState.finalContract?.playerId);
+    
+    // 判斷贏家是否是莊家隊伍（莊家和對家）
+    const isDeclarerTeam = winnerPlayerIndex === contractPlayerIndex || 
+                          winnerPlayerIndex === (contractPlayerIndex + 2) % 4;
+    
+    if (isDeclarerTeam) {
+      game.trickStats.declarerTeamTricks++;
+    } else {
+      game.trickStats.defenderTeamTricks++;
+    }
+    
+
+    
+    // 為每個玩家生成 trickRecord
+    game.players.forEach((player) => {
+      const playerIndex = game.players.findIndex(p => p.id === player.id);
+      const contractPlayerIndex = game.players.findIndex(p => p.id === game.biddingState.finalContract?.playerId);
+      const isPlayerDeclarerTeam = playerIndex === contractPlayerIndex || 
+                                   playerIndex === (contractPlayerIndex + 2) % 4;
+      
+      // 判斷這個墩對於該玩家來說是勝利還是失敗
+      const isOurTeamWin = isDeclarerTeam === isPlayerDeclarerTeam;
+      
+      game.trickStats.trickRecords.push({
+        playerId: player.id,
+        trickNumber: game.currentTrick,
+        isOurTeam: isOurTeamWin,
+        winnerName: winnerPlayer?.name,
+        winningCard: trickWinner.card
+      });
+    });
+
+    // 廣播墩完成訊息，包含贏家資訊和墩數統計
     broadcastToRoom(player.roomId, {
       type: 'trick_completed',
       trickNumber: game.currentTrick,
@@ -667,17 +798,34 @@ function handlePlayCard(playerId, cardIndex) {
         playerId: trickWinner.playerId,
         playerName: winnerPlayer?.name,
         winningCard: trickWinner.card
+      },
+      trickStats: {
+        declarerTeamTricks: game.trickStats.declarerTeamTricks,
+        defenderTeamTricks: game.trickStats.defenderTeamTricks,
+        trickRecords: game.trickStats.trickRecords
       }
     });
     
-    setTimeout(() => {
-      clearTrickAndStartNext(player.roomId, trickWinner.playerId);
-    }, 5000);
+    // 檢查遊戲是否應該結束（達成勝負條件）
+    if (checkGameEndCondition(game)) {
+      setTimeout(() => {
+        endGame(player.roomId);
+      }, 5000);
+    } else {
+      setTimeout(() => {
+        clearTrickAndStartNext(player.roomId, trickWinner.playerId);
+      }, 5000);
+    }
   }
   
-  // 檢查遊戲是否結束（所有牌都出完）
+  // 理論上不應該執行到這裡 - 遊戲應該在達成勝負條件時就結束
   if (hand.length === 0 && game.players.every((p, index) => game.hands[index].length === 0)) {
-    endGame(player.roomId, playerId);
+    console.error(`錯誤：所有手牌都出完但遊戲未結束！房間: ${player.roomId}`);
+    console.error('墩數統計:', game.trickStats);
+    console.error('合約:', game.biddingState.finalContract);
+    
+    // 強制結束遊戲並報告錯誤
+    endGame(player.roomId);
     return;
   }
   
@@ -710,22 +858,104 @@ function clearTrickAndStartNext(roomId, winnerId) {
   console.log(`房間 ${roomId} 開始第 ${game.currentTrick} 墩，贏家 ${winnerId} 先出`);
 }
 
+// 檢查遊戲結束條件
+function checkGameEndCondition(game) {
+  const finalContract = game.biddingState.finalContract;
+  if (!finalContract) return false;
+
+  const declarerRequiredTricks = 6 + finalContract.level;  // 莊家隊伍需要的墩數
+  const defenderRequiredTricks = 13 - declarerRequiredTricks + 1;  // 防守隊伍需要的墩數（阻止莊家）
+  const declarerTeamTricks = game.trickStats.declarerTeamTricks;
+  const defenderTeamTricks = game.trickStats.defenderTeamTricks;
+
+  // 條件1：莊家隊伍達成合約
+  if (declarerTeamTricks >= declarerRequiredTricks) {
+    console.log(`遊戲結束：莊家隊伍達成合約 (${declarerTeamTricks}/${declarerRequiredTricks})`);
+    return true;
+  }
+
+  // 條件2：防守隊伍達成目標（阻止莊家合約）
+  if (defenderTeamTricks >= defenderRequiredTricks) {
+    console.log(`遊戲結束：防守隊伍達成目標 (${defenderTeamTricks}/${defenderRequiredTricks})`);
+    return true;
+  }
+
+  return false;
+}
+
 // 結束遊戲
-function endGame(roomId, winnerId) {
+function endGame(roomId) {
   const game = games.get(roomId);
   if (!game) return;
   
   game.gameState = 'finished';
   
-  const winner = game.players.find(p => p.id === winnerId);
+  // 計算合約結果
+  const contractResult = calculateContractResult(game);
   
   broadcastToRoom(roomId, {
     type: 'game_ended',
-    winner: { id: winnerId, name: winner.name },
+    contractResult: contractResult,
     finalHands: game.hands
   });
   
-  console.log(`房間 ${roomId} 遊戲結束，獲勝者: ${winner.name}`);
+  console.log(`房間 ${roomId} 遊戲結束，合約結果:`, contractResult);
+}
+
+// 計算合約輸贏結果
+function calculateContractResult(game) {
+  const finalContract = game.biddingState.finalContract;
+  if (!finalContract) {
+    return {
+      result: 'no_contract',
+      message: '沒有合約',
+      declarerTeamTricks: game.trickStats.declarerTeamTricks,
+      defenderTeamTricks: game.trickStats.defenderTeamTricks
+    };
+  }
+
+  const requiredTricks = 6 + finalContract.level; // 基本 6 墩 + 合約等級
+  const actualTricks = game.trickStats.declarerTeamTricks;
+  const contractMade = actualTricks >= requiredTricks;
+  
+  // 找到莊家隊伍的玩家
+  const declarerIndex = game.players.findIndex(p => p.id === finalContract.playerId);
+  const partnerIndex = (declarerIndex + 2) % 4;
+  const declarerTeam = [game.players[declarerIndex], game.players[partnerIndex]];
+  
+  // 防守隊伍
+  const defenderTeam = game.players.filter((p, index) => index !== declarerIndex && index !== partnerIndex);
+  
+  let undertricks = 0;
+  const totalTricksPlayed = game.trickStats.declarerTeamTricks + game.trickStats.defenderTeamTricks;
+  const isEarlyEnd = totalTricksPlayed < 13;
+  
+  if (!contractMade) {
+    undertricks = requiredTricks - actualTricks;
+  }
+  
+  return {
+    result: contractMade ? 'contract_made' : 'contract_failed',
+    stats: {
+      required: requiredTricks,
+      actual: actualTricks,
+      undertricks: undertricks
+    },
+    teams: {
+      declarer: {
+        players: declarerTeam.map(p => ({ id: p.id, name: p.name })),
+        tricks: game.trickStats.declarerTeamTricks,
+        won: contractMade
+      },
+      defender: {
+        players: defenderTeam.map(p => ({ id: p.id, name: p.name })),
+        tricks: game.trickStats.defenderTeamTricks,
+        won: !contractMade
+      }
+    },
+
+
+  };
 }
 
 // 因玩家斷線而結束遊戲

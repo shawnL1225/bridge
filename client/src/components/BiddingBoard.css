@@ -580,52 +580,6 @@
   padding: 10px;
 }
 
-/* 最終合約顯示 */
-.final-contract {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  color: white;
-  height: 100%;
-}
-
-.final-contract h2 {
-  color: #ffd700;
-  font-size: 2em;
-  margin-bottom: 30px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.contract-info {
-  padding: 5px;
-  border-radius: 20px;
-  backdrop-filter: blur(10px);
-  margin-bottom: 30px;
-}
-
-
-.contract-display {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.contract-level {
-  font-size: 3em;
-  font-weight: bold;
-  color: #ffffff;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.contract-suit {
-  font-size: 3em;
-  font-weight: bold;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
 
 .game-starting-message {
   color: #a0d4c7;

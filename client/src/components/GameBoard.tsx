@@ -19,13 +19,25 @@ interface GameBoardProps {
   isTrickCompleted: boolean;
   // 添加等待服務器確認狀態
   isWaitingServerConfirm?: boolean;
-  // 添加每墩輸贏記錄（我方/對方陣營）
-  trickRecords?: Array<{
-    trickNumber: number;
-    isOurTeam: boolean;
-    winnerName: string;
-    winningCard: Card;
-  }>;
+  // 添加墩數統計
+  trickStats?: {
+    declarerTeamTricks: number;
+    defenderTeamTricks: number;
+    trickRecords?: Array<{
+      playerId: string;
+      trickNumber: number;
+      isOurTeam: boolean;
+      winnerName: string;
+      winningCard: Card;
+    }>;
+  };
+  // 添加合約資訊
+  finalContract?: {
+    playerId: string;
+    playerName: string;
+    level: number;
+    suit: string;
+  } | null;
 }
 
 const GameBoard: React.FC<GameBoardProps> = ({
@@ -40,7 +52,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
   trickWinner,
   isTrickCompleted,
   isWaitingServerConfirm,
-  trickRecords
+  trickStats,
+  finalContract
 }) => {
   const trickRecordsListRef = useRef<HTMLDivElement>(null);
 
@@ -48,14 +61,15 @@ const GameBoard: React.FC<GameBoardProps> = ({
     return suit === '♥' || suit === '♦' ? 'red' : 'black';
   };
 
-  // 當trickRecords更新時，自動滾動顯示最新記錄
+  // 當server端trickRecords更新時，自動滾動顯示最新記錄
   useEffect(() => {
-    if (trickRecordsListRef.current && trickRecords && trickRecords.length > 0) {
+    const serverTrickRecords = trickStats?.trickRecords?.filter(record => record.playerId === playerId);
+    if (trickRecordsListRef.current && serverTrickRecords && serverTrickRecords.length > 0) {
       const listElement = trickRecordsListRef.current;
       // 在水平佈局中，滾動到最右邊顯示最新記錄
       listElement.scrollLeft = listElement.scrollWidth;
     }
-  }, [trickRecords]);
+  }, [trickStats?.trickRecords, playerId]);
 
   return (
     <>
@@ -155,32 +169,56 @@ const GameBoard: React.FC<GameBoardProps> = ({
       </div>
 
         {/* 墩記錄顯示區域 - GameBoard下方 */}
-        {trickRecords && trickRecords.length > 0 && (
+        {trickStats && trickStats.trickRecords && 
+         trickStats.trickRecords.filter(record => record.playerId === playerId).length > 0 && (
             <div className="trick-records-display">
-              <div className="trick-summary">
-                <div className="team-score our-score">
-                  我方: {trickRecords.filter(record => record.isOurTeam).length}墩
+              
+              
+              {/* 墩數統計 - 僅使用服務器端數據 */}
+              {trickStats && finalContract && (
+                <div className="trick-summary">
+                  {(() => {
+                    // 判斷當前玩家是否在莊家隊伍
+                    const playerIdx = players.findIndex(player => player.id === playerId);
+                    const contractPlayerIdx = players.findIndex(player => player.id === finalContract.playerId);
+                    const isDeclarerTeam = playerIdx === contractPlayerIdx || playerIdx === (contractPlayerIdx + 2) % 4;
+                    
+                    const myTeamTricks = isDeclarerTeam ? trickStats.declarerTeamTricks : trickStats.defenderTeamTricks;
+                    const theirTeamTricks = isDeclarerTeam ? trickStats.defenderTeamTricks : trickStats.declarerTeamTricks;
+                    
+                    return (
+                      <>
+                        <div className="team-score our-score">
+                          我方: {myTeamTricks}墩
+                        </div>
+                        <div className="team-score their-score">
+                          對方: {theirTeamTricks}墩
+                        </div>
+                      </>
+                    );
+                  })()}
                 </div>
-                <div className="team-score their-score">
-                  對方: {trickRecords.filter(record => !record.isOurTeam).length}墩
-                </div>
-              </div>
+              )}
+              
               <div className="trick-records-bar">
                 <div className="trick-records-title">墩記錄</div>
                 <div className="trick-records-list" ref={trickRecordsListRef}>
-                  {trickRecords.map((record) => (
-                    <div key={record.trickNumber} className="trick-record-item">
-                      <span className="trick-number">{record.trickNumber}</span>
-                      <span className={`trick-team ${record.isOurTeam ? 'our-team' : 'their-team'}`}>
-                        {record.isOurTeam ? 'W' : 'L'}
-                      </span>
-                    </div>
-                  ))}
+                  {trickStats.trickRecords
+                    .filter(record => record.playerId === playerId)
+                    .map((record) => (
+                      <div key={record.trickNumber} className="trick-record-item">
+                        <span className="trick-number">{record.trickNumber}</span>
+                        <span className={`trick-team ${record.isOurTeam ? 'our-team' : 'their-team'}`}>
+                          {record.isOurTeam ? 'W' : 'L'}
+                        </span>
+                      </div>
+                    ))
+                  }
                 </div>
               </div>
-              
             </div>
           )}
+         
 
       {/* 第一視角手牌區域 - 固定在畫面最下方 */}
       <div className="first-person-hand">
