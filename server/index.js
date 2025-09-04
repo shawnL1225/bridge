@@ -39,21 +39,6 @@ function getCardValue(rank) {
   return parseInt(rank);
 }
 
-// 排序卡牌
-function sortCards(cards) {
-  // 花色優先級：♠(0) < ♥(1) < ♦(2) < ♣(3)
-  const suitOrder = { '♠': 0, '♥': 1, '♦': 2, '♣': 3 };
-  
-  return cards.sort((a, b) => {
-    // 先按花色排序
-    if (suitOrder[a.suit] !== suitOrder[b.suit]) {
-      return suitOrder[a.suit] - suitOrder[b.suit];
-    }
-    // 花色相同時，按大小排序（小到大）
-    return a.value - b.value;
-  });
-}
-
 // 洗牌
 function shuffleDeck(deck) {
   for (let i = deck.length - 1; i > 0; i--) {
@@ -76,6 +61,21 @@ function dealCards(deck, numPlayers) {
   });
   
   return hands;
+}
+
+// 排序卡牌
+function sortCards(cards) {
+  // 花色優先級：♠(0) < ♥(1) < ♦(2) < ♣(3)
+  const suitOrder = { '♠': 0, '♥': 1, '♦': 2, '♣': 3 };
+  
+  return cards.sort((a, b) => {
+    // 先按花色排序
+    if (suitOrder[a.suit] !== suitOrder[b.suit]) {
+      return suitOrder[a.suit] - suitOrder[b.suit];
+    }
+    // 花色相同時，按大小排序（小到大）
+    return a.value - b.value;
+  });
 }
 
 // 創建新遊戲
@@ -126,6 +126,41 @@ function isValidPlay(card, lastCard, isFirstPlay) {
   // 2. 或者相同花色的牌
   // 目前簡化為可以出任何牌
   return true;
+}
+
+// 判斷墩的贏家
+function getTrickWinner(trickCards) {
+  if (trickCards.length !== 4) {
+    throw new Error('墩必須有4張牌才能判斷贏家');
+  }
+  
+  // 第一張牌的花色為主花色
+  const leadSuit = trickCards[0].card.suit;
+  
+  // 找出所有跟主花色的牌
+  const followingSuitCards = trickCards.filter(tc => tc.card.suit === leadSuit);
+  
+  // 在跟花色的牌中找最大的（Ａ最大，２最小，2-10直接轉數字）
+  function getCardRankValue(card) {
+    if (card.rank === 'A') return 14;
+    if (card.rank === 'K') return 13;
+    if (card.rank === 'Q') return 12;
+    if (card.rank === 'J') return 11;
+    // 2-10 直接轉成數字
+    const num = parseInt(card.rank, 10);
+    if (!isNaN(num)) return num;
+    // 若有其他花色或異常，預設最小
+    return 0;
+  }
+
+  let winner = followingSuitCards[0];
+  for (let i = 1; i < followingSuitCards.length; i++) {
+    if (getCardRankValue(followingSuitCards[i].card) > getCardRankValue(winner.card)) {
+      winner = followingSuitCards[i];
+    }
+  }
+  
+  return winner;
 }
 
 // WebSocket 連線處理
@@ -310,6 +345,11 @@ function handlePlayCard(playerId, cardIndex) {
   const game = games.get(player.roomId);
   if (!game || game.gameState !== 'playing') return;
   
+  const playerIndex = game.players.findIndex(p => p.id === playerId);
+  const hand = game.hands[playerIndex];
+  const card = hand[cardIndex];
+  const isFirstPlay = game.playedCards.length === 0;
+
   // 檢查是否輪到該玩家
   if (game.turnOrder[game.currentPlayer] !== playerId) {
     player.ws.send(JSON.stringify({
@@ -319,9 +359,6 @@ function handlePlayCard(playerId, cardIndex) {
     return;
   }
   
-  const playerIndex = game.players.findIndex(p => p.id === playerId);
-  const hand = game.hands[playerIndex];
-  
   if (cardIndex < 0 || cardIndex >= hand.length) {
     player.ws.send(JSON.stringify({
       type: 'error',
@@ -329,9 +366,6 @@ function handlePlayCard(playerId, cardIndex) {
     }));
     return;
   }
-  
-  const card = hand[cardIndex];
-  const isFirstPlay = game.playedCards.length === 0;
   
   if (!isValidPlay(card, game.lastPlayedCard, isFirstPlay)) {
     player.ws.send(JSON.stringify({
@@ -344,6 +378,11 @@ function handlePlayCard(playerId, cardIndex) {
   // 出牌
   hand.splice(cardIndex, 1);
   
+  // 記錄到整局出牌歷史
+  game.playedCards.push(card);
+  game.lastPlayedCard = card;
+  game.lastPlayerId = playerId;
+  
   // 橋牌邏輯：將牌加入當前墩
   game.trickCards.push({ card, playerId });
   game.trickCount++;
@@ -354,44 +393,51 @@ function handlePlayCard(playerId, cardIndex) {
   }
   game.playerPlayedCards[playerId].push(card);
   
-  // 檢查是否完成一墩（4張牌）
-  const isTrickComplete = game.trickCount === 4;
+  // 廣播出牌訊息
+  let nextPlayerForBroadcast = null;
   
-  if (isTrickComplete) {
-    // 完成一墩，準備清空
+  if (game.trickCount < 4) {
+    // 墩還沒完成，移動到下一個玩家
+    game.currentPlayer = (game.currentPlayer + 1) % 4;
+    nextPlayerForBroadcast = game.turnOrder[game.currentPlayer];
+  } else {
+    // 墩完成了，下一個玩家由贏家決定，暫時不設定
+    nextPlayerForBroadcast = null;
+  }
+
+  broadcastToRoom(player.roomId, {
+    type: 'card_played',
+    playerId: playerId,
+    card: card,
+    currentPlayer: nextPlayerForBroadcast,
+    currentTrick: game.currentTrick,
+    trickCount: game.trickCount,
+    playerPlayedCards: game.playerPlayedCards
+  });
+
+  // 如果完成一墩，額外廣播墩完成訊息
+  if (game.trickCount === 4) {
     console.log(`第 ${game.currentTrick} 墩完成`);
     
-    // 廣播墩完成訊息
+    const trickWinner = getTrickWinner(game.trickCards);
+    const winnerPlayer = game.players.find(p => p.id === trickWinner.playerId);
+
+    // 廣播墩完成訊息，包含贏家資訊
     broadcastToRoom(player.roomId, {
       type: 'trick_completed',
       trickNumber: game.currentTrick,
       trickCards: game.trickCards,
-      playerPlayedCards: game.playerPlayedCards
-    });
-    
-    // 延遲2秒後清空並開始下一墩
-    setTimeout(() => {
-      clearTrickAndStartNext(player.roomId);
-    }, 2000);
-    
-  } else {
-    // 下一回合
-    game.currentPlayer = (game.currentPlayer + 1) % 4;
-    
-    // 廣播出牌訊息
-    broadcastToRoom(player.roomId, {
-      type: 'card_played',
-      playerId: playerId,
-      card: card,
-      currentPlayer: game.turnOrder[game.currentPlayer],
-      currentTrick: game.currentTrick,
-      trickCount: game.trickCount,
       playerPlayedCards: game.playerPlayedCards,
-      remainingCards: game.players.map((p, index) => ({
-        playerId: p.id,
-        count: game.hands[index].length
-      }))
+      trickWinner: {
+        playerId: trickWinner.playerId,
+        playerName: winnerPlayer?.name,
+        winningCard: trickWinner.card
+      }
     });
+    
+    setTimeout(() => {
+      clearTrickAndStartNext(player.roomId, trickWinner.playerId);
+    }, 5000);
   }
   
   // 檢查遊戲是否結束（所有牌都出完）
@@ -404,27 +450,29 @@ function handlePlayCard(playerId, cardIndex) {
 }
 
 // 清空當前墩並開始下一墩
-function clearTrickAndStartNext(roomId) {
+function clearTrickAndStartNext(roomId, winnerId) {
   const game = games.get(roomId);
   if (!game) return;
-  
-  // 清空當前墩的牌
+  if (!winnerId) return;
+
   game.trickCards = [];
   game.trickCount = 0;
-  
-  // 進入下一墩
   game.currentTrick++;
   
+  const winnerIndex = game.turnOrder.findIndex(id => id === winnerId);
+  if (winnerIndex !== -1) {
+    game.currentPlayer = winnerIndex;  // 設定為索引，不是玩家ID
+  }
+
   // 廣播清空訊息和下一墩開始
   broadcastToRoom(roomId, {
     type: 'trick_cleared',
     currentTrick: game.currentTrick,
-    message: `第 ${game.currentTrick} 墩開始`,
-    currentPlayer: game.turnOrder[game.currentPlayer],
-    playerPlayedCards: {} // 清空出牌顯示
+    currentPlayer: winnerId,
+    playerPlayedCards: {}
   });
   
-  console.log(`房間 ${roomId} 開始第 ${game.currentTrick} 墩`);
+  console.log(`房間 ${roomId} 開始第 ${game.currentTrick} 墩，贏家 ${winnerId} 先出`);
 }
 
 // 結束遊戲

@@ -22,7 +22,7 @@ interface GameMessage {
   hands?: Card[][];
   card?: Card;
   nextPlayer?: string;
-  remainingCards?: Array<{ playerId: string; count: number }>;
+
   winner?: { id: string; name: string };
   finalHands?: Card[][];
   error?: string;
@@ -49,6 +49,12 @@ const GameRoom: React.FC<GameRoomProps> = ({
   
   // 添加每個玩家的出牌狀態
   const [playerPlayedCards, setPlayerPlayedCards] = useState<{ [playerId: string]: Card[] }>({});
+  
+  // 添加墩贏家狀態，用於閃光效果
+  const [trickWinner, setTrickWinner] = useState<{ playerId: string; playerName: string } | null>(null);
+  
+  // 添加墩完成狀態，用於防止狂點出牌
+  const [isTrickCompleted, setIsTrickCompleted] = useState(false);
   
   const wsRef = useRef<WebSocket | null>(null);
   const hasConnectedRef = useRef(false);
@@ -208,18 +214,7 @@ const GameRoom: React.FC<GameRoomProps> = ({
           setIsMyTurn(message.currentPlayer === playerId);
         }
         
-        // 更新其他玩家的手牌數量（只更新其他玩家，自己的手牌已經在出牌時更新）
-        if (message.remainingCards) {
-          setPlayers(prev => 
-            prev.map(p => {
-              // 跳過自己，因為自己的手牌已經更新
-              if (p.id === playerId) return p;
-              
-              const remainingCard = message.remainingCards!.find((rc: { playerId: string; count: number }) => rc.playerId === p.id);
-              return remainingCard ? { ...p, cardCount: remainingCard.count } : p;
-            })
-          );
-        }
+        // 注意：為了遊戲公平性，不再追蹤或顯示其他玩家的手牌數量
         
         // 設定橋牌相關訊息
         if (message.currentTrick && message.trickCount !== undefined) {
@@ -237,17 +232,30 @@ const GameRoom: React.FC<GameRoomProps> = ({
       
       case 'trick_completed':
         console.log('墩完成:', message);
-        // 更新玩家出牌歷史
-        if (message.playerPlayedCards) {
-          setPlayerPlayedCards(message.playerPlayedCards);
+        
+        // 立即禁用出牌功能，防止狂點
+        setIsTrickCompleted(true);
+        
+        // 設定墩贏家，觸發閃光效果
+        if (message.trickWinner) {
+          setTrickWinner({
+            playerId: message.trickWinner.playerId,
+            playerName: message.trickWinner.playerName
+          });
+          setMessage(`第 ${message.trickNumber} 墩完成！${message.trickWinner.playerName} 拿下`);
+          
+          // 只清除閃光效果，不重新啟用出牌（等服務器的 trick_cleared 事件）
+          setTimeout(() => {
+            setTrickWinner(null);
+            setPlayerPlayedCards({});
+          }, 3000);
         }
-        setMessage(`第 ${message.trickNumber} 墩完成！準備清空...`);
         break;
-      
+        
       case 'trick_cleared':
         console.log('墩已清空:', message);
-        // 清空出牌顯示
-        setPlayerPlayedCards({});
+        // 只有收到服務器的 trick_cleared 事件才重新啟用出牌
+        setIsTrickCompleted(false);
         
         // 更新當前玩家
         if (message.currentPlayer) {
@@ -348,8 +356,8 @@ const GameRoom: React.FC<GameRoomProps> = ({
       playerId
     });
     
-    if (!isMyTurn || gameState !== 'playing') {
-      console.log('出牌被阻止:', { isMyTurn, gameState });
+    if (!isMyTurn || gameState !== 'playing' || isTrickCompleted) {
+      console.log('出牌被阻止:', { isMyTurn, gameState, isTrickCompleted });
       return;
     }
     
@@ -460,6 +468,8 @@ const GameRoom: React.FC<GameRoomProps> = ({
           isMyTurn={isMyTurn}
           onPlayCard={handlePlayCard}
           playerPlayedCards={playerPlayedCards}
+          trickWinner={trickWinner}
+          isTrickCompleted={isTrickCompleted}
         />
       )}
 
