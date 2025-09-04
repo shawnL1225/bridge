@@ -17,6 +17,8 @@ interface GameBoardProps {
   trickWinner?: { playerId: string; playerName: string } | null;
   // 添加墩完成狀態，用於禁用出牌
   isTrickCompleted: boolean;
+  // 添加等待服務器確認狀態
+  isWaitingServerConfirm?: boolean;
 }
 
 const GameBoard: React.FC<GameBoardProps> = ({
@@ -29,7 +31,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
   onPlayCard,
   playerPlayedCards,
   trickWinner,
-  isTrickCompleted
+  isTrickCompleted,
+  isWaitingServerConfirm
 }) => {
   const getCardColor = (suit: string): string => {
     return suit === '♥' || suit === '♦' ? 'red' : 'black';
@@ -117,10 +120,10 @@ const GameBoard: React.FC<GameBoardProps> = ({
           });
         })()}
 
+
         {/* 遊戲訊息顯示區域 - Grid 中間位置 */}
         {message && (
           <div className="game-message-center">
-            <div className="message-content">
               <span className="message-text">{message}</span>
               {/* 當 currentPlayer 為 null 且有出牌時，顯示等待判定狀態 */}
               {!currentPlayer && playerPlayedCards && Object.keys(playerPlayedCards).some(pid => playerPlayedCards[pid]?.length > 0) && (
@@ -128,7 +131,6 @@ const GameBoard: React.FC<GameBoardProps> = ({
                   ⏳ 正在判定墩的贏家...
                 </div>
               )}
-            </div>
           </div>
         )}
       </div>
@@ -140,15 +142,16 @@ const GameBoard: React.FC<GameBoardProps> = ({
           {myHand.map((card, index) => (
             <button
               key={index}
-              className={`hand-card-3d ${getCardColor(card.suit)} ${isMyTurn && !isTrickCompleted ? 'clickable' : ''} ${trickWinner?.playerId === playerId ? 'winner-card-glow' : ''}`}
+              className={`hand-card-3d ${getCardColor(card.suit)} ${isMyTurn && !isTrickCompleted && !isWaitingServerConfirm ? 'clickable' : ''} ${trickWinner?.playerId === playerId ? 'winner-card-glow' : ''}`}
               onClick={() => onPlayCard(index)}
-              disabled={!isMyTurn || isTrickCompleted}
+              disabled={!isMyTurn || isTrickCompleted || isWaitingServerConfirm}
             >
               {card.suit}{card.rank}
             </button>
           ))}
         </div>
-        {isMyTurn && !isTrickCompleted && <div className="turn-indicator-3d">輪到您出牌了！</div>}
+        {isMyTurn && !isTrickCompleted && !isWaitingServerConfirm && <div className="turn-indicator-3d">輪到您出牌了！</div>}
+        {isWaitingServerConfirm && <div className="waiting-confirm-indicator">等待服務器確認中...</div>}
         {trickWinner?.playerId === playerId && (
           <div className="winner-message">🎉 您贏得了這一墩！ 🎉</div>
         )}

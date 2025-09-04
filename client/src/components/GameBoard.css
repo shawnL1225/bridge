@@ -66,6 +66,31 @@
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
+/* 等待服務器確認指示器 */
+.waiting-confirm-indicator {
+  color: #FFA500;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 10px;
+  padding: 8px 16px;
+  background: rgba(255, 165, 0, 0.1);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 165, 0, 0.4);
+  animation: waiting-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes waiting-pulse {
+  0%, 100% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+}
+
 /* 墩判定中指示器 */
 .trick-judging-indicator {
   color: #FFA500;
@@ -660,9 +685,22 @@
     height: 70px;
     font-size: 1rem;
   }
+
+  /* 移動端叫墩結果顯示調整 */
+  .bidding-result-display {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    width: auto;
+    max-width: none;
+    min-width: auto;
+    font-size: 13px;
+    padding: 14px 16px;
+  }
+
 }
 
-/* 遊戲訊息顯示區域 - Grid 中間 */
 .game-message-center {
   grid-area: center;
   display: flex;
@@ -672,19 +710,60 @@
   height: 100%;
 }
 
-.message-content {
-  background: rgba(56, 135, 104, 0.567);
-  color: white;
-  padding: 12px 24px;
-  border-radius: 20px;
-  font-size: 16px;
-  font-weight: bold;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  text-align: center;
-  max-width: 300px;
-  word-wrap: break-word;
-}
-
 .message-text {
   display: inline-block;
+  background: linear-gradient(135deg, 
+    rgba(34, 139, 34, 0.4) 0%, 
+    rgba(46, 125, 50, 0.3) 25%,
+    rgba(34, 139, 34, 0.4) 50%,
+    rgba(46, 125, 50, 0.3) 75%,
+    rgba(34, 139, 34, 0.4) 100%
+  );
+  border: 2px solid rgba(76, 175, 80, 0.7);
+  border-radius: 25px;
+  padding: 12px 24px;
+  color: #fff;
+  font-size: 1.1em;
+  font-weight: bold;
+  text-shadow: 
+    0 0 10px rgba(76, 175, 80, 0.9),
+    0 2px 4px rgba(0, 0, 0, 0.5);
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+  animation: casinoGlow 3s ease-in-out infinite;
+}
+
+
+
+/* 添加內部光澤效果 */
+.message-text::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  animation: sweep 2s ease-in-out infinite;
+}
+
+@keyframes sweep {
+  0% {
+    left: -100%;
+  }
+  50% {
+    left: 100%;
+  }
+  100% {
+    left: 100%;
+  }
 }

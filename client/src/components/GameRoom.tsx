@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Player, Card } from '../App';
 import WaitingRoom from './WaitingRoom';
 import GameBoard from './GameBoard';
+import BiddingBoard from './BiddingBoard';
 import './GameRoom.css';
 
 interface GameRoomProps {
@@ -38,7 +39,7 @@ const GameRoom: React.FC<GameRoomProps> = ({
 }) => {
   const [players, setPlayers] = useState<Player[]>([]);
   const [myHand, setMyHand] = useState<Card[]>([]);
-  const [gameState, setGameState] = useState<'waiting' | 'playing' | 'finished'>('waiting');
+  const [gameState, setGameState] = useState<'waiting' | 'bidding' | 'playing' | 'finished'>('waiting');
   const [currentPlayer, setCurrentPlayer] = useState<string>('');
   const [playedCards, setPlayedCards] = useState<Card[]>([]);
   const [lastPlayedCard, setLastPlayedCard] = useState<Card | null>(null); // eslint-disable-line @typescript-eslint/no-unused-vars
@@ -46,6 +47,23 @@ const GameRoom: React.FC<GameRoomProps> = ({
   const [message, setMessage] = useState('');
   const [isReady, setIsReady] = useState(false);
   const [playerId, setPlayerId] = useState<string>(''); // 內部管理playerId
+  
+  // 叫墩相關狀態
+  const [currentBidder, setCurrentBidder] = useState<string>('');
+  const [bids, setBids] = useState<Array<{
+    playerId: string;
+    playerName: string;
+    level?: number;
+    suit?: string;
+    type: 'bid' | 'pass';
+  }>>([]);
+  const [finalContract, setFinalContract] = useState<{
+    playerId: string;
+    playerName: string;
+    level: number;
+    suit: string;
+  } | null>(null);
+  const [trumpSuit, setTrumpSuit] = useState<string | null>(null);
   
   // 添加每個玩家的出牌狀態
   const [playerPlayedCards, setPlayerPlayedCards] = useState<{ [playerId: string]: Card[] }>({});
@@ -55,6 +73,9 @@ const GameRoom: React.FC<GameRoomProps> = ({
   
   // 添加墩完成狀態，用於防止狂點出牌
   const [isTrickCompleted, setIsTrickCompleted] = useState(false);
+  
+  // 添加等待服務器確認狀態，防止重複出牌
+  const [isWaitingServerConfirm, setIsWaitingServerConfirm] = useState(false);
   
   const wsRef = useRef<WebSocket | null>(null);
   const hasConnectedRef = useRef(false);
@@ -122,6 +143,8 @@ const GameRoom: React.FC<GameRoomProps> = ({
       case 'error':
         const errorMsg = message.message || '發生錯誤';
         setMessage(errorMsg);
+        // 重置等待服務器確認狀態（出牌被拒絕時）
+        setIsWaitingServerConfirm(false);
         // 如果是房間相關錯誤（如重複名稱、房間已滿），回到大廳
         if (errorMsg.includes('相同名稱') || errorMsg.includes('房間已滿')) {
           onRoomError(errorMsg);
@@ -172,6 +195,14 @@ const GameRoom: React.FC<GameRoomProps> = ({
           setMyHand(message.hand);
         }
         
+        // 設置王牌和最終合約信息
+        if (message.trumpSuit) {
+          setTrumpSuit(message.trumpSuit);
+        }
+        if (message.finalContract) {
+          setFinalContract(message.finalContract);
+        }
+        
         if (message.currentPlayer) {
           setCurrentPlayer(message.currentPlayer);
           setIsMyTurn(message.currentPlayer === playerId);
@@ -192,6 +223,23 @@ const GameRoom: React.FC<GameRoomProps> = ({
           currentPlayer: message.currentPlayer,
           isMyTurn: message.currentPlayer === playerId
         });
+        
+        // 如果是自己的出牌被確認，移除手牌並重置等待狀態
+        if (message.playerId === playerId) {
+          // 找到出牌的索引並移除 (這裡需要根據牌的內容匹配，因為cardIndex可能已經改變)
+          if (message.card) {
+            setMyHand(prev => {
+              const cardIndex = prev.findIndex(card => 
+                card.suit === message.card!.suit && card.rank === message.card!.rank
+              );
+              if (cardIndex !== -1) {
+                return prev.filter((_, index) => index !== cardIndex);
+              }
+              return prev;
+            });
+          }
+          setIsWaitingServerConfirm(false);
+        }
         
         if (message.card) {
           setPlayedCards(prev => [...prev, message.card!]);
@@ -302,6 +350,68 @@ const GameRoom: React.FC<GameRoomProps> = ({
         setGameState('finished');
         setMessage(message.message || '遊戲因玩家斷線而結束');
         break;
+      
+      // 叫墩相關訊息處理
+      case 'bidding_started':
+        console.log('叫墩開始:', message);
+        setGameState('bidding');
+        
+        if (message.hand && message.hand.length > 0 && myHand.length === 0) {
+          setMyHand(message.hand);
+        }
+        
+        if (message.currentBidder) {
+          setCurrentBidder(message.currentBidder);
+          setIsMyTurn(message.currentBidder === playerId);
+          if (message.currentBidder === playerId) {
+            setMessage('輪到您叫墩了');
+          } else {
+            const currentBidderName = players.find(p => p.id === message.currentBidder)?.name || '未知';
+            setMessage(`輪到 ${currentBidderName} 叫墩`);
+          }
+        }
+        
+        if (message.bids) {
+          setBids(message.bids);
+        }
+        break;
+        
+      case 'bid_made':
+        console.log('玩家叫墩:', message);
+        if (message.bid) {
+          setBids(message.bids || []);
+          setMessage(`${message.bid.playerName} 叫墩：${message.bid.level}${message.bid.suit === 'NT' ? '無王牌' : message.bid.suit}`);
+        }
+        
+        if (message.currentBidder) {
+          setCurrentBidder(message.currentBidder);
+          setIsMyTurn(message.currentBidder === playerId);
+        }
+        break;
+        
+      case 'bid_passed':
+        console.log('玩家pass:', message);
+        if (message.passInfo) {
+          setBids(message.bids || []);
+          setMessage(`${message.passInfo.playerName} Pass`);
+        }
+        
+        if (message.currentBidder) {
+          setCurrentBidder(message.currentBidder);
+          setIsMyTurn(message.currentBidder === playerId);
+        }
+        break;
+        
+      // 移除 bidding_ended 事件處理，因為現在直接開始出牌
+        
+      case 'bidding_failed':
+        console.log('叫墩失敗:', message);
+        setMessage(message.message || '所有玩家都pass，重新發牌');
+        // 重置叫墩相關狀態
+        setBids([]);
+        setFinalContract(null);
+        setTrumpSuit(null);
+        break;
     }
   }, [playerId, players, currentPlayer, gameState, isMyTurn, myHand.length, onRoomError]);
 
@@ -348,16 +458,10 @@ const GameRoom: React.FC<GameRoomProps> = ({
   };
 
   const handlePlayCard = (cardIndex: number) => {
-    console.log('handlePlayCard 被調用:', {
-      cardIndex,
-      isMyTurn,
-      gameState,
-      myHandLength: myHand.length,
-      playerId
-    });
-    
-    if (!isMyTurn || gameState !== 'playing' || isTrickCompleted) {
-      console.log('出牌被阻止:', { isMyTurn, gameState, isTrickCompleted });
+    // 合併檢查：只要其中一個阻止條件成立就不能出牌
+    const cannotPlay = !isMyTurn || gameState !== 'playing' || isTrickCompleted || isWaitingServerConfirm;
+    if (cannotPlay) {
+      console.log('出牌被阻止:', { isMyTurn, gameState, isTrickCompleted, isWaitingServerConfirm });
       return;
     }
     
@@ -367,8 +471,8 @@ const GameRoom: React.FC<GameRoomProps> = ({
       return;
     }
     
-    // 立即從手牌中移除出掉的牌
-    setMyHand(prev => prev.filter((_, index) => index !== cardIndex));
+    // 設置等待服務器確認狀態，防止重複點擊
+    setIsWaitingServerConfirm(true);
     
     // 發送出牌訊息
     if (wsRef.current) {
@@ -378,8 +482,28 @@ const GameRoom: React.FC<GameRoomProps> = ({
       }));
     }
     
-    // 等待伺服器回應來更新回合狀態
-    setMessage('等待其他玩家出牌...');
+    // 等待伺服器回應
+    setMessage('出牌中，等待服務器確認...');
+  };
+
+  const handleMakeBid = (level: number, suit: string) => {
+    if (wsRef.current) {
+      wsRef.current.send(JSON.stringify({
+        type: 'make_bid',
+        level: level,
+        suit: suit
+      }));
+    }
+    setMessage('叫墩中，等待服務器確認...');
+  };
+
+  const handlePassBid = () => {
+    if (wsRef.current) {
+      wsRef.current.send(JSON.stringify({
+        type: 'pass_bid'
+      }));
+    }
+    setMessage('Pass，等待服務器確認...');
   };
 
   const handleLeaveRoom = () => {
@@ -425,6 +549,15 @@ const GameRoom: React.FC<GameRoomProps> = ({
               )}
             </div>
           </div>
+          
+          {/* 合約顯示 - 在game-status-banner下方 */}
+          {gameState === 'playing' && finalContract && (
+            <div className="contract-display-header">
+              <span className="contract-info">
+                合約: {finalContract.level}{finalContract.suit} by {finalContract.playerName}
+              </span>
+            </div>
+          )}
         </div>
         
         <div className="header-right" style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
@@ -457,6 +590,22 @@ const GameRoom: React.FC<GameRoomProps> = ({
         />
       )}
 
+      {gameState === 'bidding' && (
+        <BiddingBoard
+          message={message}
+          players={players}
+          playerId={playerId}
+          currentBidder={currentBidder}
+          myHand={myHand}
+          bids={bids}
+          isMyTurn={isMyTurn}
+          onMakeBid={handleMakeBid}
+          onPass={handlePassBid}
+          finalContract={finalContract}
+          trumpSuit={trumpSuit}
+        />
+      )}
+
       {gameState === 'playing' && (
         <GameBoard
           message={message}
@@ -470,6 +619,7 @@ const GameRoom: React.FC<GameRoomProps> = ({
           playerPlayedCards={playerPlayedCards}
           trickWinner={trickWinner}
           isTrickCompleted={isTrickCompleted}
+          isWaitingServerConfirm={isWaitingServerConfirm}
         />
       )}
 

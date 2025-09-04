@@ -58,8 +58,10 @@
 /* 中間：遊戲狀態橫幅 */
 .header-center {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
+  gap: 8px;
 }
 
 .game-status-banner {

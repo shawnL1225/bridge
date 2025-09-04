@@ -388,10 +388,8 @@ const GameRoom: React.FC<GameRoomProps> = ({
       {/* 遊戲訊息橫幅 */}
       {message && (
         <div className="game-message-banner">
-          <div className="message-content">
             <span className="message-icon">💬</span>
             <span className="message-text">{message}</span>
-          </div>
         </div>
       )}
 

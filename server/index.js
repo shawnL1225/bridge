@@ -89,7 +89,7 @@ function createGame(roomId) {
     hands: hands,
     currentPlayer: 0,
     playedCards: [],
-    gameState: 'waiting', // waiting, playing, finished
+    gameState: 'waiting', // waiting, bidding, playing, finished
     turnOrder: [],
     lastPlayedCard: null,
     lastPlayerId: null,
@@ -97,7 +97,15 @@ function createGame(roomId) {
     currentTrick: 1,  // 當前墩數
     trickCards: [],   // 當前墩的牌
     trickCount: 0,    // 當前墩已出的牌數
-    playerPlayedCards: {} // 每個玩家的出牌歷史
+    playerPlayedCards: {}, // 每個玩家的出牌歷史
+    // 叫墩相關狀態
+    biddingState: {
+      currentBidder: 0,       // 當前叫墩玩家索引
+      bids: [],               // 所有叫墩記錄 [{playerId, bid, suit}]
+      passCount: 0,           // 連續pass次數
+      finalContract: null,    // 最終合約 {playerId, playerName, level, suit}
+      trumpSuit: null         // 王牌花色
+    }
   };
   
   games.set(roomId, game);
@@ -143,19 +151,12 @@ function isValidPlay(card, trickCards, playerHand) {
   return true;
 }
 
-// 判斷墩的贏家
-function getTrickWinner(trickCards) {
+// 判斷墩的贏家（考慮王牌）
+function getTrickWinner(trickCards, trumpSuit = null) {
   if (trickCards.length !== 4) {
     throw new Error('墩必須有4張牌才能判斷贏家');
   }
   
-  // 第一張牌的花色為主花色
-  const leadSuit = trickCards[0].card.suit;
-  
-  // 找出所有跟主花色的牌
-  const followingSuitCards = trickCards.filter(tc => tc.card.suit === leadSuit);
-  
-  // 在跟花色的牌中找最大的（Ａ最大，２最小，2-10直接轉數字）
   function getCardRankValue(card) {
     if (card.rank === 'A') return 14;
     if (card.rank === 'K') return 13;
@@ -168,6 +169,26 @@ function getTrickWinner(trickCards) {
     return 0;
   }
 
+  const leadSuit = trickCards[0].card.suit;
+  
+  // 如果有王牌且不是NT（無王牌），先檢查王牌
+  if (trumpSuit && trumpSuit !== 'NT') {
+    const trumpCards = trickCards.filter(tc => tc.card.suit === trumpSuit);
+    if (trumpCards.length > 0) {
+      // 有王牌時，最大的王牌獲勝
+      let winner = trumpCards[0];
+      for (let i = 1; i < trumpCards.length; i++) {
+        if (getCardRankValue(trumpCards[i].card) > getCardRankValue(winner.card)) {
+          winner = trumpCards[i];
+        }
+      }
+      return winner;
+    }
+  }
+  
+  // 沒有王牌或是NT，按領頭花色判斷
+  const followingSuitCards = trickCards.filter(tc => tc.card.suit === leadSuit);
+  
   let winner = followingSuitCards[0];
   for (let i = 1; i < followingSuitCards.length; i++) {
     if (getCardRankValue(followingSuitCards[i].card) > getCardRankValue(winner.card)) {
@@ -216,6 +237,12 @@ function handleMessage(playerId, data) {
       break;
     case 'cancel_ready':
       handlePlayerCancelReady(playerId);
+      break;
+    case 'make_bid':
+      handleMakeBid(playerId, data.level, data.suit);
+      break;
+    case 'pass_bid':
+      handlePassBid(playerId);
       break;
   }
 }
@@ -325,12 +352,12 @@ function handlePlayerCancelReady(playerId) {
   }
 }
 
-// 開始遊戲
+// 開始遊戲（進入叫墩階段）
 function startGame(roomId) {
   const game = games.get(roomId);
   if (!game) return;
   
-  game.gameState = 'playing';
+  game.gameState = 'bidding';
   game.currentPlayer = 0;
   game.turnOrder = [
     game.players[0].id,
@@ -339,17 +366,205 @@ function startGame(roomId) {
     game.players[3].id
   ];
   
-  // 為每個玩家發送對應的手牌
+  // 重置叫墩狀態
+  game.biddingState = {
+    currentBidder: 0,
+    bids: [],
+    passCount: 0,
+    finalContract: null,
+    trumpSuit: null
+  };
+  
+  // 為每個玩家發送叫墩開始訊息和手牌
   game.players.forEach((player, index) => {
     player.ws.send(JSON.stringify({
-      type: 'game_started',
-      currentPlayer: game.turnOrder[0],
-      currentPlayerName: game.players[0].name,
-      hand: game.hands[index]  // 直接發送對應的手牌
+      type: 'bidding_started',
+      currentBidder: game.turnOrder[0],
+      currentBidderName: game.players[0].name,
+      hand: game.hands[index],  // 發送手牌供叫墩參考
+      bids: game.biddingState.bids
     }));
   });
   
-  console.log(`房間 ${roomId} 遊戲開始，回合順序：`, game.turnOrder);
+  console.log(`房間 ${roomId} 開始叫墩，叫墩順序：`, game.turnOrder);
+}
+
+// 處理叫墩
+function handleMakeBid(playerId, level, suit) {
+  const player = players.get(playerId);
+  if (!player || !player.roomId) return;
+  
+  const game = games.get(player.roomId);
+  if (!game || game.gameState !== 'bidding') return;
+  
+  // 檢查是否輪到該玩家叫墩
+  if (game.turnOrder[game.biddingState.currentBidder] !== playerId) {
+    player.ws.send(JSON.stringify({
+      type: 'error',
+      message: '還沒輪到您叫墩'
+    }));
+    return;
+  }
+  
+  // 驗證叫墩是否有效（必須比上一個叫墩更高）
+  const lastBid = getLastValidBid(game.biddingState.bids);
+  if (!isValidBid(level, suit, lastBid)) {
+    player.ws.send(JSON.stringify({
+      type: 'error',
+      message: '叫墩必須比上一個叫墩更高'
+    }));
+    return;
+  }
+  
+  // 記錄叫墩
+  const bidInfo = {
+    playerId,
+    playerName: player.name,
+    level: parseInt(level),
+    suit,
+    type: 'bid'
+  };
+  
+  game.biddingState.bids.push(bidInfo);
+  game.biddingState.passCount = 0; // 重置pass計數
+  
+  // 移動到下一個玩家
+  game.biddingState.currentBidder = (game.biddingState.currentBidder + 1) % 4;
+  const nextBidderId = game.turnOrder[game.biddingState.currentBidder];
+  
+  // 廣播叫墩結果
+  broadcastToRoom(player.roomId, {
+    type: 'bid_made',
+    bid: bidInfo,
+    bids: game.biddingState.bids,
+    currentBidder: nextBidderId,
+    currentBidderName: game.players.find(p => p.id === nextBidderId)?.name
+  });
+  
+  console.log(`玩家 ${player.name} 叫墩: ${level}${suit}`);
+}
+
+// 處理pass叫墩
+function handlePassBid(playerId) {
+  const player = players.get(playerId);
+  if (!player || !player.roomId) return;
+  
+  const game = games.get(player.roomId);
+  if (!game || game.gameState !== 'bidding') return;
+  
+  // 檢查是否輪到該玩家叫墩
+  if (game.turnOrder[game.biddingState.currentBidder] !== playerId) {
+    player.ws.send(JSON.stringify({
+      type: 'error',
+      message: '還沒輪到您叫墩'
+    }));
+    return;
+  }
+  
+  // 記錄pass
+  const passInfo = {
+    playerId,
+    playerName: player.name,
+    type: 'pass'
+  };
+  
+  game.biddingState.bids.push(passInfo);
+  game.biddingState.passCount++;
+  
+  // 檢查是否連續三個pass
+  if (game.biddingState.passCount >= 3 && getLastValidBid(game.biddingState.bids)) {
+    // 叫墩結束，確定最終合約
+    const finalContract = getLastValidBid(game.biddingState.bids);
+    game.biddingState.finalContract = finalContract;
+    game.biddingState.trumpSuit = finalContract.suit;
+    
+    // 直接開始出牌，不需要等待
+    startPlayingPhase(player.roomId, finalContract.playerId);
+    
+    console.log(`房間 ${player.roomId} 叫墩結束，最終合約: ${finalContract.level}${finalContract.suit} by ${finalContract.playerName}`);
+    
+  } else if (game.biddingState.passCount >= 4) {
+    // 四個人都pass，重新發牌
+    broadcastToRoom(player.roomId, {
+      type: 'bidding_failed',
+      message: '所有玩家都pass，將重新發牌'
+    });
+    
+    // 重新開始遊戲
+    setTimeout(() => {
+      startGame(player.roomId);
+    }, 3000);
+    
+  } else {
+    // 移動到下一個玩家
+    game.biddingState.currentBidder = (game.biddingState.currentBidder + 1) % 4;
+    const nextBidderId = game.turnOrder[game.biddingState.currentBidder];
+    
+    // 廣播pass結果
+    broadcastToRoom(player.roomId, {
+      type: 'bid_passed',
+      passInfo,
+      bids: game.biddingState.bids,
+      currentBidder: nextBidderId,
+      currentBidderName: game.players.find(p => p.id === nextBidderId)?.name,
+      passCount: game.biddingState.passCount
+    });
+  }
+  
+  console.log(`玩家 ${player.name} pass`);
+}
+
+// 獲取最後一個有效叫墩
+function getLastValidBid(bids) {
+  for (let i = bids.length - 1; i >= 0; i--) {
+    if (bids[i].type === 'bid') {
+      return bids[i];
+    }
+  }
+  return null;
+}
+
+// 驗證叫墩是否有效
+function isValidBid(level, suit, lastBid) {
+  if (!lastBid) return true; // 第一個叫墩總是有效
+  
+  const suitOrder = { 'NT': 4, '♠': 3, '♥': 2, '♦': 1, '♣': 0 }; // NT = No Trump (無王牌)
+  const newLevel = parseInt(level);
+  
+  // 等級更高
+  if (newLevel > lastBid.level) return true;
+  
+  // 等級相同但花色更高
+  if (newLevel === lastBid.level) {
+    return suitOrder[suit] > suitOrder[lastBid.suit];
+  }
+  
+  return false;
+}
+
+// 開始出牌階段
+function startPlayingPhase(roomId, contractPlayerId) {
+  const game = games.get(roomId);
+  if (!game) return;
+  
+  game.gameState = 'playing';
+  
+  // 找到合約玩家的索引，從他開始出牌
+  const contractPlayerIndex = game.players.findIndex(p => p.id === contractPlayerId);
+  game.currentPlayer = contractPlayerIndex;
+  
+  // 廣播出牌開始
+  game.players.forEach(player => {
+    player.ws.send(JSON.stringify({
+      type: 'game_started',
+      currentPlayer: contractPlayerId,
+      currentPlayerName: game.players[contractPlayerIndex].name,
+      trumpSuit: game.biddingState.trumpSuit,
+      finalContract: game.biddingState.finalContract
+    }));
+  });
+  
+  console.log(`房間 ${roomId} 開始出牌，王牌: ${game.biddingState.trumpSuit}，從 ${game.players[contractPlayerIndex].name} 開始`);
 }
 
 // 處理出牌
@@ -439,7 +654,7 @@ function handlePlayCard(playerId, cardIndex) {
   if (game.trickCount === 4) {
     console.log(`第 ${game.currentTrick} 墩完成`);
     
-    const trickWinner = getTrickWinner(game.trickCards);
+    const trickWinner = getTrickWinner(game.trickCards, game.biddingState.trumpSuit);
     const winnerPlayer = game.players.find(p => p.id === trickWinner.playerId);
 
     // 廣播墩完成訊息，包含贏家資訊

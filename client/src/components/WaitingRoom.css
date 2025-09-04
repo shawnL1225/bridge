@@ -1,3 +1,57 @@
+/* Message banner 樣式 */
+.game-message-banner {
+  background: linear-gradient(135deg, rgba(78, 205, 196, 0.2), rgba(68, 160, 141, 0.2));
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 15px;
+  margin-bottom: 25px;
+  width: 100%;
+  overflow: hidden;
+  animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+
+/* 簡潔廣播通知樣式 */
+.broadcast-announcement {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, 
+    rgba(92, 147, 30, 0.627) 0%, 
+    rgba(59, 246, 156, 0.2) 100%
+  );
+  border: 1px solid #90f0cd;
+  border-radius: 20px;
+  padding: 10px 16px;
+  margin-bottom: 20px;
+  backdrop-filter: blur(5px);
+}
+
+
+
+.broadcast-label {
+  color: #99f3d2;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.waiting-message-text {
+  color: white;
+  font-size: 1rem;
+  font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
 /* 等待時水平排列四個玩家 - 使用更高特異性覆蓋 */
 .waiting-room .players-container {
   display: flex;

@@ -22,11 +22,10 @@ const WaitingRoom: React.FC<WaitingRoomProps> = ({
   return (
     <div className="waiting-room">
       {message && (
-      <div className="game-message-banner">
-        <div className="message-content">
-          <span className="message-icon">💬</span>
-          <span className="message-text">{message}</span>
-        </div>
+      <div className="broadcast-announcement">
+        <span className="broadcast-icon">📢</span>
+        <span className="broadcast-label">系統廣播：</span>
+        <span className="waiting-message-text">{message}</span>
       </div>
       )}
       <div className="players-container">
