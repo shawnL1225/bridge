@@ -116,15 +116,30 @@ function broadcastToRoom(roomId, message, excludePlayerId = null) {
   });
 }
 
-// 檢查出牌是否合法
-function isValidPlay(card, lastCard, isFirstPlay) {
-  if (isFirstPlay) return true;
-  if (!lastCard) return true;
+// 檢查出牌是否合法 (橋牌規則：必須跟花色)
+function isValidPlay(card, trickCards, playerHand) {
+  // 如果是第一張牌，任何牌都合法
+  if (trickCards.length === 0) {
+    return true;
+  }
   
-  // 這裡可以定義出牌規則，例如：
-  // 1. 必須出比上一張大的牌
-  // 2. 或者相同花色的牌
-  // 目前簡化為可以出任何牌
+  // 獲取領頭花色 (第一張牌的花色)
+  const leadSuit = trickCards[0].card.suit;
+  
+  // 如果出的牌是領頭花色，合法
+  if (card.suit === leadSuit) {
+    return true;
+  }
+  
+  // 如果出的牌不是領頭花色，檢查手中是否還有領頭花色的牌
+  const hasLeadSuit = playerHand.some(handCard => handCard.suit === leadSuit);
+  
+  // 如果手中還有領頭花色的牌，但沒有出，則不合法
+  if (hasLeadSuit) {
+    return false;
+  }
+  
+  // 如果手中沒有領頭花色的牌，可以出任何牌 (墊牌)
   return true;
 }
 
@@ -348,7 +363,6 @@ function handlePlayCard(playerId, cardIndex) {
   const playerIndex = game.players.findIndex(p => p.id === playerId);
   const hand = game.hands[playerIndex];
   const card = hand[cardIndex];
-  const isFirstPlay = game.playedCards.length === 0;
 
   // 檢查是否輪到該玩家
   if (game.turnOrder[game.currentPlayer] !== playerId) {
@@ -367,10 +381,16 @@ function handlePlayCard(playerId, cardIndex) {
     return;
   }
   
-  if (!isValidPlay(card, game.lastPlayedCard, isFirstPlay)) {
+  // 橋牌規則檢查：必須跟花色
+  if (!isValidPlay(card, game.trickCards, hand)) {
+    const leadSuit = game.trickCards.length > 0 ? game.trickCards[0].card.suit : null;
+    const errorMsg = leadSuit ? 
+      `必須跟花色 ${leadSuit}，除非您沒有該花色的牌` : 
+      '出牌不符合規則';
+    
     player.ws.send(JSON.stringify({
       type: 'error',
-      message: '出牌不符合規則'
+      message: errorMsg
     }));
     return;
   }
