@@ -77,6 +77,14 @@ const GameRoom: React.FC<GameRoomProps> = ({
   // 添加等待服務器確認狀態，防止重複出牌
   const [isWaitingServerConfirm, setIsWaitingServerConfirm] = useState(false);
   
+  // 添加每墩輸贏記錄（我方/對方陣營）
+  const [trickRecords, setTrickRecords] = useState<Array<{
+    trickNumber: number;
+    isOurTeam: boolean; // true為我方陣營，false為對方陣營
+    winnerName: string;
+    winningCard: Card;
+  }>>([]);
+  
   const wsRef = useRef<WebSocket | null>(null);
   const hasConnectedRef = useRef(false);
 
@@ -292,6 +300,20 @@ const GameRoom: React.FC<GameRoomProps> = ({
           });
           setMessage(`第 ${message.trickNumber} 墩完成！${message.trickWinner.playerName} 拿下`);
           
+          // 記錄墩結果 - 判斷是我方陣營還是對方陣營獲勝
+          const playerIdx = players.findIndex(player => player.id === playerId);
+          const partnerIdx = (playerIdx + 2) % 4; // 對家位置
+          const partnerId = players[partnerIdx]?.id;
+          const winnerId = message.trickWinner.playerId;
+          const isOurTeam = winnerId === playerId || winnerId === partnerId;
+          
+          setTrickRecords(prev => [...prev, {
+            trickNumber: message.trickNumber,
+            isOurTeam: isOurTeam,
+            winnerName: message.trickWinner.playerName,
+            winningCard: message.trickWinner.winningCard
+          }]);
+          
           // 只清除閃光效果，不重新啟用出牌（等服務器的 trick_cleared 事件）
           setTimeout(() => {
             setTrickWinner(null);
@@ -355,6 +377,8 @@ const GameRoom: React.FC<GameRoomProps> = ({
       case 'bidding_started':
         console.log('叫墩開始:', message);
         setGameState('bidding');
+        // 清空之前的墩記錄
+        setTrickRecords([]);
         
         if (message.hand && message.hand.length > 0 && myHand.length === 0) {
           setMyHand(message.hand);
@@ -536,6 +560,11 @@ const GameRoom: React.FC<GameRoomProps> = ({
                   <span className="status-text">等待玩家加入</span>
                 </>
               )}
+              {gameState === 'bidding' && (
+                <>
+                  <span className="status-text">叫墩階段</span>
+                </>
+              )}
               {gameState === 'playing' && (
                 <>
                   <span className="status-text">遊戲進行中</span>
@@ -554,7 +583,7 @@ const GameRoom: React.FC<GameRoomProps> = ({
           {gameState === 'playing' && finalContract && (
             <div className="contract-display-header">
               <span className="contract-info">
-                合約: {finalContract.level}{finalContract.suit} by {finalContract.playerName}
+                王牌: {finalContract.level}{finalContract.suit} by {finalContract.playerName}
               </span>
             </div>
           )}
@@ -620,6 +649,7 @@ const GameRoom: React.FC<GameRoomProps> = ({
           trickWinner={trickWinner}
           isTrickCompleted={isTrickCompleted}
           isWaitingServerConfirm={isWaitingServerConfirm}
+          trickRecords={trickRecords}
         />
       )}
 

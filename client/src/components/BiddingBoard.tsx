@@ -152,9 +152,7 @@ const BiddingBoard: React.FC<BiddingBoardProps> = ({
         <div className="bidding-history">
           <h4>Bidding History</h4>
           <div className="bids-list">
-            {bids.length === 0 ? (
-              <div className="no-bids">尚無叫墩</div>
-            ) : (
+            {
               bids.map((bid, index) => (
                 <div key={index} className={`bid-item ${bid.type}`}>
                   <span className="bidder-name">{bid.playerName}</span>
@@ -170,7 +168,7 @@ const BiddingBoard: React.FC<BiddingBoardProps> = ({
                   )}
                 </div>
               ))
-            )}
+            }
           </div>
         </div>
       </div>

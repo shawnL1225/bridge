@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Player, Card } from '../App';
 import './GameBoard.css';
 
@@ -19,6 +19,13 @@ interface GameBoardProps {
   isTrickCompleted: boolean;
   // 添加等待服務器確認狀態
   isWaitingServerConfirm?: boolean;
+  // 添加每墩輸贏記錄（我方/對方陣營）
+  trickRecords?: Array<{
+    trickNumber: number;
+    isOurTeam: boolean;
+    winnerName: string;
+    winningCard: Card;
+  }>;
 }
 
 const GameBoard: React.FC<GameBoardProps> = ({
@@ -32,15 +39,27 @@ const GameBoard: React.FC<GameBoardProps> = ({
   playerPlayedCards,
   trickWinner,
   isTrickCompleted,
-  isWaitingServerConfirm
+  isWaitingServerConfirm,
+  trickRecords
 }) => {
+  const trickRecordsListRef = useRef<HTMLDivElement>(null);
+
   const getCardColor = (suit: string): string => {
     return suit === '♥' || suit === '♦' ? 'red' : 'black';
   };
 
+  // 當trickRecords更新時，自動滾動顯示最新記錄
+  useEffect(() => {
+    if (trickRecordsListRef.current && trickRecords && trickRecords.length > 0) {
+      const listElement = trickRecordsListRef.current;
+      // 在水平佈局中，滾動到最右邊顯示最新記錄
+      listElement.scrollLeft = listElement.scrollWidth;
+    }
+  }, [trickRecords]);
+
   return (
     <>
-            <div className="game-board">
+      <div className="game-board">
         {/* 動態顯示其他玩家，根據他們在players陣列中的位置 */}
         {(() => {
           const playerIdx = players.findIndex(player => player.id === playerId);
@@ -70,7 +89,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
             const isWinner = trickWinner?.playerId === player.id;
 
             return (
-              <div key={player.id} className={`player ${positionClass} ${currentPlayer && player.id === currentPlayer ? 'current-player' : ''} ${isWinner ? 'winner-player' : ''}`}>
+              <div key={player.id} className={`player ${positionClass} ${currentPlayer && player.id === currentPlayer ? 'player-shining' : ''} ${isWinner ? 'winner-player' : ''}`}>
                 {/* 只顯示其他玩家的玩家信息，自己不顯示 */}
                 {player.id !== playerId && (
                   <div className={`player-info-container ${isWinner ? 'winner-info-glow' : ''}`}>
@@ -115,11 +134,11 @@ const GameBoard: React.FC<GameBoardProps> = ({
                     </div>
                   )}
                 </div>
+
               </div>
             );
           });
         })()}
-
 
         {/* 遊戲訊息顯示區域 - Grid 中間位置 */}
         {message && (
@@ -134,6 +153,34 @@ const GameBoard: React.FC<GameBoardProps> = ({
           </div>
         )}
       </div>
+
+        {/* 墩記錄顯示區域 - GameBoard下方 */}
+        {trickRecords && trickRecords.length > 0 && (
+            <div className="trick-records-display">
+              <div className="trick-summary">
+                <div className="team-score our-score">
+                  我方: {trickRecords.filter(record => record.isOurTeam).length}墩
+                </div>
+                <div className="team-score their-score">
+                  對方: {trickRecords.filter(record => !record.isOurTeam).length}墩
+                </div>
+              </div>
+              <div className="trick-records-bar">
+                <div className="trick-records-title">墩記錄</div>
+                <div className="trick-records-list" ref={trickRecordsListRef}>
+                  {trickRecords.map((record) => (
+                    <div key={record.trickNumber} className="trick-record-item">
+                      <span className="trick-number">{record.trickNumber}</span>
+                      <span className={`trick-team ${record.isOurTeam ? 'our-team' : 'their-team'}`}>
+                        {record.isOurTeam ? 'W' : 'L'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+            </div>
+          )}
 
       {/* 第一視角手牌區域 - 固定在畫面最下方 */}
       <div className="first-person-hand">

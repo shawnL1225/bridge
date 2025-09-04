@@ -52,6 +52,14 @@
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
+/* 等待室整體容器居中 */
+.waiting-room {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
 /* 等待時水平排列四個玩家 - 使用更高特異性覆蓋 */
 .waiting-room .players-container {
   display: flex;
@@ -68,13 +76,11 @@
 
 
 
+
 /* 玩家卡片基礎樣式 */
 .waiting-room .player {
-  background: rgba(255, 255, 255, 0.1);
   padding: 20px;
-  border-radius: 15px;
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
   transition: all 0.3s ease;
   width: 240px;
   height: 200px;
@@ -87,18 +93,13 @@
   flex-shrink: 0;
 }
 
-/* 已準備的玩家卡片 - 使用更高特異性 */
-.waiting-room .player.ready {
-  background: linear-gradient(135deg, rgba(78, 205, 196, 0.2), rgba(68, 160, 141, 0.2));
-  border: 2px solid #4ecdc4;
-  box-shadow: 0 0 25px rgba(78, 205, 196, 0.3);
-  transform: scale(1.02);
-}
 
 /* 已準備狀態的字體顏色 - 使用更高特異性 */
-.waiting-room .player.ready .status-text {
-  color: #4ecdc4;
-  font-weight: 600;
+.waiting-room .player.player-shining .status-text {
+  color: #85e4d6;
+  font-weight: 700;
+  text-shadow: 0 0 10px rgba(76, 175, 80, 0.6);
+  font-size: 1.1rem;
 }
 
 /* 玩家資訊容器 */

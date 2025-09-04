@@ -29,105 +29,33 @@ const WaitingRoom: React.FC<WaitingRoomProps> = ({
       </div>
       )}
       <div className="players-container">
-        {/* 玩家 1 */}
-        {players.length >= 1 && (
-          <div className={`player ${players[0].ready ? 'ready' : ''}`}>
+        {/* 使用 map 迴圈渲染所有玩家 */}
+        {players.map((player, index) => (
+          <div 
+            key={player.id} 
+            className={`player ${player.ready ? 'player-shining' : ''}`}
+          >
             <div className="player-info-container">
               <div className="player-label">
-                {players[0].id === playerId ? (
+                {player.id === playerId ? (
                   <span className="my-label">👤 我</span>
                 ) : (
-                  <span className="other-label">玩家 1</span>
+                  <span className="other-label">玩家 {index + 1}</span>
                 )}
               </div>
               
               <h3 className="player-name">
-                {players[0].name}
+                {player.name}
               </h3>
               
               <div className="player-status">
                 <p className="status-text">
-                  {players[0].ready ? '已準備' : '未準備'}
+                  {player.ready ? '已準備' : '未準備'}
                 </p>
               </div>
             </div>
           </div>
-        )}
-        
-        {/* 玩家 2 */}
-        {players.length >= 2 && (
-          <div className={`player ${players[1].ready ? 'ready' : ''}`}>
-            <div className="player-info-container">
-              <div className="player-label">
-                {players[1].id === playerId ? (
-                  <span className="my-label">👤 我</span>
-                ) : (
-                  <span className="other-label">玩家 2</span>
-                )}
-              </div>
-              
-              <h3 className="player-name">
-                {players[1].name}
-              </h3>
-              
-              <div className="player-status">
-                <p className="status-text">
-                  {players[1].ready ? '已準備' : '未準備'}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-        
-        {/* 玩家 3 */}
-        {players.length >= 3 && (
-          <div className={`player ${players[2].ready ? 'ready' : ''}`}>
-            <div className="player-info-container">
-              <div className="player-label">
-                {players[2].id === playerId ? (
-                  <span className="my-label">👤 我</span>
-                ) : (
-                  <span className="other-label">玩家 3</span>
-                )}
-              </div>
-              
-              <h3 className="player-name">
-                {players[2].name}
-              </h3>
-              
-              <div className="player-status">
-                <p className="status-text">
-                  {players[2].ready ? '已準備' : '未準備'}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-        
-        {/* 玩家 4 */}
-        {players.length >= 4 && (
-          <div className={`player ${players[3].ready ? 'ready' : ''}`}>
-            <div className="player-info-container">
-              <div className="player-label">
-                {players[3].id === playerId ? (
-                  <span className="my-label">👤 我</span>
-                ) : (
-                  <span className="other-label">玩家 4</span>
-                )}
-              </div>
-              
-              <h3 className="player-name">
-                {players[3].name}
-              </h3>
-              
-              <div className="player-status">
-                <p className="status-text">
-                  {players[3].ready ? '已準備' : '未準備'}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
+        ))}
         
         {/* 顯示等待中的玩家格子 */}
         {Array.from({ length: 4 - players.length }, (_, index) => (
