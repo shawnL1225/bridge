@@ -870,7 +870,6 @@
   backdrop-filter: blur(10px);
   position: relative;
   overflow: hidden;
-  animation: casinoGlow 3s ease-in-out infinite;
 }
 
 
@@ -889,17 +888,4 @@
     rgba(255, 255, 255, 0.3),
     transparent
   );
-  animation: sweep 2s ease-in-out infinite;
-}
-
-@keyframes sweep {
-  0% {
-    left: -100%;
-  }
-  50% {
-    left: 100%;
-  }
-  100% {
-    left: 100%;
-  }
 }
