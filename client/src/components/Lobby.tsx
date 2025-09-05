@@ -83,16 +83,6 @@ const Lobby: React.FC<LobbyProps> = ({ onJoinRoom }) => {
             {isJoining ? '加入中...' : '加入房間'}
           </button>
         </form>
-        
-        <div className="game-rules">
-          <h3>遊戲規則</h3>
-          <ul>
-            <li>每局遊戲需要 4 名玩家</li>
-            <li>系統會自動發牌給每位玩家</li>
-            <li>玩家輪流出牌，每次出一張</li>
-            <li>最先出完所有牌的玩家獲勝</li>
-          </ul>
-        </div>
       </div>
     </div>
   );

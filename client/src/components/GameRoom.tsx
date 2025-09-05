@@ -365,6 +365,31 @@ const GameRoom: React.FC<GameRoomProps> = ({
         setIsReady(false);
         setMessage(message.message || '遊戲已重置，請重新準備');
         break;
+      case 'game_restarted':
+        console.log('遊戲重新開始:', message);
+        setGameState('waiting');
+        setIsReady(false);
+        setMessage(message.message || '您已重新開始遊戲，請重新準備');
+        setPlayers(message.players || []);
+        // 清空所有遊戲相關狀態
+        setFinalContract(null);
+        setGameResult(null);
+        setTrickStats({ declarerTeamTricks: 0, defenderTeamTricks: 0, trickRecords: [] });
+        setPlayedCards([]);
+        setPlayerPlayedCards({});
+        setTrickWinner(null);
+        setIsTrickCompleted(false);
+        setIsWaitingServerConfirm(false);
+        
+        // 如果有新手牌，更新手牌
+        if (message.hand && message.hand.length > 0) {
+          console.log('收到重新開始的手牌:', message.hand);
+          setMyHand(message.hand);
+        } else {
+          // 如果沒有手牌，清空手牌
+          setMyHand([]);
+        }
+        break;
       case 'game_ended':
         setGameState('finished');
         if (message.contractResult) {
@@ -377,22 +402,12 @@ const GameRoom: React.FC<GameRoomProps> = ({
           const contractMade = message.contractResult.result === 'contract_made';
           const playerWon = (isPlayerInDeclarerTeam && contractMade) || (!isPlayerInDeclarerTeam && !contractMade);
           
-                  setMessage(playerWon ? '恭喜勝利！' : '下局加油！');
-      }
-      
-      // 重設所有玩家準備狀態
-      setPlayers(prev => prev.map(player => ({ ...player, ready: false })));
-      break;
+          setMessage(playerWon ? '恭喜勝利！' : '下局加油！');
+        }
+        break;
       case 'game_ended_disconnect':
         setGameState('finished');
         setMessage(message.message || '遊戲因玩家斷線而結束');
-        break;
-        
-      case 'players_ready_reset':
-        // 更新所有玩家的準備狀態
-        if (message.players) {
-          setPlayers(message.players);
-        }
         break;
       
       // 叫墩相關訊息處理
@@ -745,13 +760,6 @@ const GameRoom: React.FC<GameRoomProps> = ({
                   type: 'restart_game'
                 }));
               }
-              
-              // 清空 client 端狀態
-              setGameState('waiting');
-              setFinalContract(null);
-              setGameResult(null);
-              setTrickStats({ declarerTeamTricks: 0, defenderTeamTricks: 0, trickRecords: [] });
-              setIsReady(false); // 重設當前玩家的準備狀態
             }} className="continue-game-btn">
               繼續遊戲
             </button>

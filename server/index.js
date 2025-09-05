@@ -362,114 +362,22 @@ function handlePlayerCancelReady(playerId) {
   }
 }
 
-// 處理重新開始遊戲
-function handleRestartGame(playerId) {
-  const player = players.get(playerId);
-  if (!player || !player.roomId) return;
-  
-  const game = games.get(player.roomId);
-  if (!game) return;
-  
-  // 檢查是否所有玩家都在房間中
-  if (game.players.length !== 4) {
-    player.ws.send(JSON.stringify({
-      type: 'error',
-      message: '需要4名玩家才能重新開始遊戲'
-    }));
-    return;
-  }
-  
-  // 重新開始遊戲
-  restartGame(player.roomId);
-}
-
-// 重新開始遊戲（重新發牌並重置所有狀態）
-function restartGame(roomId) {
-  const game = games.get(roomId);
-  if (!game) return;
-  
-  // 重新發牌
-  const deck = shuffleDeck(createDeck());
-  game.hands = dealCards(deck, 4);
-  
-  // 重置遊戲狀態
-  game.gameState = 'waiting';
-  game.currentPlayer = 0;
-  game.turnOrder = [];
-  game.playedCards = [];
-  game.lastPlayedCard = null;
-  game.lastPlayerId = null;
-  game.currentTrick = 1;
-  game.trickCards = [];
-  game.trickCount = 0;
-  game.playerPlayedCards = {};
-  
-  // 重置叫墩狀態
-  game.biddingState = {
-    currentBidder: 0,
-    bids: [],
-    passCount: 0,
-    finalContract: null,
-    trumpSuit: null
-  };
-  
-  // 重置墩數統計
-  game.trickStats = {
-    declarerTeamTricks: 0,
-    defenderTeamTricks: 0,
-    trickRecords: []
-  };
-  
-  // 重置所有玩家的準備狀態
-  game.players.forEach(player => {
-    player.ready = false;
-  });
-  
-  // 廣播遊戲重新開始訊息
-  broadcastToRoom(roomId, {
-    type: 'game_restarted',
-    message: '遊戲已重新開始，請重新準備'
-  });
-  
-  // 廣播所有玩家的準備狀態重置
-  broadcastToRoom(roomId, {
-    type: 'players_ready_reset',
-    players: game.players.map(p => ({ id: p.id, name: p.name, ready: p.ready }))
-  });
-  
-  console.log(`房間 ${roomId} 遊戲重新開始`);
-}
 
 // 開始遊戲（進入叫墩階段）
 function startGame(roomId) {
   const game = games.get(roomId);
   if (!game) return;
   
+  // 重置遊戲狀態
+  resetGameState(game);
+  
   game.gameState = 'bidding';
-  game.currentPlayer = 0;
   game.turnOrder = [
     game.players[0].id,
     game.players[1].id,
     game.players[2].id,
     game.players[3].id
   ];
-  
-  // 重置叫墩狀態
-  game.biddingState = {
-    currentBidder: 0,
-    bids: [],
-    passCount: 0,
-    finalContract: null,
-    trumpSuit: null
-  };
-  
-  // 重置墩數統計
-  game.trickStats = {
-    declarerTeamTricks: 0,
-    defenderTeamTricks: 0,
-    
-    trickRecords: []
-  };
   
   // 為每個玩家發送叫墩開始訊息和手牌
   game.players.forEach((player, index) => {
@@ -588,7 +496,7 @@ function handlePassBid(playerId) {
     
     // 重新開始遊戲
     setTimeout(() => {
-      startGame(player.roomId);
+      restartGame(player.roomId);
     }, 3000);
     
   } else {
@@ -645,22 +553,25 @@ function startPlayingPhase(roomId, contractPlayerId) {
   
   game.gameState = 'playing';
   
-  // 找到合約玩家的索引，從他開始出牌
+  // 找到合約玩家的索引
   const contractPlayerIndex = game.players.findIndex(p => p.id === contractPlayerId);
-  game.currentPlayer = contractPlayerIndex;
+  
+  // 從喊到王牌的前一個玩家開始出牌
+  const firstPlayerIndex = (contractPlayerIndex - 1 + 4) % 4;
+  game.currentPlayer = firstPlayerIndex;
   
   // 廣播出牌開始
   game.players.forEach(player => {
     player.ws.send(JSON.stringify({
       type: 'game_started',
-      currentPlayer: contractPlayerId,
-      currentPlayerName: game.players[contractPlayerIndex].name,
+      currentPlayer: game.players[firstPlayerIndex].id,
+      currentPlayerName: game.players[firstPlayerIndex].name,
       trumpSuit: game.biddingState.trumpSuit,
       finalContract: game.biddingState.finalContract
     }));
   });
   
-  console.log(`房間 ${roomId} 開始出牌，王牌: ${game.biddingState.trumpSuit}，從 ${game.players[contractPlayerIndex].name} 開始`);
+  console.log(`房間 ${roomId} 開始出牌，王牌: ${game.biddingState.trumpSuit}，從 ${game.players[firstPlayerIndex].name} 開始（合約玩家 ${game.players[contractPlayerIndex].name} 的前一個）`);
 }
 
 // 處理出牌
@@ -955,6 +866,73 @@ function calculateContractResult(game) {
     },
 
 
+  };
+}
+
+
+// 處理重新開始遊戲
+function handleRestartGame(playerId) {
+  const player = players.get(playerId);
+  if (!player || !player.roomId) return;
+  
+  const game = games.get(player.roomId);
+  if (!game) return;
+
+  if (game.gameState !== 'waiting') {
+    resetGameState(game);
+    console.log(`房間 ${player.roomId} 遊戲狀態重置`);
+  }
+
+  // 只對該 playerId 玩家發送重新開始訊息和新手牌
+  const playerIndex = game.players.findIndex(p => p.id === playerId);
+  if (playerIndex !== -1) {
+    const playerObj = game.players[playerIndex];
+    playerObj.ws.send(JSON.stringify({
+      type: 'game_restarted',
+      message: '遊戲已重新開始，請重新準備',
+      players: game.players.map(p => ({ id: p.id, name: p.name, ready: p.ready })),
+      hand: game.hands[playerIndex]  // 發送該玩家的新手牌
+    }));
+  }
+  
+}
+
+function resetGameState(game) {
+  game.gameState = 'waiting';
+
+  // 重新發牌
+  const deck = shuffleDeck(createDeck());
+  game.hands = dealCards(deck, 4);
+
+  // 重置基本遊戲狀態
+  game.currentPlayer = 0;
+  game.turnOrder = [];
+  game.playedCards = [];
+  game.lastPlayedCard = null;
+  game.lastPlayerId = null;
+  game.currentTrick = 1;
+  game.trickCards = [];
+  game.trickCount = 0;
+  game.playerPlayedCards = {};
+
+  // 重置所有玩家的準備狀態
+  game.players.forEach(player => {
+    player.ready = false;
+  });
+  // 重置叫墩狀態
+  game.biddingState = {
+    currentBidder: 0,
+    bids: [],
+    passCount: 0,
+    finalContract: null,
+    trumpSuit: null
+  };
+  
+  // 重置墩數統計
+  game.trickStats = {
+    declarerTeamTricks: 0,
+    defenderTeamTricks: 0,
+    trickRecords: []
   };
 }
 
