@@ -1340,12 +1340,6 @@
 }
 
 
-.contract-info:hover {
-  transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 10px 30px rgba(255, 215, 0, 0.4);
-  border-color: #ffd700;
-}
-
 
 
 .contract-info h5 {
@@ -1731,10 +1725,13 @@
 /* 遊戲中的合約資訊顯示 */
 .contract-info {
   background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-  border: 1px solid #ffd700;
-  border-radius: 8px;
+  border-top: 1px solid #ffd700;
+  border-bottom: 1px solid #ffd700;
+  border-left: 14px solid #ffd700;
+  border-right: 14px solid #ffd700;
+  border-radius: 3px;
   padding: 15px 20px;
-  margin: 20px auto;
+  margin: 20px 0;
   text-align: center;
   color: #ffd700;
   font-weight: bold;
@@ -1745,5 +1742,5 @@
     inset 0 1px 0 rgba(255, 215, 0, 0.1);
   position: relative;
   overflow: hidden;
-  max-width: 400px;
+  width: 100%;
 }

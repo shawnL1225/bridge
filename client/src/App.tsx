@@ -52,7 +52,21 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>Card Game</h1>
+        <div className="header-content">
+          <div className="casino-brand">
+            <div className="brand-symbols">
+              <span className="symbol">♠</span>
+              <span className="symbol">♥</span>
+            </div>
+            <h1 className="app-title">CASINO BRIDGE</h1>
+            <div className="brand-symbols">
+              <span className="symbol">♦</span>
+              <span className="symbol">♣</span>
+            </div>
+          </div>
+          <div className="header-subtitle">Online Contract Bridge</div>
+        </div>
+        <div className="header-decoration"></div>
       </header>
       
       {/* 顯示錯誤訊息 */}
