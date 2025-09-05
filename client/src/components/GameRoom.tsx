@@ -578,8 +578,7 @@ const GameRoom: React.FC<GameRoomProps> = ({
             <div className={`status-indicator ${gameState}`}>
               {gameState === 'waiting' && (
                 <>
-                  <span className="status-icon">⏳</span>
-                  <span className="status-text">等待玩家加入</span>
+                  <span className="status-text">等待玩家</span>
                 </>
               )}
               {gameState === 'bidding' && (
@@ -594,8 +593,7 @@ const GameRoom: React.FC<GameRoomProps> = ({
               )}
               {gameState === 'finished' && (
                 <>
-                  <span className="status-icon">🏆</span>
-                  <span className="status-text">遊戲結束</span>
+                  <span className="status-text">🏆遊戲結束</span>
                 </>
               )}
             </div>
