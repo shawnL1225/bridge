@@ -1,6 +1,7 @@
 .App {
   text-align: center;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   background: 
     linear-gradient(135deg, rgba(10, 10, 10, 0.8) 0%, rgba(26, 26, 26, 0.8) 50%, rgba(10, 10, 10, 0.8) 100%),
     url('../public/background.jpg');

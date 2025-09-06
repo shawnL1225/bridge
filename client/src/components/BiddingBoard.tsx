@@ -159,7 +159,7 @@ const BiddingBoard: React.FC<BiddingBoardProps> = ({
                   {bid.type === 'bid' ? (
                     <span className="bid-content">
                       <span className="bid-level">{bid.level}</span>
-                      <span className={`bid-suit`}>
+                      <span className={`bid-suit ${bid.suit === 'NT' ? 'nt' : ''}`}>
                         {bid.suit}
                       </span>
                     </span>
