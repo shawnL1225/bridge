@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  # React Frontend
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - bridge-network
+    environment:
+      - NODE_ENV=production
+
+  # Express Backend
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+    restart: unless-stopped
+    networks:
+      - bridge-network
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+
+networks:
+  bridge-network:
+    driver: bridge
+
+volumes:
+  node_modules:
+
