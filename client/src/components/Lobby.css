@@ -355,11 +355,12 @@
 .marquee-content {
   display: flex;
   align-items: center;
-  justify-content: space-evenly;
+  justify-content: flex-start;
   height: 100%;
   padding: 0 20px;
   flex-shrink: 0;
   width: 50%;
+  gap: 40px;
 }
 
 .marquee-text {
@@ -429,6 +430,7 @@
   
   .marquee-content {
     padding: 0 15px;
+    gap: 30px;
   }
 }
 
@@ -475,5 +477,6 @@
   
   .marquee-content {
     padding: 0 10px;
+    gap: 20px;
   }
 }

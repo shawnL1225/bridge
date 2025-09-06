@@ -12,10 +12,10 @@ export const config = {
     
     // 如果是 S3 託管或生產構建，使用 Lightsail IP
     if (isS3Hosted || isProductionBuild) {
-      return `ws://175.41.231.205:80/ws`;  // 生產環境：連接到 Lightsail IP
+      return `wss://175.41.231.205:443/ws`;  // 生產環境：連接到 Lightsail IP (HTTPS)
     }
     
     // 開發環境：直接連接到後端
-    return `ws://localhost:3001`;
+    return `wss://localhost:3001`;
   })(),
 };
