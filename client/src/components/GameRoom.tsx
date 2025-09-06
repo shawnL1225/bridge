@@ -571,7 +571,7 @@ const GameRoom: React.FC<GameRoomProps> = ({
 
 
   return (
-    <div className="game-room">
+    <div className={`game-room ${gameState === 'bidding' ? 'bidding-mode' : ''}`}>
       <div className="room-header">
         <div className="header-left">
           <div className="player-info">
@@ -609,7 +609,7 @@ const GameRoom: React.FC<GameRoomProps> = ({
           </div>
         </div>
         
-        <div className="header-right" style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+        <div className="header-right">
           <div className="room-info" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '16px' }}>
             <div className="room-id-display" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
               <span className="room-label" style={{ whiteSpace: 'nowrap' }}>房間號</span>

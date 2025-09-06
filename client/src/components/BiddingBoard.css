@@ -2,13 +2,13 @@
   display: grid;
   grid-template-columns: 200px 1fr 200px;
   grid-template-rows: 160px 1fr;
-  height: 100vh;
+  height: 70vh; /* 限制為視窗高度的70%，不超過最下面30% */
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
   gap: 20px;
   padding: 20px;
-  padding-bottom: 200px; /* 為底部固定區域留空間 */
+  padding-bottom: 20px; /* 減少底部padding */
   position: relative;
   font-family: 'Arial', sans-serif;
   box-sizing: border-box;
@@ -152,7 +152,7 @@
   padding: 16px;
   backdrop-filter: blur(10px);
   min-height: 30px;
-  max-height: 60vh;
+  max-height: 50vh; /* 調整為50vh，確保不超過70%的限制 */
   height: auto;
   overflow: visible;
 }
@@ -631,7 +631,8 @@
     grid-template-rows: auto 1fr;
     gap: 15px;
     padding: 15px;
-    padding-bottom: 250px; /* 手機版需要更多底部空間 */
+    padding-bottom: 15px; /* 減少底部padding */
+    height: 70vh; /* 手機版也限制為70% */
   }
 
   .bidding-player.left,
