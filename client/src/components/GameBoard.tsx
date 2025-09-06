@@ -222,7 +222,6 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
       {/* 第一視角手牌區域 - 固定在畫面最下方 */}
       <div className="first-person-hand">
-        <div className="hand-title">我的手牌</div>
         <div className={`hand-container ${trickWinner?.playerId === playerId ? 'winner-glow' : ''}`}>
           {myHand.map((card, index) => (
             <button

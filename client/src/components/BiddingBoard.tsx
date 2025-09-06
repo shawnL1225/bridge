@@ -175,7 +175,6 @@ const BiddingBoard: React.FC<BiddingBoardProps> = ({
 
       {/* 我的手牌和叫墩控制 - 固定在畫面最下方 */}
       <div className="my-bidding-area">
-        <div className="hand-title">我的手牌</div>
         <div className="hand-container">
           {myHand.map((card, index) => (
             <div

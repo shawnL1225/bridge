@@ -505,8 +505,8 @@
 
 .level-selector, .suit-selector {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  flex-direction: row;
+  gap: 15px;
   align-items: center;
 }
 
@@ -515,6 +515,8 @@
   font-weight: bold;
   font-size: 1em;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  white-space: nowrap;
+  min-width: 50px;
 }
 
 .level-buttons, .suit-buttons {
@@ -662,6 +664,17 @@
   .bid-selector {
     flex-direction: column;
     gap: 20px;
+  }
+
+  .level-selector, .suit-selector {
+    flex-direction: row;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .level-selector label, .suit-selector label {
+    min-width: 40px;
+    font-size: 0.9em;
   }
 
   .hand-container {
