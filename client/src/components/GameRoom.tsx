@@ -4,6 +4,7 @@ import WaitingRoom from './WaitingRoom';
 import GameBoard from './GameBoard';
 import BiddingBoard from './BiddingBoard';
 import './GameRoom.css';
+import { config } from '../config';
 
 interface GameRoomProps {
   roomId: string;
@@ -105,7 +106,7 @@ const GameRoom: React.FC<GameRoomProps> = ({
     hasConnectedRef.current = true;
     
     // 建立真實的 WebSocket 連線
-    const ws = new WebSocket(`ws://localhost:3001`);
+    const ws = new WebSocket(config.wsUrl);
     
     ws.onopen = () => {
       console.log('WebSocket 連線成功');
