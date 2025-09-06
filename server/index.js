@@ -368,9 +368,6 @@ function startGame(roomId) {
   const game = games.get(roomId);
   if (!game) return;
   
-  // 重置遊戲狀態
-  resetGameState(game);
-  
   game.gameState = 'bidding';
   game.turnOrder = [
     game.players[0].id,
@@ -496,7 +493,14 @@ function handlePassBid(playerId) {
     
     // 重新開始遊戲
     setTimeout(() => {
-      restartGame(player.roomId);
+      resetGameState(game)
+      // 廣播遊戲重新開始訊息給房間內所有玩家
+      broadcastToRoom(player.roomId, {
+        type: 'game_restarted',
+        message: '所有玩家都pass，遊戲已重新開始，請重新準備',
+        players: game.players.map(p => ({ id: p.id, name: p.name, ready: p.ready }))
+      });
+
     }, 3000);
     
   } else {
@@ -878,9 +882,15 @@ function handleRestartGame(playerId) {
   const game = games.get(player.roomId);
   if (!game) return;
 
+  // 只有第一個玩家重新開始時才重置遊戲狀態，避免重複重置
   if (game.gameState !== 'waiting') {
     resetGameState(game);
     console.log(`房間 ${player.roomId} 遊戲狀態重置`);
+  // 印出每位玩家的名稱與手牌
+  game.players.forEach((p, idx) => {
+    console.log(`玩家 ${p.name} 的手牌:`, game.hands[idx]);
+  });
+
   }
 
   // 只對該 playerId 玩家發送重新開始訊息和新手牌
@@ -890,8 +900,7 @@ function handleRestartGame(playerId) {
     playerObj.ws.send(JSON.stringify({
       type: 'game_restarted',
       message: '遊戲已重新開始，請重新準備',
-      players: game.players.map(p => ({ id: p.id, name: p.name, ready: p.ready })),
-      hand: game.hands[playerIndex]  // 發送該玩家的新手牌
+      players: game.players.map(p => ({ id: p.id, name: p.name, ready: p.ready }))
     }));
   }
   

@@ -381,15 +381,8 @@ const GameRoom: React.FC<GameRoomProps> = ({
         setTrickWinner(null);
         setIsTrickCompleted(false);
         setIsWaitingServerConfirm(false);
+        setMyHand([]);
         
-        // 如果有新手牌，更新手牌
-        if (message.hand && message.hand.length > 0) {
-          console.log('收到重新開始的手牌:', message.hand);
-          setMyHand(message.hand);
-        } else {
-          // 如果沒有手牌，清空手牌
-          setMyHand([]);
-        }
         break;
       case 'game_ended':
         setGameState('finished');
