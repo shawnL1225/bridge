@@ -1,5 +1,5 @@
 #!/bin/bash
-# deploy.sh
+# A full deployment, include invalidation(clean cache)
 
 echo "Building React app..."
 npm run build
