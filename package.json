@@ -1,7 +1,7 @@
 {
   "name": "poker-game",
   "version": "1.0.0",
-  "description": "線上撲克發牌系統",
+  "description": "線上橋牌遊戲",
   "main": "server/index.js",
   "scripts": {
     "dev": "concurrently \"npm run server\" \"npm run client\"",
