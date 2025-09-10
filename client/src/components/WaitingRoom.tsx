@@ -8,6 +8,7 @@ interface WaitingRoomProps {
   playerId: string;
   isReady: boolean;
   onReady: () => void;
+  onLeaveRoom: () => void;
   onCancelReady: () => void;
 }
 
@@ -17,6 +18,7 @@ const WaitingRoom: React.FC<WaitingRoomProps> = ({
   playerId,
   isReady,
   onReady,
+  onLeaveRoom,
   onCancelReady
 }) => {
   return (
@@ -79,15 +81,27 @@ const WaitingRoom: React.FC<WaitingRoomProps> = ({
 
       <div className="waiting-section">
         <p>等待所有玩家準備...</p>
-        {!isReady ? (
-          <button onClick={onReady} className="ready-btn">
-            準備
-          </button>
-        ) : (
-          <button onClick={onCancelReady} className="cancel-ready-btn">
-            取消準備
-          </button>
-        )}
+        <div className="button-container">
+          <div className="main-action">
+            {!isReady ? (
+              <button onClick={onReady} className="ready-btn">
+                <i className="fas fa-check-circle"></i>
+                準備
+              </button>
+            ) : (
+              <button onClick={onCancelReady} className="cancel-ready-btn">
+                <i className="fas fa-times-circle"></i>
+                取消準備
+              </button>
+            )}
+          </div>
+          <div className="secondary-action">
+            <button onClick={onLeaveRoom} className="leave-btn">
+              <i className="fas fa-sign-out-alt leave-icon"></i>
+              離開房間
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1,10 +1,14 @@
 .bidding-board {
   display: grid;
-  grid-template-columns: 200px 1fr 200px;
-  grid-template-rows: 160px 1fr;
+  grid-template-areas:
+    ". top ."
+    "left center right"
+    ". bottom .";
+  grid-template-columns: 1fr 600px 1fr;
+  grid-template-rows: auto 1fr auto;
   height: 70vh; /* 限制為視窗高度的70%，不超過最下面30% */
   width: 100%;
-  max-width: 1200px;
+  max-width: 1500px;
   margin: 0 auto;
   gap: 20px;
   padding: 20px;
@@ -13,6 +17,8 @@
   font-family: 'Arial', sans-serif;
   box-sizing: border-box;
   overflow: hidden;
+  align-items: start;
+  justify-items: start;
 }
 
 /* 玩家位置 - 使用與GameBoard相同的樣式 */
@@ -63,21 +69,22 @@
 }
 
 .bidding-player.left {
-  grid-column: 1;
-  grid-row: 2;
+  grid-area: left;
+  align-self: start;
+  justify-self: end;
 }
 
 .bidding-player.top {
-  grid-column: 2;
-  grid-row: 1;
+  grid-area: top;
   flex-direction: row;
   justify-self: center;
-  align-self: center;
+  align-self: end;
 }
 
 .bidding-player.right {
-  grid-column: 3;
-  grid-row: 2;
+  grid-area: right;
+  align-self: start;
+  justify-self: start;
 }
 
 /* 自己不在grid中顯示，因為在固定底部區域 */
@@ -155,6 +162,9 @@
   max-height: 50vh; /* 調整為50vh，確保不超過70%的限制 */
   height: auto;
   overflow: visible;
+  width: 600px;
+  min-width: 400px;
+  align-self: start;
 }
 
 .bidding-message {
@@ -383,6 +393,32 @@
   z-index: 1000;
   backdrop-filter: blur(10px);
   animation: slideUp 0.5s ease-out;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 20px;
+  min-height: 230px;
+}
+
+.bidding-info-left {
+  position: absolute;
+  left: 20px;
+  bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 200px;
+}
+
+.bidding-player-and-room-info {
+  background: transparent;
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.bidding-main-area {
+  max-width: 90vw;
+  width: 100%;
 }
 
 @keyframes slideUp {
@@ -648,12 +684,17 @@
     padding: 10px;
     margin-bottom: 10px;
   }
+  .bidding-player.right{
+    
+  }
 
   .bidding-center {
     grid-column: 1;
     grid-row: 2;
     padding: 16px;
     min-height: 30px;
+    width: 100%;
+    min-width: 100%;
   }
 
   .bidding-history {

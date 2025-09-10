@@ -156,42 +156,185 @@
   color: rgba(255, 255, 255, 0.9);
 }
 
+.button-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.main-action {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.secondary-action {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  position: relative;
+}
+
+.secondary-action::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+}
+
 .ready-btn {
   background: linear-gradient(45deg, #4ecdc4, #44a08d);
   color: white;
   border: none;
-  font-size: 1.2rem;
-  padding: 15px 30px;
+  font-size: 1.1rem;
+  padding: 16px 32px;
   border-radius: 25px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+  box-shadow: 0 6px 20px rgba(78, 205, 196, 0.4);
+  min-width: 160px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
 }
 
 .ready-btn:hover {
   background: linear-gradient(45deg, #2d5a4f, #1e3d35);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(45, 90, 79, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(45, 90, 79, 0.5);
+}
+
+.ready-btn i {
+  font-size: 1.2rem;
+  transition: transform 0.3s ease;
+}
+
+.ready-btn:hover i {
+  transform: scale(1.1);
 }
 
 .cancel-ready-btn {
-  background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+  background: linear-gradient(45deg, #ff9f6b, #ee5a24);
   color: white;
   border: none;
-  font-size: 1.2rem;
-  padding: 15px 30px;
+  font-size: 1.1rem;
+  padding: 16px 32px;
   border-radius: 25px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+  min-width: 160px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
 }
 
 .cancel-ready-btn:hover {
-  background: linear-gradient(45deg, #c44569, #b33939);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(196, 69, 105, 0.4);
+  background: linear-gradient(45deg, #c44569, #e43434);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(196, 69, 105, 0.5);
 }
 
+.cancel-ready-btn i {
+  font-size: 1.2rem;
+  transition: transform 0.3s ease;
+}
+
+.cancel-ready-btn:hover i {
+  transform: scale(1.1);
+}
+
+.leave-btn {
+  background: linear-gradient(45deg, rgba(244, 60, 100, 0.8), rgba(250, 47, 1, 0.8));
+  color: white;
+  border: 1px solid rgba(244, 60, 100, 0.5);
+  font-size: 0.9rem;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 10px rgba(244, 60, 100, 0.2);
+  min-width: 120px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  backdrop-filter: blur(10px);
+}
+
+.leave-btn:hover {
+  background: linear-gradient(45deg, rgba(244, 60, 100, 1), rgba(250, 47, 1, 1));
+  border-color: rgba(244, 60, 100, 0.8);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(244, 60, 100, 0.4);
+}
+
+.leave-icon {
+  font-size: 1rem;
+  transition: transform 0.3s ease;
+  width: 16px;
+  text-align: center;
+}
+
+.leave-btn:hover .leave-icon {
+  transform: translateX(-2px);
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+  .button-container {
+    max-width: 300px;
+    gap: 15px;
+  }
+  
+  .ready-btn, .cancel-ready-btn {
+    font-size: 1rem;
+    padding: 14px 28px;
+    min-width: 140px;
+  }
+  
+  .leave-btn {
+    font-size: 0.85rem;
+    padding: 8px 16px;
+    min-width: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .button-container {
+    max-width: 250px;
+    gap: 12px;
+  }
+  
+  .ready-btn, .cancel-ready-btn {
+    font-size: 0.95rem;
+    padding: 12px 24px;
+    min-width: 120px;
+  }
+  
+  .leave-btn {
+    font-size: 0.8rem;
+    padding: 6px 12px;
+    min-width: 90px;
+  }
+}
 

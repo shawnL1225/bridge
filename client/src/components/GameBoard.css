@@ -472,6 +472,33 @@
   z-index: 1000;
   backdrop-filter: blur(10px);
   animation: slideUp 0.5s ease-out;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 20px;
+  min-height: 230px;
+}
+
+.hand-info-left {
+  position: absolute;
+  left: 20px;
+  bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 200px;
+}
+
+.hand-player-and-room-info {
+  background: transparent;
+  border-radius: 8px;
+  padding: 8px 12px;
+  backdrop-filter: blur(5px);
+}
+
+.hand-main-area {
+  max-width: 90vw;
+  width: 100%;
 }
 
 @keyframes slideUp {

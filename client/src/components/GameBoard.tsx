@@ -38,6 +38,8 @@ interface GameBoardProps {
     level: number;
     suit: string;
   } | null;
+  // 添加玩家和房間信息，用於在 playing 狀態時顯示
+  playerAndRoomInfo?: React.ReactNode;
 }
 
 const GameBoard: React.FC<GameBoardProps> = ({
@@ -53,7 +55,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
   isTrickCompleted,
   isWaitingServerConfirm,
   trickStats,
-  finalContract
+  finalContract,
+  playerAndRoomInfo
 }) => {
   const trickRecordsListRef = useRef<HTMLDivElement>(null);
 
@@ -222,23 +225,35 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
       {/* 第一視角手牌區域 - 固定在畫面最下方 */}
       <div className="first-person-hand">
-        <div className={`hand-container ${trickWinner?.playerId === playerId ? 'winner-glow' : ''}`}>
-          {myHand.map((card, index) => (
-            <button
-              key={index}
-              className={`hand-card-3d ${getCardColor(card.suit)} ${isMyTurn && !isTrickCompleted && !isWaitingServerConfirm ? 'clickable' : ''} ${trickWinner?.playerId === playerId ? 'winner-card-glow' : ''}`}
-              onClick={() => onPlayCard(index)}
-              disabled={!isMyTurn || isTrickCompleted || isWaitingServerConfirm}
-            >
-              {card.suit}{card.rank}
-            </button>
-          ))}
+        {/* 左側玩家和房間信息 */}
+        <div className="hand-info-left">
+          {playerAndRoomInfo && (
+            <div className="hand-player-and-room-info">
+              {playerAndRoomInfo}
+            </div>
+          )}
         </div>
-        {isMyTurn && !isTrickCompleted && !isWaitingServerConfirm && <div className="turn-indicator-3d">輪到您出牌了！</div>}
-        {isWaitingServerConfirm && <div className="waiting-confirm-indicator">等待服務器確認中...</div>}
-        {trickWinner?.playerId === playerId && (
-          <div className="winner-message">🎉 您贏得了這一墩！ 🎉</div>
-        )}
+        
+        {/* 手牌區域 - 固定寬度 */}
+        <div className="hand-main-area">
+          <div className={`hand-container ${trickWinner?.playerId === playerId ? 'winner-glow' : ''}`}>
+            {myHand.map((card, index) => (
+              <button
+                key={index}
+                className={`hand-card-3d ${getCardColor(card.suit)} ${isMyTurn && !isTrickCompleted && !isWaitingServerConfirm ? 'clickable' : ''} ${trickWinner?.playerId === playerId ? 'winner-card-glow' : ''}`}
+                onClick={() => onPlayCard(index)}
+                disabled={!isMyTurn || isTrickCompleted || isWaitingServerConfirm}
+              >
+                {card.suit}{card.rank}
+              </button>
+            ))}
+          </div>
+          {isMyTurn && !isTrickCompleted && !isWaitingServerConfirm && <div className="turn-indicator-3d">輪到您出牌了！</div>}
+          {isWaitingServerConfirm && <div className="waiting-confirm-indicator">等待服務器確認中...</div>}
+          {trickWinner?.playerId === playerId && (
+            <div className="winner-message">🎉 您贏得了這一墩！ 🎉</div>
+          )}
+        </div>
       </div>
     </>
   );

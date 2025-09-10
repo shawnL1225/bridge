@@ -561,70 +561,79 @@ const GameRoom: React.FC<GameRoomProps> = ({
     onLeaveRoom();
   };
 
-
+  // 統一的玩家和房間信息組件
+  const playerAndRoomInfo = (
+    <div className="player-and-room-info">
+      <div className="player-info">
+        <div className="player-avatar">👤</div>
+        <div className="player-details">
+          <h3 className="player-name-display">{playerName}</h3>
+        </div>
+      </div>
+      <div className="room-info" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '16px', marginTop: '10px' }}>
+        <div className="room-id-display" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
+          <span className="room-label" style={{ whiteSpace: 'nowrap' }}>房號</span>
+          <span className="room-number">{roomId}</span>
+        </div>
+        <div className="player-count" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
+          <span className="count-label" style={{ whiteSpace: 'nowrap' }}>玩家</span>
+          <span className="count-number">{players.length}/4</span>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className={`game-room ${gameState === 'bidding' ? 'bidding-mode' : ''}`}>
-      <div className="room-header">
-        <div className="header-left">
-          <div className="player-info">
-            <div className="player-avatar">👤</div>
-            <div className="player-details">
-              <h3 className="player-name-display">{playerName}</h3>
-            </div>
-          </div>
-        </div>
-        
-        <div className="header-center">
-          <div className="game-status-banner">
-            <div className={`status-indicator ${gameState}`}>
-              {gameState === 'waiting' && (
-                <>
-                  <span className="status-text">等待玩家</span>
-                </>
-              )}
-              {gameState === 'bidding' && (
-                <>
-                  <span className="status-text">叫墩階段</span>
-                </>
-              )}
-              {gameState === 'playing' && (
-                <>
-                  <span className="status-text">遊戲進行中</span>
-                </>
-              )}
-              {gameState === 'finished' && (
-                <>
-                  <span className="status-text">🏆遊戲結束</span>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-        
-        <div className="header-right">
-          <div className="room-info" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '16px' }}>
-            <div className="room-id-display" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
-              <span className="room-label" style={{ whiteSpace: 'nowrap' }}>房間號</span>
-              <span className="room-number">{roomId}</span>
-            </div>
-            <div className="player-count" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
-              <span className="count-label" style={{ whiteSpace: 'nowrap' }}>玩家</span>
-              <span className="count-number">{players.length}/4</span>
-            </div>
-          </div>
-          <button onClick={handleLeaveRoom} className="leave-btn">
-            離開房間
-          </button>
-        </div>
-      </div>
-
-       {/* 合約資訊顯示 */}
-          {finalContract && (
-              <div className="contract-info">
-                合約: {finalContract.level}{finalContract.suit} by {finalContract.playerName}
+      {(gameState === 'waiting' || gameState === 'finished') && (
+        <div className="room-header">
+          <div className="header-left">
+            <div className="player-info">
+              <div className="player-avatar">👤</div>
+              <div className="player-details">
+                <h3 className="player-name-display">{playerName}</h3>
               </div>
-          )}
+            </div>
+          </div>
+          
+          <div className="header-center">
+            <div className="game-status-banner">
+              <div className={`status-indicator ${gameState}`}>
+                {gameState === 'waiting' && (
+                  <>
+                    <span className="status-text">等待玩家</span>
+                  </>
+                )}
+                {gameState === 'finished' && (
+                  <>
+                    <span className="status-text">🏆遊戲結束</span>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+          
+          <div className="header-right">
+            <div className="room-info" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '16px' }}>
+              <div className="room-id-display" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
+                <span className="room-label" style={{ whiteSpace: 'nowrap' }}>房號</span>
+                <span className="room-number">{roomId}</span>
+              </div>
+              <div className="player-count" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
+                <span className="count-label" style={{ whiteSpace: 'nowrap' }}>玩家</span>
+                <span className="count-number">{players.length}/4</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 合約資訊顯示 */}
+      {finalContract && (
+          <div className="contract-info">
+            合約: {finalContract.level}{finalContract.suit} by {finalContract.playerName}
+          </div>
+      )}
 
       {gameState === 'waiting' && (
         <WaitingRoom
@@ -633,6 +642,7 @@ const GameRoom: React.FC<GameRoomProps> = ({
           playerId={playerId}
           isReady={isReady}
           onReady={handleReady}
+          onLeaveRoom={handleLeaveRoom}
           onCancelReady={handleCancelReady}
         />
       )}
@@ -650,6 +660,7 @@ const GameRoom: React.FC<GameRoomProps> = ({
           onPass={handlePassBid}
           finalContract={finalContract}
           trumpSuit={trumpSuit}
+          playerAndRoomInfo={playerAndRoomInfo}
         />
       )}
 
@@ -669,6 +680,7 @@ const GameRoom: React.FC<GameRoomProps> = ({
           isWaitingServerConfirm={isWaitingServerConfirm}
           trickStats={trickStats}
           finalContract={finalContract}
+          playerAndRoomInfo={playerAndRoomInfo}
         />
       )}
 
