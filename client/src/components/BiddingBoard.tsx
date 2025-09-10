@@ -25,8 +25,6 @@ interface BiddingBoardProps {
     suit: string;
   } | null;
   trumpSuit?: string | null;
-  // 添加玩家和房間信息，用於在 bidding 狀態時顯示
-  playerAndRoomInfo?: React.ReactNode;
 }
 
 const BiddingBoard: React.FC<BiddingBoardProps> = ({
@@ -41,7 +39,6 @@ const BiddingBoard: React.FC<BiddingBoardProps> = ({
   onPass,
   finalContract,
   trumpSuit,
-  playerAndRoomInfo,
 }) => {
   const [selectedLevel, setSelectedLevel] = useState<number>(1);
   const [selectedSuit, setSelectedSuit] = useState<string>('♣');
@@ -177,89 +174,66 @@ const BiddingBoard: React.FC<BiddingBoardProps> = ({
         </div>
       </div>
 
-      {/* 我的手牌和叫墩控制 - 固定在畫面最下方 */}
-      <div className="my-bidding-area">
-        {/* 左側玩家和房間信息 */}
-        <div className="bidding-info-left">
-          {playerAndRoomInfo && (
-            <div className="bidding-player-and-room-info">
-              {playerAndRoomInfo}
+      {/* 叫墩控制區域 - 固定在畫面最下方 */}
+      <div className="bidding-controls-area">
+        {isMyTurn && (
+          <div className="bidding-controls">
+            <div className="bid-selector">
+              <div className="level-selector">
+                <label>墩數：</label>
+                <div className="level-buttons">
+                  {levels.map(level => (
+                    <button
+                      key={level}
+                      className={`level-btn ${selectedLevel === level ? 'selected' : ''}`}
+                      onClick={() => setSelectedLevel(level)}
+                    >
+                      {level}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="suit-selector">
+                <label>花色：</label>
+                <div className="suit-buttons">
+                  {suits.map(suit => (
+                    <button
+                      key={suit.symbol}
+                      className={`suit-btn ${selectedSuit === suit.symbol ? 'selected' : ''} ${suit.color}`}
+                      onClick={() => setSelectedSuit(suit.symbol)}
+                      title={suit.name}
+                    >
+                      {suit.symbol === 'NT' ? 'NT' : suit.symbol}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
-          )}
-        </div>
-        
-        {/* 手牌和叫墩控制區域 - 固定寬度 */}
-        <div className="bidding-main-area">
-          <div className="hand-container">
-            {myHand.map((card, index) => (
-              <div
-                key={index}
-                className={`hand-card ${getCardColor(card.suit)}`}
+
+            <div className="bid-actions">
+              <button
+                className={`bid-btn ${isValidBid(selectedLevel, selectedSuit) ? 'valid' : 'invalid'}`}
+                onClick={handleBid}
+                disabled={!isValidBid(selectedLevel, selectedSuit)}
               >
-                {card.suit}{card.rank}
-              </div>
-            ))}
+                叫墩 {selectedLevel}{selectedSuit === 'NT' ? '無王牌' : selectedSuit}
+              </button>
+              <button
+                className="pass-btn"
+                onClick={onPass}
+              >
+                Pass
+              </button>
+            </div>
           </div>
+        )}
 
-          {isMyTurn && (
-            <div className="bidding-controls">
-              <div className="bid-selector">
-                <div className="level-selector">
-                  <label>墩數：</label>
-                  <div className="level-buttons">
-                    {levels.map(level => (
-                      <button
-                        key={level}
-                        className={`level-btn ${selectedLevel === level ? 'selected' : ''}`}
-                        onClick={() => setSelectedLevel(level)}
-                      >
-                        {level}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                
-                <div className="suit-selector">
-                  <label>花色：</label>
-                  <div className="suit-buttons">
-                    {suits.map(suit => (
-                      <button
-                        key={suit.symbol}
-                        className={`suit-btn ${selectedSuit === suit.symbol ? 'selected' : ''} ${suit.color}`}
-                        onClick={() => setSelectedSuit(suit.symbol)}
-                        title={suit.name}
-                      >
-                        {suit.symbol === 'NT' ? 'NT' : suit.symbol}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="bid-actions">
-                <button
-                  className={`bid-btn ${isValidBid(selectedLevel, selectedSuit) ? 'valid' : 'invalid'}`}
-                  onClick={handleBid}
-                  disabled={!isValidBid(selectedLevel, selectedSuit)}
-                >
-                  叫墩 {selectedLevel}{selectedSuit === 'NT' ? '無王牌' : selectedSuit}
-                </button>
-                <button
-                  className="pass-btn"
-                  onClick={onPass}
-                >
-                  Pass
-                </button>
-              </div>
-            </div>
-          )}
-
-          {!isMyTurn && (
-            <div className="waiting-turn">
-              等待其他玩家叫墩...
-            </div>
-          )}
-        </div>
+        {!isMyTurn && (
+          <div className="waiting-turn">
+            等待其他玩家叫墩...
+          </div>
+        )}
       </div>
     </div>
   );

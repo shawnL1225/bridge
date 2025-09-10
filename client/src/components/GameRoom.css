@@ -149,7 +149,7 @@
   align-items: center;
   gap: 20px;
   background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 179, 0, 0.05) 100%);
-  padding: 15px 20px;
+  padding: 5px 20px;
   border-radius: 15px;
   border: 1px solid rgba(255, 215, 0, 0.3);
   box-shadow: 
@@ -1055,16 +1055,6 @@
   pointer-events: none;
 }
 
-.game-ended::after {
-  content: '♠ ♥ ♦ ♣';
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  color: rgba(255, 215, 0, 0.3);
-  font-size: 1.5rem;
-  animation: floatingCards 8s ease-in-out infinite;
-  pointer-events: none;
-}
 
 @keyframes floatingCards {
   0%, 100% { 
@@ -1607,4 +1597,87 @@
   position: relative;
   overflow: hidden;
   width: 100%;
+}
+
+/* 統一的手牌顯示區域 */
+.unified-hand-area {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.805), rgba(255, 255, 255, 0), transparent);
+  padding: 20px 0 40px 0;
+  z-index: 1000;
+  animation: slideUp 0.5s ease-out;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 20px;
+  min-height: 200px;
+}
+
+.hand-info-left {
+  position: absolute;
+  left: 20px;
+  bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 200px;
+}
+
+.hand-player-and-room-info {
+  z-index: 1002;
+  background: transparent;
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.hand-main-area {
+  max-width: 90vw;
+  width: 100%;
+}
+
+.hand-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 10px;
+}
+
+.hand-card {
+  width: 60px;
+  height: 84px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: bold;
+  border: 2px solid #333;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.hand-card.red {
+  background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+  color: white;
+}
+
+.hand-card.black {
+  background: linear-gradient(135deg, #4a4a4a, #2c2c2c);
+  color: white;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }

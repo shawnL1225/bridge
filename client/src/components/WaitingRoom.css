@@ -262,9 +262,9 @@
 }
 
 .leave-btn {
-  background: linear-gradient(45deg, rgba(244, 60, 100, 0.8), rgba(250, 47, 1, 0.8));
   color: white;
-  border: 1px solid rgba(244, 60, 100, 0.5);
+  background: rgba(221, 217, 216, 0.272);
+  border: 3px solid rgba(109, 4, 4, 0.427);
   font-size: 0.9rem;
   padding: 10px 20px;
   border-radius: 20px;
@@ -288,11 +288,9 @@
   box-shadow: 0 5px 15px rgba(244, 60, 100, 0.4);
 }
 
-.leave-icon {
-  font-size: 1rem;
+.leave-btn i {
+  font-size: 1.2rem;
   transition: transform 0.3s ease;
-  width: 16px;
-  text-align: center;
 }
 
 .leave-btn:hover .leave-icon {

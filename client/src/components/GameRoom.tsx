@@ -561,6 +561,54 @@ const GameRoom: React.FC<GameRoomProps> = ({
     onLeaveRoom();
   };
 
+  // 獲取牌的顏色
+  const getCardColor = (suit: string): string => {
+    return suit === '♥' || suit === '♦' ? 'red' : 'black';
+  };
+
+  // 統一的手牌顯示區域
+  const renderUnifiedHandArea = () => {
+    console.log('renderUnifiedHandArea called:', { gameState, myHandLength: myHand.length, myHand });
+    
+    if (gameState === 'bidding' || gameState === 'playing') {
+      return (
+        <div className="unified-hand-area">
+          {/* 左側玩家和房間信息 */}
+          <div className="hand-info-left">
+            {playerAndRoomInfo && (
+              <div className="hand-player-and-room-info">
+                {playerAndRoomInfo}
+              </div>
+            )}
+          </div>
+          
+          {/* 手牌區域 */}
+          <div className="hand-main-area">
+            <div className={`hand-container ${trickWinner?.playerId === playerId ? 'winner-glow' : ''}`}>
+              {myHand.length > 0 ? (
+                myHand.map((card, index) => (
+                  <button
+                    key={index}
+                    className={`hand-card-3d ${getCardColor(card.suit)} ${isMyTurn && !isTrickCompleted && !isWaitingServerConfirm ? 'clickable' : ''} ${trickWinner?.playerId === playerId ? 'winner-card-glow' : ''}`}
+                    onClick={() => handlePlayCard(index)}
+                    disabled={!isMyTurn || isTrickCompleted || isWaitingServerConfirm}
+                  >
+                    {card.suit}{card.rank}
+                  </button>
+                ))
+              ) : (
+                <div style={{ color: 'white', padding: '20px' }}>
+                  手牌載入中... (gameState: {gameState}, myHand: {myHand.length} 張)
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
+
   // 統一的玩家和房間信息組件
   const playerAndRoomInfo = (
     <div className="player-and-room-info">
@@ -660,7 +708,6 @@ const GameRoom: React.FC<GameRoomProps> = ({
           onPass={handlePassBid}
           finalContract={finalContract}
           trumpSuit={trumpSuit}
-          playerAndRoomInfo={playerAndRoomInfo}
         />
       )}
 
@@ -673,14 +720,13 @@ const GameRoom: React.FC<GameRoomProps> = ({
           myHand={myHand}
           playedCards={playedCards}
           isMyTurn={isMyTurn}
-          onPlayCard={handlePlayCard}
+
           playerPlayedCards={playerPlayedCards}
           trickWinner={trickWinner}
           isTrickCompleted={isTrickCompleted}
           isWaitingServerConfirm={isWaitingServerConfirm}
           trickStats={trickStats}
           finalContract={finalContract}
-          playerAndRoomInfo={playerAndRoomInfo}
         />
       )}
 
@@ -768,6 +814,9 @@ const GameRoom: React.FC<GameRoomProps> = ({
           </div>
         </div>
       )}
+
+      {/* 統一的手牌顯示區域 */}
+      {renderUnifiedHandArea()}
     </div>
   );
 };
