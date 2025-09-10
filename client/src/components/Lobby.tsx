@@ -122,18 +122,6 @@ const Lobby: React.FC<LobbyProps> = ({ onJoinRoom }) => {
             <div className="marquee-text">こうべゲームかいはつ</div>
             <div className="marquee-text">よこはまデジタルエンターテイメント</div>
           </div>
-          <div className="marquee-content">
-            <div className="marquee-text">とうきゅうでんてつ</div>
-            <div className="marquee-text">さくらゲームしゅっぱん</div>
-            <div className="marquee-text">ふじさんエンターテイメント</div>
-            <div className="marquee-text">とうきょうデジタルこうぼう</div>
-            <div className="marquee-text">わふうゲームせいさくしょ</div>
-            <div className="marquee-text">しんじゅくエンターテイメント</div>
-            <div className="marquee-text">きょうとでんとうゲームしゃ</div>
-            <div className="marquee-text">おおさかブリッジがいしゃ</div>
-            <div className="marquee-text">こうべゲームかいはつ</div>
-            <div className="marquee-text">よこはまデジタルエンターテイメント</div>
-          </div>
         </div>
       </div>
     </div>
