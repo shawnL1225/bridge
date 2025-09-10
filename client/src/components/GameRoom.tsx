@@ -338,14 +338,7 @@ const GameRoom: React.FC<GameRoomProps> = ({
         }
         
         // 設定新墩開始訊息
-        if (message.currentTrick) {
-          if (message.currentPlayer === playerId) {
-            setMessage(`第 ${message.currentTrick} 墩開始 - 輪到您出牌！`);
-          } else {
-            const playerName = players.find(p => p.id === message.currentPlayer)?.name || '未知';
-            setMessage(`第 ${message.currentTrick} 墩開始 - 輪到 ${playerName}`);
-          }
-        }
+        setMessage(`第 ${message.currentTrick} 墩`);
         break;
       
       case 'player_left':

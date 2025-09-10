@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import './App.css';
 import Lobby from './components/Lobby';
 import GameRoom from './components/GameRoom';
+import BackgroundMusic from './components/BackgroundMusic';
 
 export interface Player {
   id: string;
@@ -51,6 +52,7 @@ function App() {
 
   return (
     <div className="App">
+      <BackgroundMusic volume={0.5} />
       <header className="App-header">
         <div className="header-content">
           <div className="casino-brand">

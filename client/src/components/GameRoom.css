@@ -752,13 +752,13 @@
 }
 
 .ready-btn:hover {
-  background: linear-gradient(45deg, #2d5a4f, #1e3d35);
+  background: linear-gradient(45deg, #499280, #34675a);
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(45, 90, 79, 0.4);
 }
 
 .cancel-ready-btn {
-  background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+  background: linear-gradient(45deg, #ff9f6b, #ee5a24);
   color: white;
   border: none;
   font-size: 1.2rem;
@@ -771,7 +771,7 @@
 }
 
 .cancel-ready-btn:hover {
-  background: linear-gradient(45deg, #c44569, #b33939);
+  background: linear-gradient(45deg, #de6262, #b35139);
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(196, 69, 105, 0.4);
 }
