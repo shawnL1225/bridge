@@ -4,11 +4,11 @@
     ". top ."
     "left center right"
     ". bottom .";
-  grid-template-columns: 1fr 600px 1fr;
+  grid-template-columns: 1fr 400px 1fr;
   grid-template-rows: auto 1fr auto;
-  height: 70vh; /* 限制為視窗高度的70%，不超過最下面30% */
+  height: 50vh; /* 調整為50vh，相當於原來的70%效果 */
   width: 100%;
-  max-width: 1500px;
+  max-width: 1000px;
   margin: 0 auto;
   gap: 20px;
   padding: 20px;
@@ -34,8 +34,8 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-bottom: 4px solid #000000;
   transition: all 0.3s ease;
-  width: 200px;
-  height: 120px;
+  width: 134px;
+  height: 80px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -107,14 +107,7 @@
   margin-bottom: 6px;
 }
 
-.other-label {
-  background: rgba(255, 255, 255, 0.2);
-  color: rgba(255, 255, 255, 0.9);
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 0.8rem;
-  font-weight: 500;
-}
+
 
 .bidding-player .player-name {
   margin: 0 0 8px 0;
@@ -124,21 +117,7 @@
   line-height: 1.2;
 }
 
-.current-turn-indicator {
-  position: absolute;
-  top: -10px;
-  right: -10px;
-  background: linear-gradient(45deg, #4ecdc4, #44a08d);
-  color: white;
-  padding: 6px 12px;
-  border-radius: 15px;
-  font-size: 0.8rem;
-  font-weight: bold;
-  z-index: 10;
-  box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
-  animation: pulse 2s infinite;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-}
+
 
 @keyframes pulse {
   0% { transform: scale(1); }
@@ -159,60 +138,20 @@
   padding: 16px;
   backdrop-filter: blur(10px);
   min-height: 30px;
-  max-height: 50vh; /* 調整為50vh，確保不超過70%的限制 */
+  max-height: 35vh; /* 調整為35vh，相當於原來的50%效果 */
   height: auto;
   overflow: visible;
-  width: 600px;
-  min-width: 400px;
+  width: 400px;
+  min-width: 268px;
   align-self: start;
 }
 
 .bidding-message {
-  margin-bottom: 16px;
+  margin-bottom: 1px;
   text-align: center;
   width: 100%;
 }
 
-/* 賭場廣播通知樣式 - 賭桌綠色主題 */
-.message-text {
-  display: inline-block;
-  background: linear-gradient(135deg, 
-    rgba(34, 139, 34, 0.4) 0%, 
-    rgba(46, 125, 50, 0.3) 25%,
-    rgba(34, 139, 34, 0.4) 50%,
-    rgba(46, 125, 50, 0.3) 75%,
-    rgba(34, 139, 34, 0.4) 100%
-  );
-  border: 2px solid rgba(76, 175, 80, 0.7);
-  border-radius: 25px;
-  padding: 12px 24px;
-  color: #fff;
-  font-size: 1.1em;
-  font-weight: bold;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(10px);
-}
-
-
-/* 添加內部光澤效果 */
-.message-text::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.3),
-    transparent
-  );
-  animation: sweep 2s ease-in-out infinite;
-}
 
 @keyframes sweep {
   0% {
@@ -231,9 +170,7 @@
   overflow-y: auto;
   overflow-x: hidden;
   flex: 1 1 auto;
-  min-height: 60px;
-  max-height: 40vh;
-  padding-right: 8px;
+  max-height: 50vh;
 }
 
 /* 自定義滾動條樣式 */
@@ -257,12 +194,11 @@
 }
 
 
-.bidding-history h4 {
+.bidding-history .text-label {
   color: white;
   text-align: center;
   margin-bottom: 12px;
-  margin-top: 0;
-  font-size: 1em;
+  font-size: 0.7em;
   font-weight: 600;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
@@ -280,16 +216,16 @@
   justify-content: space-between;
   align-items: center;
   background: rgba(88, 87, 87, 0);
-  padding: 8px 12px;
-  border-radius: 12px;
-  border-left: 4px solid;
+  padding: 5px 8px;
+  border-radius: 8px;
+  border-left: 3px solid;
   transition: all 0.3s ease;
   backdrop-filter: blur(5px);
   box-shadow: 
-    0 2px 4px rgba(0, 0, 0, 0.1),
+    0 1px 3px rgba(0, 0, 0, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
   border-left-color: #909490;
-  border-bottom: 4px solid #000000;
+  border-bottom: 3px solid #000000;
   animation: passSlideIn 0.4s ease-out;
 }
 
@@ -337,33 +273,33 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 4px;
   background: rgba(0, 0, 0, 0.2);
-  padding: 1px 8px;
-  border-radius: 8px;
+  padding: 1px 6px;
+  border-radius: 6px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  font-size: 1.0em; /* 調大內容字體 */
-  width: 80px;
-  min-width: 80px;
+  font-size: 0.85em;
+  width: 60px;
+  min-width: 60px;
 }
 
 .bid-level {
   color: #ffffff;
   font-weight: bold;
-  font-size: 1.4em;
+  font-size: 0.85em;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .bid-suit {
   color: #f8fafc;
-  font-size: 1.5em;
+  font-size: 1.2em;
   font-weight: bold;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-  filter: drop-shadow(0 0 4px currentColor);
+  filter: drop-shadow(0 0 3px currentColor);
 }
 
 .bid-suit.nt {
-  font-size: 0.8em;
+  font-size: 0.7em;
 }
 
 
@@ -371,31 +307,18 @@
 .pass-text {
   color: rgb(255, 255, 255);
   font-weight: normal;
-  font-size: 1.2em;
-  padding: 2px 8px;
+  font-size: 1.0em;
+  padding: 2px 6px;
   background: rgba(154, 11, 11, 0.176);
-  border-radius: 8px;
+  border-radius: 6px;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-  width: 80px;
-  min-width: 80px;
+  width: 60px;
+  min-width: 60px;
   text-align: center;
   display: inline-block;
 }
 
-/* 叫墩控制區域 */
-.bidding-controls-area {
-  position: fixed;
-  bottom: 160px;
-  left: 0;
-  right: 0;
-  background: transparent;
-  padding: 20px 0 0 0;
-  animation: slideUp 0.5s ease-out;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 120px;
-}
+
 
 @keyframes slideUp {
   from {
@@ -423,7 +346,7 @@
   align-items: flex-end;
   gap: 8px;
   padding: 0 20px;
-  max-width: 1200px;
+  max-width: 800px;
   margin: 0 auto 20px auto;
   min-height: 120px;
 }
@@ -471,16 +394,30 @@
 .hand-card:nth-child(13) { transform: rotate(18deg) translateY(0px); }
 
 /* 叫墩控制 */
+.bidding-controls-area {
+  position: fixed;
+  bottom: 130px;
+  left: 0;
+  right: 0;
+  background: transparent;
+  padding: 20px 0 0 0;
+  animation: slideUp 0.5s ease-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  z-index: 1002;
+}
+
 .bidding-controls {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 5px;
   align-items: center;
   width: 100%;
-  max-width: 800px;
+  max-width: 536px;
   margin: 0 auto;
   padding: 10px 20px;
-  z-index: 1002;
 }
 
 .bid-selector {
@@ -511,8 +448,8 @@
 }
 
 .level-btn, .suit-btn {
-  width: 70px;
-  height: 40px;
+  width: 47px;
+  height: 27px;
   border: 2px solid #ffffff40;
   background: rgba(255, 255, 255, 0.1);
   color: white;
@@ -521,7 +458,7 @@
   cursor: pointer;
   transition: all 0.2s ease;
   backdrop-filter: blur(5px);
-  font-size: 1.2rem;
+  font-size: 0.9rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -547,14 +484,14 @@
 }
 
 .bid-btn, .pass-btn {
-  padding: 12px 24px;
+  padding: 6px 12px;
   border: none;
-  border-radius: 12px;
+  border-radius: 6px;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-size: 1em;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  font-size: 0.8em;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .bid-btn.valid {
@@ -565,8 +502,8 @@
 
 .bid-btn.valid:hover {
   background: linear-gradient(45deg, #22c55e, #16a34a);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(34, 197, 94, 0.4);
 }
 
 .bid-btn.invalid {
@@ -583,16 +520,14 @@
 
 .pass-btn:hover {
   background: linear-gradient(45deg, #dc2626, #b91c1c);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(239, 68, 68, 0.4);
 }
 
 .waiting-turn {
   color: #a0d4c7;
-  font-size: 1.0em;
+  font-size: 0.7em;
   text-align: center;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-  padding: 10px;
 }
 
 
@@ -634,9 +569,6 @@
     padding: 10px;
     margin-bottom: 10px;
   }
-  .bidding-player.right{
-    
-  }
 
   .bidding-center {
     grid-column: 1;
@@ -647,10 +579,6 @@
     min-width: 100%;
   }
 
-  .bidding-history {
-    max-height: 30vh;
-    width: 90%;
-  }
 
   .bid-selector {
     flex-direction: column;

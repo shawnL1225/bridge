@@ -51,7 +51,7 @@ const WaitingRoom: React.FC<WaitingRoomProps> = ({
               </h3>
               
               <div className="player-status">
-                <p className="status-text">
+                <p className="ready-text">
                   {player.ready ? '已準備' : '未準備'}
                 </p>
               </div>
@@ -70,7 +70,7 @@ const WaitingRoom: React.FC<WaitingRoomProps> = ({
               ⏳
               </h3>
               <div className="player-status">
-                <p className="status-text">等待玩家中
+                <p className="ready-text">等待玩家中
                 </p>
               </div>
 

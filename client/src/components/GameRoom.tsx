@@ -574,14 +574,11 @@ const GameRoom: React.FC<GameRoomProps> = ({
       return (
         <div className="unified-hand-area">
           {/* 左側玩家和房間信息 */}
-          <div className="hand-info-left">
             {playerAndRoomInfo && (
               <div className="hand-player-and-room-info">
                 {playerAndRoomInfo}
               </div>
             )}
-          </div>
-          
           {/* 手牌區域 */}
           <div className="hand-main-area">
             <div className={`hand-container ${trickWinner?.playerId === playerId ? 'winner-glow' : ''}`}>
