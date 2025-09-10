@@ -3,6 +3,8 @@ import { Player, Card } from '../App';
 import WaitingRoom from './WaitingRoom';
 import GameBoard from './GameBoard';
 import BiddingBoard from './BiddingBoard';
+import { getMockDataByGameState } from '../mockData';
+import { DEV_CONFIG, DEV_MESSAGES } from '../config/devConfig';
 import './GameRoom.css';
 import { config } from '../config';
 
@@ -38,26 +40,49 @@ const GameRoom: React.FC<GameRoomProps> = ({
   onLeaveRoom,
   onRoomError
 }) => {
-  const [players, setPlayers] = useState<Player[]>([]);
-  const [myHand, setMyHand] = useState<Card[]>([]);
-  const [gameState, setGameState] = useState<'waiting' | 'bidding' | 'playing' | 'finished'>('waiting');
-  const [currentPlayer, setCurrentPlayer] = useState<string>('');
-  const [playedCards, setPlayedCards] = useState<Card[]>([]);
+  // 開發模式：直接設定要測試的畫面
+  const DEV_MODE = DEV_CONFIG.ENABLED;
+  const DEV_GAME_STATE = DEV_CONFIG.GAME_STATE;
+  const mockData = DEV_MODE ? getMockDataByGameState(DEV_GAME_STATE) : null;
+  
+  const [players, setPlayers] = useState<Player[]>(
+    mockData?.players || []
+  );
+  const [myHand, setMyHand] = useState<Card[]>(
+    mockData?.hand || []
+  );
+  const [gameState, setGameState] = useState<'waiting' | 'bidding' | 'playing' | 'finished'>(
+    DEV_MODE ? DEV_GAME_STATE : 'waiting'
+  );
+  const [currentPlayer, setCurrentPlayer] = useState<string>(
+    mockData?.currentPlayer || ''
+  );
+  const [playedCards, setPlayedCards] = useState<Card[]>(
+    mockData?.playedCards || []
+  );
   const [lastPlayedCard, setLastPlayedCard] = useState<Card | null>(null); // eslint-disable-line @typescript-eslint/no-unused-vars
-  const [isMyTurn, setIsMyTurn] = useState(false);
+  const [isMyTurn, setIsMyTurn] = useState(
+    mockData?.isMyTurn || false
+  );
   const [message, setMessage] = useState('');
   const [isReady, setIsReady] = useState(false);
-  const [playerId, setPlayerId] = useState<string>(''); // 內部管理playerId
+  const [playerId, setPlayerId] = useState<string>(
+    DEV_MODE ? 'player1' : '' // 開發模式下設置默認 playerId
+  );
   
   // 叫墩相關狀態
-  const [currentBidder, setCurrentBidder] = useState<string>('');
+  const [currentBidder, setCurrentBidder] = useState<string>(
+    mockData?.currentBidder || ''
+  );
   const [bids, setBids] = useState<Array<{
     playerId: string;
     playerName: string;
     level?: number;
     suit?: string;
     type: 'bid' | 'pass';
-  }>>([]);
+  }>>(
+    mockData?.bids || []
+  );
   const [finalContract, setFinalContract] = useState<{
     playerId: string;
     playerName: string;
@@ -89,10 +114,16 @@ const GameRoom: React.FC<GameRoomProps> = ({
       winnerName: string;
       winningCard: Card;
     }>;
-  }>({ declarerTeamTricks: 0, defenderTeamTricks: 0 });
+  }>(mockData?.trickStats || { 
+    declarerTeamTricks: 0, 
+    defenderTeamTricks: 0, 
+    trickRecords: [] 
+  });
   
   // 添加最終遊戲結果狀態
-  const [gameResult, setGameResult] = useState<any>(null);
+  const [gameResult, setGameResult] = useState<any>(
+    mockData?.gameResult || null
+  );
   
   const wsRef = useRef<WebSocket | null>(null);
   const hasConnectedRef = useRef(false);
@@ -630,6 +661,28 @@ const GameRoom: React.FC<GameRoomProps> = ({
 
   return (
     <div className={`game-room ${gameState === 'bidding' ? 'bidding-mode' : ''}`}>
+      {/* 開發模式提示 */}
+      {DEV_MODE && (
+        <div style={{
+          position: 'fixed',
+          top: '10px',
+          right: '10px',
+          background: 'rgba(0,0,0,0.8)',
+          color: '#ffd700',
+          padding: '10px',
+          borderRadius: '5px',
+          fontSize: '12px',
+          zIndex: 9999,
+          border: '1px solid #ffd700'
+        }}>
+          <div>開發模式</div>
+          <div>當前畫面: {DEV_MESSAGES[DEV_GAME_STATE]}</div>
+          <div style={{ fontSize: '10px', marginTop: '5px', color: '#ccc' }}>
+            修改 devConfig.ts 中的 GAME_STATE 來切換畫面
+          </div>
+        </div>
+      )}
+      
       {(gameState === 'waiting' || gameState === 'finished') && (
         <div className="room-header">
           <div className="header-left">
@@ -767,12 +820,13 @@ const GameRoom: React.FC<GameRoomProps> = ({
                 </div>
                 
                 {/* 墩數詳細記錄 */}
+                {DEV_MODE && (() => { console.log('Debug - trickStats:', trickStats, 'playerId:', playerId); return null; })()}
                 {trickStats?.trickRecords && trickStats.trickRecords.length > 0 && (
                   <div className="trick-records">
                     <h5>墩數詳細記錄</h5>
                     <div className="trick-list">
                       {trickStats.trickRecords
-                        .filter(record => record.playerId === playerId)
+                        .filter(record => DEV_MODE || record.playerId === playerId)
                         .map((record, index) => (
                           <div key={index} className={`trick-record ${record.isOurTeam ? 'our-team' : 'their-team'}`}>
                             <span>第 {record.trickNumber} 墩：</span>

@@ -6,7 +6,7 @@
     ". bottom .";
   grid-template-columns: 1fr 400px 1fr;
   grid-template-rows: auto 1fr auto;
-  height: 50vh; /* 調整為50vh，相當於原來的70%效果 */
+  height: 70vh; 
   width: 100%;
   max-width: 1000px;
   margin: 0 auto;
@@ -138,7 +138,7 @@
   padding: 16px;
   backdrop-filter: blur(10px);
   min-height: 30px;
-  max-height: 35vh; /* 調整為35vh，相當於原來的50%效果 */
+  max-height: 45vh; /* 調整為35vh，相當於原來的50%效果 */
   height: auto;
   overflow: visible;
   width: 400px;
@@ -170,7 +170,7 @@
   overflow-y: auto;
   overflow-x: hidden;
   flex: 1 1 auto;
-  max-height: 50vh;
+  max-height: 60vh;
 }
 
 /* 自定義滾動條樣式 */
@@ -264,7 +264,7 @@
 .bidder-name {
   color: rgb(255, 255, 255);
   font-weight: 600;
-  font-size: 1.4em;
+  font-size: 0.7em;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
   flex-shrink: 0;
 }
@@ -292,7 +292,7 @@
 
 .bid-suit {
   color: #f8fafc;
-  font-size: 1.2em;
+  font-size: 0.7em;
   font-weight: bold;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
   filter: drop-shadow(0 0 3px currentColor);
@@ -307,7 +307,7 @@
 .pass-text {
   color: rgb(255, 255, 255);
   font-weight: normal;
-  font-size: 1.0em;
+  font-size: 0.6em;
   padding: 2px 6px;
   background: rgba(154, 11, 11, 0.176);
   border-radius: 6px;
@@ -574,7 +574,7 @@
     grid-column: 1;
     grid-row: 2;
     padding: 16px;
-    min-height: 30px;
+    min-height: 80px;
     width: 100%;
     min-width: 100%;
   }

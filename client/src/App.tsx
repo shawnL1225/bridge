@@ -3,6 +3,7 @@ import './App.css';
 import Lobby from './components/Lobby';
 import GameRoom from './components/GameRoom';
 import BackgroundMusic from './components/BackgroundMusic';
+import { DEV_CONFIG } from './config/devConfig';
 
 export interface Player {
   id: string;
@@ -28,8 +29,16 @@ export interface GameState {
 };
 
 function App() {
-  const [currentRoom, setCurrentRoom] = useState<string | null>(null);
-  const [playerName, setPlayerName] = useState<string>('');
+  // 開發模式：直接進入 GameRoom 來測試不同畫面
+  const DEV_MODE = DEV_CONFIG.ENABLED;
+  const SKIP_TO_GAMEROOM = DEV_CONFIG.SKIP_TO_GAMEROOM; // 修改 devConfig.ts 中的 SKIP_TO_GAMEROOM
+  
+  const [currentRoom, setCurrentRoom] = useState<string | null>(
+    DEV_MODE && SKIP_TO_GAMEROOM ? DEV_CONFIG.ROOM_ID : null
+  );
+  const [playerName, setPlayerName] = useState<string>(
+    DEV_MODE && SKIP_TO_GAMEROOM ? DEV_CONFIG.PLAYER_NAME : ''
+  );
   const [errorMessage, setErrorMessage] = useState<string>('');
 
   const handleJoinRoom = (roomId: string, name: string) => {
