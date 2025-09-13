@@ -10,6 +10,7 @@ interface WaitingRoomProps {
   onReady: () => void;
   onLeaveRoom: () => void;
   onCancelReady: () => void;
+  onResortPlayers?: () => void;
 }
 
 const WaitingRoom: React.FC<WaitingRoomProps> = ({
@@ -19,8 +20,16 @@ const WaitingRoom: React.FC<WaitingRoomProps> = ({
   isReady,
   onReady,
   onLeaveRoom,
-  onCancelReady
+  onCancelReady,
+  onResortPlayers
 }) => {
+  // 添加log來確認props變化
+  console.log('WaitingRoom渲染 - players:', players.map(p => p.name));
+  console.log('WaitingRoom渲染 - players順序:', players.map((p, i) => `${i}: ${p.name}`));
+  // 檢查當前玩家是否為index 0（房間創建者）
+  const isRoomCreator = players.length > 0 && players[0].id === playerId;
+  console.log('isRoomCreator:', isRoomCreator, 'playerId:', playerId, 'firstPlayerId:', players[0]?.id);
+  console.log('onResortPlayers存在:', !!onResortPlayers);
   return (
     <div className="waiting-room">
       {message && (
@@ -32,9 +41,11 @@ const WaitingRoom: React.FC<WaitingRoomProps> = ({
       )}
       <div className="players-container">
         {/* 使用 map 迴圈渲染所有玩家 */}
-        {players.map((player, index) => (
+        {players.map((player, index) => {
+          console.log(`渲染玩家 ${index}: ${player.name} (key: ${player.id}-${index})`);
+          return (
           <div 
-            key={player.id} 
+            key={`${player.id}-${index}`} 
             className={`player ${player.ready ? 'player-shining' : ''}`}
           >
             <div className="player-info-container">
@@ -57,7 +68,8 @@ const WaitingRoom: React.FC<WaitingRoomProps> = ({
               </div>
             </div>
           </div>
-        ))}
+          );
+        })}
         
         {/* 顯示等待中的玩家格子 */}
         {Array.from({ length: 4 - players.length }, (_, index) => (
@@ -94,13 +106,24 @@ const WaitingRoom: React.FC<WaitingRoomProps> = ({
                 取消準備
               </button>
             )}
+            
+            {/* 只有房間創建者可以看到重新排列按鈕 */}
+            {isRoomCreator && onResortPlayers && (
+              <button onClick={() => {
+                console.log('WaitingRoom: 重新排列按鈕被點擊');
+                onResortPlayers();
+              }} className="resort-btn">
+                <i className="fas fa-random"></i>
+                重排玩家
+              </button>
+            )}
           </div>
-          <div className="secondary-action">
-            <button onClick={onLeaveRoom} className="leave-btn">
-              <i className="fas fa-sign-out-alt leave-icon"></i>
-              離開房間
-            </button>
-          </div>
+
+          <button onClick={onLeaveRoom} className="leave-btn">
+            <i className="fas fa-sign-out-alt leave-icon"></i>
+            離開房間
+          </button>
+
         </div>
       </div>
     </div>

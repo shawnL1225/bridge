@@ -229,6 +229,7 @@ wss.on('connection', (ws) => {
 
 // 處理玩家訊息
 function handleMessage(playerId, data) {
+  console.log(`收到消息 - 玩家ID: ${playerId}, 類型: ${data.type}`);
   const player = players.get(playerId);
   if (!player) return;
 
@@ -253,6 +254,9 @@ function handleMessage(playerId, data) {
       break;
     case 'restart_game':
       handleRestartGame(playerId);
+      break;
+    case 'resort_players':
+      handleResortPlayers(playerId);
       break;
   }
 }
@@ -369,11 +373,16 @@ function startGame(roomId) {
   if (!game) return;
 
   game.gameState = 'bidding';
+  
+  // 隨機選擇第一個開始叫墩的玩家
+  const firstBidderIndex = Math.floor(Math.random() * 4);
+  
+  // 建立叫墩順序（從隨機選擇的玩家開始）
   game.turnOrder = [
-    game.players[0].id,
-    game.players[1].id,
-    game.players[2].id,
-    game.players[3].id
+    game.players[firstBidderIndex].id,
+    game.players[(firstBidderIndex + 1) % 4].id,
+    game.players[(firstBidderIndex + 2) % 4].id,
+    game.players[(firstBidderIndex + 3) % 4].id
   ];
 
   // 為每個玩家發送叫墩開始訊息和手牌
@@ -381,13 +390,13 @@ function startGame(roomId) {
     player.ws.send(JSON.stringify({
       type: 'bidding_started',
       currentBidder: game.turnOrder[0],
-      currentBidderName: game.players[0].name,
+      currentBidderName: game.players[firstBidderIndex].name,
       hand: game.hands[index],  // 發送手牌供叫墩參考
       bids: game.biddingState.bids
     }));
   });
 
-  console.log(`房間 ${roomId} 開始叫墩，叫墩順序：`, game.turnOrder);
+  console.log(`房間 ${roomId} 開始叫墩，第一個叫墩者：${game.players[firstBidderIndex].name}，叫墩順序：`, game.turnOrder);
 }
 
 // 處理叫墩
@@ -903,6 +912,69 @@ function handleRestartGame(playerId) {
     }));
   }
 
+}
+
+// 處理重新排列玩家順序
+function handleResortPlayers(playerId) {
+  const player = players.get(playerId);
+  if (!player || !player.roomId) {
+    console.log(`玩家 ${playerId} 不存在或沒有房間ID`);
+    return;
+  }
+
+  const game = games.get(player.roomId);
+  if (!game) return;
+
+  // 只有房間創建者（index 0）可以重新排列玩家
+  const playerIndex = game.players.findIndex(p => p.id === playerId);
+  if (playerIndex !== 0) {
+    player.ws.send(JSON.stringify({
+      type: 'error',
+      message: '只有房間創建者可以重新排列玩家順序'
+    }));
+    return;
+  }
+
+  // 只有在等待狀態下才能重新排列
+  if (game.gameState !== 'waiting') {
+    player.ws.send(JSON.stringify({
+      type: 'error',
+      message: '只有在等待狀態下才能重新排列玩家順序'
+    }));
+    return;
+  }
+  // 超過兩名玩家才能重新排列
+  if (game.players.length <= 2) {
+    player.ws.send(JSON.stringify({
+      type: 'error',
+      message: '必須超過兩名玩家才能重新排列順序'
+    }));
+    return;
+  }
+
+  // 隨機重新排列玩家順序（保持房間創建者在第一位）
+  const roomCreator = game.players[0];
+  const otherPlayers = game.players.slice(1);
+  
+  for (let i = otherPlayers.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [otherPlayers[i], otherPlayers[j]] = [otherPlayers[j], otherPlayers[i]];
+  }
+  
+  // 重新組合玩家陣列
+  game.players = [roomCreator, ...otherPlayers];
+
+  game.players.forEach(player => {
+    player.ready = false;
+  });
+
+  broadcastToRoom(game.id, {
+    type: 'players_resorted',
+    message: '玩家順序已重新排列',
+    players: game.players.map(p => ({ id: p.id, name: p.name, ready: p.ready }))
+  });
+
+  console.log(`房間 ${game.id} 玩家順序已重新排列，新順序:`, game.players.map(p => p.name));
 }
 
 function resetGameState(game) {

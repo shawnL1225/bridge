@@ -140,13 +140,15 @@ const GameRoom: React.FC<GameRoomProps> = ({
     const ws = new WebSocket(config.wsUrl);
 
     ws.onopen = () => {
-      console.log('WebSocket 連線成功');
+      console.log('WebSocket 連線成功，連線URL:', config.wsUrl);
       // 連線成功後立即加入房間
-      ws.send(JSON.stringify({
+      const joinMessage = {
         type: 'join_room',
         roomId: roomId,
         playerName: playerName
-      }));
+      };
+      console.log('發送加入房間消息:', joinMessage);
+      ws.send(JSON.stringify(joinMessage));
     };
 
     ws.onerror = (error) => {
@@ -427,6 +429,15 @@ const GameRoom: React.FC<GameRoomProps> = ({
         setMyHand([]);
         break;
 
+      case 'players_resorted':
+        console.log('收到玩家重新排列消息:',  message.players?.map(p => p.name));
+
+        setMessage(message.message || '玩家順序已重新排列');
+        setPlayers(message.players || []);
+        // 重置準備狀態
+        setIsReady(false);
+        break;
+
       case 'game_ended':
         setGameState('finished');
         if (message.contractResult) {
@@ -485,6 +496,16 @@ const GameRoom: React.FC<GameRoomProps> = ({
         p.id === playerId ? { ...p, ready: false } : p
       )
     );
+  };
+
+  const handleResortPlayers = () => {
+    console.log('點擊重新排列玩家按鈕');
+    if (wsRef.current) {
+      console.log('發送resort_players消息到server');
+      wsRef.current.send(JSON.stringify({ type: 'resort_players' }));
+    } else {
+      console.log('WebSocket連線不存在');
+    }
   };
 
   const handlePlayCard = (cardIndex: number) => {
@@ -691,6 +712,7 @@ const GameRoom: React.FC<GameRoomProps> = ({
           onReady={handleReady}
           onLeaveRoom={handleLeaveRoom}
           onCancelReady={handleCancelReady}
+          onResortPlayers={handleResortPlayers}
         />
       )}
 

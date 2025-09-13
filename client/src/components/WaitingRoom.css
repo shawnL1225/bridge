@@ -150,7 +150,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 13px;
+  gap: 8px;
   max-width: 268px;
   margin: 0 auto;
 }
@@ -158,39 +158,26 @@
 .main-action {
   display: flex;
   justify-content: center;
+  align-items: center;
+  gap: 12px;
   width: 100%;
+  height: auto;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
 }
 
-.secondary-action {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  position: relative;
-}
 
-.secondary-action::before {
-  content: '';
-  position: absolute;
-  top: -10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 40px;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-}
-
-.ready-btn {
-  background: linear-gradient(45deg, #4ecdc4, #44a08d);
+/* 基礎按鈕樣式 */
+.ready-btn, .cancel-ready-btn, .resort-btn {
   color: white;
   border: none;
-  font-size: 0.5rem;
   padding: 11px 21px;
-  border-radius: 25px;
+  border-radius: 15px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 6px 20px rgba(78, 205, 196, 0.4);
-  min-width: 107px;
+  min-width: 120px;
   text-align: center;
   display: flex;
   align-items: center;
@@ -198,6 +185,15 @@
   gap: 5px;
   position: relative;
   overflow: hidden;
+  margin: 0;
+  line-height: 1;
+}
+
+/* 準備按鈕顏色 */
+.ready-btn {
+  background: linear-gradient(45deg, #4ecdc4, #44a08d);
+  box-shadow: 0 6px 20px rgba(78, 205, 196, 0.4);
+  font-size: 0.5rem;
 }
 
 .ready-btn:hover {
@@ -212,28 +208,14 @@
 }
 
 .ready-btn:hover i {
-  transform: scale(1.1);
+  transform: rotate(360deg);
 }
 
+/* 取消準備按鈕顏色 */
 .cancel-ready-btn {
   background: linear-gradient(45deg, #ff9f6b, #ee5a24);
-  color: white;
-  border: none;
-  font-size: 0.5rem;
-  padding: 11px 21px;
-  border-radius: 25px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
   box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
-  min-width: 107px;
-  text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  position: relative;
-  overflow: hidden;
+  font-size: 0.5rem;
 }
 
 .cancel-ready-btn:hover {
@@ -248,7 +230,7 @@
 }
 
 .cancel-ready-btn:hover i {
-  transform: scale(1.1);
+  transform: rotate(180deg);
 }
 
 .leave-btn {
@@ -288,14 +270,38 @@
   transform: translateX(-2px);
 }
 
+/* 重新排列按鈕樣式 */
+
+/* 重新排列按鈕顏色 */
+.resort-btn {
+  background: linear-gradient(45deg, #6c5ce7, #a29bfe);
+  box-shadow: 0 6px 20px rgba(108, 92, 231, 0.4);
+  font-size: 0.5rem;
+}
+
+.resort-btn:hover {
+  background: linear-gradient(45deg, #5f3dc4, #9775fa);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(108, 92, 231, 0.5);
+}
+
+.resort-btn i {
+  font-size: 0.65rem;
+  transition: transform 0.3s ease;
+}
+
+.resort-btn:hover i {
+  transform: rotate(180deg);
+}
+
 /* 響應式設計 */
 @media (max-width: 768px) {
   .button-container {
     max-width: 201px;
-    gap: 10px;
+    gap: 6px;
   }
   
-  .ready-btn, .cancel-ready-btn {
+  .ready-btn, .cancel-ready-btn, .resort-btn {
     font-size: 0.67rem;
     padding: 9px 19px;
     min-width: 94px;
@@ -311,10 +317,10 @@
 @media (max-width: 480px) {
   .button-container {
     max-width: 168px;
-    gap: 8px;
+    gap: 5px;
   }
   
-  .ready-btn, .cancel-ready-btn {
+  .ready-btn, .cancel-ready-btn, .resort-btn {
     font-size: 0.64rem;
     padding: 8px 16px;
     min-width: 80px;
