@@ -376,20 +376,20 @@ function startGame(roomId) {
   
   // 隨機選擇第一個開始叫墩的玩家
   const firstBidderIndex = Math.floor(Math.random() * 4);
-  
+  game.biddingState.currentBidder = firstBidderIndex
   // 建立叫墩順序（從隨機選擇的玩家開始）
   game.turnOrder = [
-    game.players[firstBidderIndex].id,
-    game.players[(firstBidderIndex + 1) % 4].id,
-    game.players[(firstBidderIndex + 2) % 4].id,
-    game.players[(firstBidderIndex + 3) % 4].id
+    game.players[0].id,
+    game.players[1].id,
+    game.players[2].id,
+    game.players[3].id
   ];
 
   // 為每個玩家發送叫墩開始訊息和手牌
   game.players.forEach((player, index) => {
     player.ws.send(JSON.stringify({
       type: 'bidding_started',
-      currentBidder: game.turnOrder[0],
+      currentBidder: game.turnOrder[firstBidderIndex],
       currentBidderName: game.players[firstBidderIndex].name,
       hand: game.hands[index],  // 發送手牌供叫墩參考
       bids: game.biddingState.bids
