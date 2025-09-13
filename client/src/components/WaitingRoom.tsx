@@ -114,7 +114,7 @@ const WaitingRoom: React.FC<WaitingRoomProps> = ({
                 onResortPlayers();
               }} className="resort-btn">
                 <i className="fas fa-random"></i>
-                重排玩家
+                玩家順序
               </button>
             )}
           </div>
