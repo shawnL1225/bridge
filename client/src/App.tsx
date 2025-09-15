@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import './App.css';
 import Lobby from './components/Lobby';
 import GameRoom from './components/GameRoom';
-import BackgroundMusic from './components/BackgroundMusic';
+import MusicControl from './components/MusicControl';
+import './components/MusicControl.css';
 import { DEV_CONFIG } from './config/devConfig';
 
 export interface Player {
@@ -61,7 +62,6 @@ function App() {
 
   return (
     <div className="App">
-      <BackgroundMusic volume={0.5} />
       <header className="App-header">
         <div className="header-content">
           <div className="casino-brand">
@@ -76,6 +76,9 @@ function App() {
             </div>
           </div>
           <div className="header-subtitle">Online Contract Bridge</div>
+          <div className="header-controls">
+            <MusicControl volume={0.5} />
+          </div>
         </div>
         <div className="header-decoration"></div>
       </header>

@@ -1,0 +1,62 @@
+.music-control {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 99999 !important;
+}
+
+.music-toggle-btn {
+  background: linear-gradient(145deg, 
+    rgba(212, 175, 55, 0.2) 0%, 
+    rgba(230, 197, 71, 0.3) 50%, 
+    rgba(212, 175, 55, 0.2) 100%);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: #766220;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  min-width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(5px);
+}
+
+.music-toggle-btn:hover {
+  background: linear-gradient(145deg, 
+    rgba(212, 175, 55, 0.4) 0%, 
+    rgba(230, 197, 71, 0.5) 50%, 
+    rgba(212, 175, 55, 0.4) 100%);
+  border-color: rgba(212, 175, 55, 0.6);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+}
+
+.music-toggle-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(212, 175, 55, 0.2);
+}
+
+.music-toggle-btn i {
+  text-shadow: 0 0 4px rgba(212, 175, 55, 0.5);
+}
+
+
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+  .music-control {
+    gap: 6px;
+  }
+  
+  .music-toggle-btn {
+    padding: 6px 10px;
+    font-size: 12px;
+    min-width: 32px;
+    height: 32px;
+  }
+}

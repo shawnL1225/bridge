@@ -123,6 +123,14 @@
   opacity: 0.9;
 }
 
+.header-controls {
+  position: absolute;
+  top: 50%;
+  right: 20px;
+  transform: translateY(-50%);
+  z-index: 99999 !important;
+}
+
 .header-decoration {
   position: absolute;
   top: 0;
@@ -206,6 +214,10 @@ input:focus {
   .header-subtitle {
     font-size: 1rem;
     letter-spacing: 1px;
+  }
+  
+  .header-controls {
+    right: 15px;
   }
   
   button {
