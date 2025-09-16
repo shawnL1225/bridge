@@ -5,7 +5,7 @@ export const mockPlayers: Player[] = [
   { id: 'player1', name: '測試玩家1', ready: true },
   { id: 'player2', name: '測試玩家2', ready: true },
   { id: 'player3', name: '測試玩家3', ready: true },
-  { id: 'player4', name: '測試玩家4', ready: true }
+  { id: 'player4', name: '測試玩家4', ready: false }
 ];
 
 // 模擬手牌數據

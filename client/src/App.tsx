@@ -137,10 +137,10 @@ function App() {
         />
       )}
       
-            {/* 離線狀態指示器 */}
-            <OfflineIndicator />
-          </div>
-        );
-      }
-      
-      export default App;
+      {/* 離線狀態指示器 */}
+      <OfflineIndicator />
+    </div>
+  );
+}
+
+export default App;

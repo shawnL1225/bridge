@@ -641,15 +641,12 @@ const GameRoom: React.FC<GameRoomProps> = ({
           color: '#ffd700',
           padding: '10px',
           borderRadius: '5px',
-          fontSize: '12px',
+          fontSize: '8px',
           zIndex: 9999,
           border: '1px solid #ffd700'
         }}>
           <div>開發模式</div>
           <div>當前畫面: {DEV_MESSAGES[DEV_GAME_STATE]}</div>
-          <div style={{ fontSize: '10px', marginTop: '5px', color: '#ccc' }}>
-            修改 devConfig.ts 中的 GAME_STATE 來切換畫面
-          </div>
         </div>
       )}
 

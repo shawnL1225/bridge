@@ -382,74 +382,28 @@
   }
 }
 
-/* 響應式設計 - 等比例縮放 */
-@media (max-width: 768px) {
+/* 手機版橫向顯示 */
+@media (max-height: 500px) and (orientation: landscape) {
   .lobby {
-    padding: 15px;
-    font-size: 0.9rem;
+    padding: 10px 20px;
+    align-items: center;
+    min-height: 100vh;
   }
   
   .lobby-container {
-    padding: 25px 18px;
-    max-width: 100%;
-    transform: scale(0.95);
+    max-width: 600px;
+    width: 100%;
+    padding: 20px 25px;
+    transform: scale(0.8);
   }
   
-  .casino-title {
-    font-size: 1.1rem;
-    letter-spacing: 1.5px;
-  }
-  
-  .lobby-title {
-    font-size: 1.4rem;
-  }
-  
-  .casino-input {
-    padding: 12px 14px;
-    font-size: 0.7rem;
-    min-height: 44px;
-  }
-  
-  .join-btn {
-    padding: 12px 20px;
-    font-size: 0.85rem;
-    min-height: 44px;
-  }
-  
-  .card-symbols {
-    gap: 8px;
-  }
-  
-  .card-symbols span {
-    font-size: 0.9rem;
-  }
-  
-  .marquee-container {
-    height: 35px;
-  }
-  
-  .marquee-text {
-    font-size: 0.65rem;
-  }
-  
-  .marquee-content {
-    padding: 0 8px;
-    gap: 15px;
-  }
-}
-
-@media (max-width: 480px) {
-  .lobby {
-    font-size: 0.8rem;
-  }
-  
-  .lobby-container {
-    padding: 18px 12px;
-    transform: scale(0.9);
+  .lobby-header {
+    margin-bottom: 15px;
   }
   
   .casino-logo {
     gap: 6px;
+    margin-bottom: 8px;
   }
   
   .card-symbol {
@@ -457,48 +411,57 @@
   }
   
   .casino-title {
-    font-size: 0.9rem;
-    letter-spacing: 0.8px;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
   }
   
   .lobby-title {
-    font-size: 1.1rem;
+    font-size: 1.4rem;
+    margin: 0 0 6px 0;
+  }
+  
+  .lobby-subtitle {
+    font-size: 0.6rem;
+  }
+  
+  .join-form {
+    gap: 12px;
   }
   
   .casino-input {
-    font-size: 16px; /* 防止 iOS 縮放 */
-    min-height: 44px;
-  }
-  
-  .join-btn {
-    font-size: 16px; /* 防止 iOS 縮放 */
-    min-height: 44px;
-  }
-  
-  .input-container {
-    position: relative;
-    display: flex;
-    align-items: center;
+    padding: 10px 12px;
+    font-size: 0.7rem;
   }
   
   .dice-btn {
-    position: absolute;
-    right: 8px;
-    width: 27px;
-    height: 27px;
-    min-height: 27px;
+    width: 24px;
+    height: 24px;
+    font-size: 0.7rem;
+  }
+  
+  .join-btn {
+    padding: 10px 18px;
+    font-size: 0.8rem;
+    gap: 6px;
+  }
+  
+  .btn-icon {
+    font-size: 0.8rem;
+  }
+  
+  .casino-footer {
+    margin-top: 15px;
+  }
+  
+  .card-symbols {
+    gap: 10px;
+  }
+  
+  .card-symbols span {
+    font-size: 1rem;
   }
   
   .marquee-container {
-    height: 30px;
-  }
-  
-  .marquee-text {
-    font-size: 0.55rem;
-  }
-  
-  .marquee-content {
-    padding: 0 6px;
-    gap: 10px;
+    display: none;
   }
 }

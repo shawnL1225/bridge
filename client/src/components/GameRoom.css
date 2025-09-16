@@ -918,111 +918,158 @@
   100% { transform: scale(1); }
 }
 
-/* 響應式設計 - 等比例縮放 */
-@media (max-width: 768px) {
+
+
+/* 手機版橫向顯示 */
+@media (max-height: 500px) and (orientation: landscape) {
   .game-room {
-    padding: 10px;
-    font-size: 0.9rem;
+    padding: 5px;
+    font-size: 0.7rem;
+    height: 100vh;
+    overflow: hidden;
   }
   
   .room-header {
     grid-template-columns: 1fr 1fr 1fr;
-    gap: 6px;
-    padding: 10px;
-    text-align: center;
-    transform: scale(0.85);
-    min-height: 70px;
+    gap: 4px;
+    padding: 6px 10px;
+    transform: scale(0.7);
+    min-height: 50px;
+    margin: 0 0 8px 0;
   }
   
-  .header-left, .header-center, .header-right {
-    justify-self: center;
-    align-self: center;
+  .player-avatar {
+    width: 24px;
+    height: 24px;
+    font-size: 1rem;
+  }
+  
+  .player-name-display {
+    font-size: 0.6rem;
+  }
+  
+  .status-indicator {
+    font-size: 0.6rem;
   }
   
   .room-info {
     flex-direction: row;
-    gap: 6px;
+    gap: 4px;
     text-align: center;
     justify-content: center;
+    padding: 4px 3px;
   }
   
   .player-info {
     flex-direction: row;
-    gap: 6px;
+    gap: 4px;
     text-align: center;
-    padding: 4px;
+    padding: 3px;
     justify-content: center;
   }
   
-  .player-avatar {
-    width: 50px;
-    height: 50px;
-    font-size: 2rem;
-  }
-  
-  .player-name-display {
-    font-size: 1rem;
-  }
-  
-  .status-indicator {
-    font-size: 0.8rem;
-  }
-  
   .room-number, .count-number {
-    font-size: 0.6rem;
-    padding: 3px 6px;
+    font-size: 0.35rem;
+    padding: 2px 4px;
   }
-
-  .game-section {
-    grid-template-columns: 1fr;
-    gap: 15px;
+  
+  .room-label, .count-label {
+    font-size: 0.4rem;
   }
   
   .players-container {
-    grid-template-areas: 
-      "top"
-      "left"
-      "right"
-      "bottom";
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto auto;
-    gap: 12px;
-    min-height: auto;
-  }
-  
-  .player.top, .player.right, .player.left, .player.bottom {
-    transform: none;
-    justify-self: center;
-    align-self: center;
+    gap: 8px;
+    margin-bottom: 15px;
+    min-height: 200px;
   }
   
   .player {
     width: 100%;
-    max-width: 280px;
-    height: 100px;
+    max-width: 180px;
+    height: 60px;
+    padding: 8px;
+  }
+  
+  .player h3 {
+    font-size: 0.6rem;
+    margin: 2px 0;
+  }
+  
+  .player p {
+    font-size: 0.5rem;
+    margin: 1px 0;
   }
   
   .card {
-    width: 45px;
-    height: 65px;
-    font-size: 0.8rem;
+    width: 30px;
+    height: 42px;
+    font-size: 0.6rem;
   }
   
   .hand-card-3d {
-    width: 60px;
-    height: 80px;
-    font-size: 1.1rem;
+    width: 35px;
+    height: 50px;
+    font-size: 0.8rem;
   }
+  
+  .hand-container {
+    gap: 2px;
+    padding: 0 8px;
+    min-height: 80px;
+  }
+  
+  .unified-hand-area {
+    padding: 8px 0 15px 0;
+    min-height: 100px;
+  }
+  
+  .hand-title {
+    font-size: 0.7rem;
+    margin-bottom: 8px;
+  }
+  
+  .game-section {
+    gap: 15px;
+    margin-bottom: 80px;
+  }
+  
+  .played-cards, .my-hand {
+    padding: 15px;
+  }
+  
+  .played-cards h3, .my-hand h3 {
+    font-size: 1rem;
+    margin: 0 0 10px 0;
+  }
+  
   .player.player-shining {
     box-shadow: 
-      0 0 12px rgba(78, 205, 196, 0.3),
+      0 0 6px rgba(78, 205, 196, 0.3),
       0 2px 4px rgba(0, 0, 0, 0.2),
       inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+  }
+  
+  .contract-info {
+    padding: 8px 12px;
+    font-size: 0.7rem;
+    margin: 10px 0;
+  }
+  
+  .game-message-banner {
+    margin-bottom: 10px;
+  }
+  
+  .message-content {
+    padding: 8px 12px;
+  }
+  
+  .message-icon {
+    font-size: 0.7rem;
   }
 }
 
 /* 小手機版響應式設計 */
-@media (max-width: 480px) {
+@media (max-height: 500px) {
   .game-room {
     padding: 8px;
     font-size: 0.8rem;
@@ -1036,6 +1083,7 @@
     padding: 10px;
     transform: scale(0.85);
     min-height: 70px;
+    margin: 0;
   }
   
   .player-avatar {
