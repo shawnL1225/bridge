@@ -918,17 +918,20 @@
   100% { transform: scale(1); }
 }
 
-/* 響應式設計 */
+/* 響應式設計 - 等比例縮放 */
 @media (max-width: 768px) {
   .game-room {
     padding: 10px;
+    font-size: 0.9rem;
   }
   
   .room-header {
-    grid-template-columns: 1fr;
-    gap: 20px;
-    padding: 20px;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+    padding: 10px;
     text-align: center;
+    transform: scale(0.85);
+    min-height: 70px;
   }
   
   .header-left, .header-center, .header-right {
@@ -937,41 +940,42 @@
   }
   
   .room-info {
-    flex-direction: column;
-    gap: 15px;
+    flex-direction: row;
+    gap: 6px;
     text-align: center;
+    justify-content: center;
   }
   
   .player-info {
-    flex-direction: column;
-    gap: 15px;
+    flex-direction: row;
+    gap: 6px;
     text-align: center;
-    padding: 5px;
+    padding: 4px;
+    justify-content: center;
   }
   
   .player-avatar {
-    width: 60px;
-    height: 60px;
-    font-size: 2.4rem;
+    width: 50px;
+    height: 50px;
+    font-size: 2rem;
   }
   
   .player-name-display {
-    font-size: 1.2rem;
+    font-size: 1rem;
   }
   
   .status-indicator {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
   }
   
-  
   .room-number, .count-number {
-    font-size: 0.9rem;
-    padding: 6px 12px;
+    font-size: 0.6rem;
+    padding: 3px 6px;
   }
 
   .game-section {
     grid-template-columns: 1fr;
-    gap: 20px;
+    gap: 15px;
   }
   
   .players-container {
@@ -982,7 +986,7 @@
       "bottom";
     grid-template-columns: 1fr;
     grid-template-rows: auto auto auto auto;
-    gap: 15px;
+    gap: 12px;
     min-height: auto;
   }
   
@@ -994,13 +998,112 @@
   
   .player {
     width: 100%;
-    max-width: 300px;
+    max-width: 280px;
+    height: 100px;
   }
   
   .card {
+    width: 45px;
+    height: 65px;
+    font-size: 0.8rem;
+  }
+  
+  .hand-card-3d {
+    width: 60px;
+    height: 80px;
+    font-size: 1.1rem;
+  }
+  .player.player-shining {
+    box-shadow: 
+      0 0 12px rgba(78, 205, 196, 0.3),
+      0 2px 4px rgba(0, 0, 0, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+  }
+}
+
+/* 小手機版響應式設計 */
+@media (max-width: 480px) {
+  .game-room {
+    padding: 8px;
+    font-size: 0.8rem;
+  }
+  .status-text {
+    font-size: 0.5rem;
+  }
+  .room-header {
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+    padding: 10px;
+    transform: scale(0.85);
+    min-height: 70px;
+  }
+  
+  .player-avatar {
+    width: 30px;
+    height: 30px;
+    font-size: 1.4rem;
+  }
+  
+  .player-name-display {
+    font-size: 0.7rem;
+  }
+  
+  .status-indicator {
+    font-size: 0.7rem;
+  }
+  
+  .room-info {
+    flex-direction: row;
+    gap: 6px;
+    text-align: center;
+    justify-content: center;
+  }
+  
+  .player-info {
+    flex-direction: row;
+    gap: 6px;
+    text-align: center;
+    padding: 4px;
+    justify-content: center;
+  }
+  
+  .room-number, .count-number {
+    font-size: 0.4rem;
+    padding: 3px 6px;
+  }
+  
+  .player {
+    width: 100%;
+    max-width: 250px;
+    height: 80px;
+  }
+  
+  .card {
+    width: 40px;
+    height: 55px;
+    font-size: 0.7rem;
+  }
+  
+  .hand-card-3d {
     width: 50px;
     height: 70px;
-    font-size: 0.85rem;
+    font-size: 1rem;
+  }
+  
+  .hand-container {
+    gap: 3px;
+    padding: 0 10px;
+  }
+  
+  .unified-hand-area {
+    padding: 10px 0 20px 0;
+  }
+  
+  .player.player-shining {
+    box-shadow: 
+      0 0 8px rgba(78, 205, 196, 0.3),
+      0 2px 4px rgba(0, 0, 0, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
   }
 }
 

@@ -586,7 +586,7 @@
   animation: pulse 2s infinite;
 }
 
-/* 響應式設計 */
+/* 響應式設計 - 等比例縮放 */
 @media (max-width: 768px) {
   .game-board {
     grid-template-areas:
@@ -597,8 +597,9 @@
       "bottom";
     grid-template-columns: 1fr;
     grid-template-rows: auto auto auto auto auto;
-    gap: 15px;
-    min-height: 350px;
+    gap: 12px;
+    min-height: 320px;
+    transform: scale(0.95);
   }
   
   .player.top, .player.right, .player.left, .player.bottom {
@@ -609,34 +610,92 @@
   
   .player {
     width: 100%;
-    max-width: 300px;
+    max-width: 280px;
+    height: 100px;
+  }
+  
+  .player h3 {
+    font-size: 1rem;
+  }
+  
+  .player p {
+    font-size: 0.75rem;
   }
   
   .game-section {
     grid-template-columns: 1fr;
-    gap: 20px;
+    gap: 15px;
   }
   
   .card {
-    width: 50px;
-    height: 70px;
-    font-size: 1rem;
+    width: 45px;
+    height: 65px;
+    font-size: 0.9rem;
+  }
+  
+  .hand-card-3d {
+    width: 60px;
+    height: 80px;
+    font-size: 1.1rem;
   }
 
   /* 移動端叫墩結果顯示調整 */
   .bidding-result-display {
     position: absolute;
-    top: 10px;
-    left: 10px;
-    right: 10px;
+    top: 8px;
+    left: 8px;
+    right: 8px;
     width: auto;
     max-width: none;
     min-width: auto;
-    font-size: 13px;
-    padding: 14px 16px;
+    font-size: 12px;
+    padding: 12px 14px;
   }
+}
 
-
+/* 小手機版響應式設計 */
+@media (max-width: 480px) {
+  .game-board {
+    gap: 10px;
+    min-height: 280px;
+    transform: scale(0.9);
+  }
+  
+  .player {
+    width: 100%;
+    max-width: 250px;
+    height: 80px;
+  }
+  
+  .player h3 {
+    font-size: 0.9rem;
+  }
+  
+  .player p {
+    font-size: 0.7rem;
+  }
+  
+  .card {
+    width: 40px;
+    height: 55px;
+    font-size: 0.8rem;
+  }
+  
+  .hand-card-3d {
+    width: 50px;
+    height: 70px;
+    font-size: 1rem;
+  }
+  
+  .hand-container {
+    gap: 3px;
+    padding: 0 10px;
+  }
+  
+  .bidding-result-display {
+    font-size: 11px;
+    padding: 10px 12px;
+  }
 }
 
 /* 墩記錄顯示區域 - 位於game-board正下方 */

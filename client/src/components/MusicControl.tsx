@@ -6,7 +6,7 @@ interface MusicControlProps {
 }
 
 const MusicControl: React.FC<MusicControlProps> = ({ 
-  musicFile = '/backgroudmusic_Fall-Coffee-Shop.mp3',
+  musicFile = '/backgroudmusic.mp3',
   volume = 0.6
 }) => {
   const audioRef = useRef<HTMLAudioElement>(null);

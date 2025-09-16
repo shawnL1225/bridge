@@ -550,33 +550,44 @@
 /* 響應式設計 */
 @media (max-width: 768px) {
   .bidding-board {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      ". top ."
+      "left center right"
+      ". bottom .";
+    grid-template-columns: 1fr auto 1fr;
+    grid-template-rows: auto 1fr auto;
     gap: 15px;
     padding: 15px;
     padding-bottom: 15px; /* 減少底部padding */
     height: 70vh; /* 手機版也限制為70% */
   }
 
-  .bidding-player.left,
-  .bidding-player.top,
-  .bidding-player.right {
-    grid-column: 1;
-    grid-row: 1;
-    display: flex;
+  .bidding-player.left {
+    grid-area: left;
+    align-self: start;
+    justify-self: end;
+  }
+
+  .bidding-player.top {
+    grid-area: top;
     flex-direction: row;
-    justify-content: space-around;
-    padding: 10px;
-    margin-bottom: 10px;
+    justify-self: center;
+    align-self: end;
+  }
+
+  .bidding-player.right {
+    grid-area: right;
+    align-self: start;
+    justify-self: start;
   }
 
   .bidding-center {
-    grid-column: 1;
-    grid-row: 2;
+    grid-area: center;
     padding: 16px;
     min-height: 80px;
     width: 100%;
-    min-width: 100%;
+    min-width: 268px;
+    max-width: 400px;
   }
 
 
@@ -615,5 +626,81 @@
 
   .bidding-controls {
     padding: 15px;
+  }
+}
+
+/* 小手機版響應式設計 */
+@media (max-width: 480px) {
+  .bidding-board {
+    grid-template-areas:
+      ". top ."
+      "left center right"
+      ". bottom .";
+    grid-template-columns: 1fr auto 1fr;
+    grid-template-rows: auto 1fr auto;
+    gap: 10px;
+    padding: 10px;
+    height: 65vh;
+    font-size: 0.8rem;
+  }
+  
+  .bidding-player.left {
+    grid-area: left;
+    align-self: start;
+    justify-self: end;
+    padding: 8px;
+  }
+
+  .bidding-player.top {
+    grid-area: top;
+    flex-direction: row;
+    justify-self: center;
+    align-self: end;
+    padding: 8px;
+  }
+
+  .bidding-player.right {
+    grid-area: right;
+    align-self: start;
+    justify-self: start;
+    padding: 8px;
+  }
+  
+  .bidding-center {
+    grid-area: center;
+    padding: 12px;
+    min-height: 70px;
+    width: 100%;
+    min-width: 240px;
+    max-width: 320px;
+  }
+  
+  .bid-selector {
+    gap: 15px;
+  }
+  
+  .level-selector, .suit-selector {
+    gap: 8px;
+  }
+  
+  .level-selector label, .suit-selector label {
+    min-width: 35px;
+    font-size: 0.8em;
+    min-height: 44px;
+  }
+  
+  .hand-container {
+    gap: 2px;
+    padding: 0 8px;
+  }
+  
+  .hand-card-3d {
+    width: 45px;
+    height: 65px;
+    font-size: 0.9rem;
+  }
+  
+  .bidding-controls {
+    padding: 12px;
   }
 }

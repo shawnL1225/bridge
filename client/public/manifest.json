@@ -1,0 +1,55 @@
+{
+  "short_name": "Casino Bridge",
+  "name": "Casino Bridge - Online Contract Bridge",
+  "description": "線上合約橋牌遊戲",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any"
+    },
+    {
+      "src": "apple-touch-icon.png",
+      "type": "image/png",
+      "sizes": "180x180",
+      "purpose": "any"
+    },
+    {
+      "src": "apple-touch-icon-152x152.png",
+      "type": "image/png",
+      "sizes": "152x152",
+      "purpose": "any"
+    },
+    {
+      "src": "apple-touch-icon-167x167.png",
+      "type": "image/png",
+      "sizes": "167x167",
+      "purpose": "any"
+    }
+  ],
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "theme_color": "#1a1a2e",
+  "background_color": "#16213e",
+  "orientation": "portrait-primary",
+  "categories": ["games", "entertainment"],
+  "lang": "zh-TW",
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "edge_side_panel": {
+    "preferred_width": 400
+  }
+}

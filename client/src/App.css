@@ -192,70 +192,169 @@ input:focus {
   box-shadow: 0 0 0 3px rgba(33, 37, 41, 0.1);
 }
 
-/* 響應式設計 */
+/* 響應式設計 - 等比例縮放 */
 @media (max-width: 768px) {
+  .App {
+    font-size: 0.9rem; /* 整體字體縮放 */
+  }
+  
   .App-header {
-    padding: 25px 15px;
+    padding: 20px 15px;
+    min-height: 80px;
   }
   
   .casino-brand {
-    gap: 15px;
+    gap: 12px;
+    transform: scale(0.9);
   }
   
   .symbol {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
   }
   
   .app-title {
-    font-size: 1.47rem;
-    letter-spacing: 2px;
+    font-size: 1.3rem;
+    letter-spacing: 1.5px;
   }
   
   .header-subtitle {
-    font-size: 1rem;
-    letter-spacing: 1px;
+    font-size: 0.8rem;
+    letter-spacing: 0.6px;
   }
   
   .header-controls {
     right: 15px;
+    transform: scale(0.9);
   }
   
   button {
-    padding: 10px 20px;
+    padding: 10px 18px;
     font-size: 14px;
+    min-height: 40px;
   }
   
   input {
-    padding: 10px 14px;
+    padding: 10px 12px;
     font-size: 14px;
+    min-height: 40px;
   }
 }
 
 @media (max-width: 480px) {
+  .App {
+    font-size: 0.8rem; /* 進一步縮放字體 */
+  }
+  
   .App-header {
-    padding: 20px 10px;
+    padding: 15px 10px;
+    min-height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .header-content {
+    flex: 1;
+    min-width: 0; /* 允許內容收縮 */
+    margin-right: 10px; /* 為音樂控制留出空間 */
   }
   
   .casino-brand {
-    flex-direction: column;
-    gap: 10px;
+    flex-direction: row;
+    gap: 6px;
+    transform: scale(0.75);
+    align-items: center;
   }
   
   .brand-symbols {
-    gap: 6px;
+    gap: 3px;
+    flex-wrap: nowrap;
+    justify-content: center;
   }
   
   .symbol {
-    font-size: 1rem;
+    font-size: 0.8rem;
+    flex-shrink: 0;
   }
   
   .app-title {
     font-size: 1.2rem;
-    letter-spacing: 1px;
+    letter-spacing: 0.8px;
   }
   
   .header-subtitle {
-    font-size: 0.9rem;
+    font-size: 0.65rem;
+    letter-spacing: 0.4px;
+  }
+  
+  .header-controls {
+    right: 15px;
+    transform: scale(0.9);
+  }
+  
+  /* 手機版觸控優化 */
+  button {
+    min-height: 44px; /* iOS 建議的最小觸控目標 */
+    min-width: 44px;
+    padding: 12px 16px;
+    font-size: 16px; /* 防止 iOS 自動縮放 */
+  }
+  
+  input {
+    min-height: 44px;
+    font-size: 16px; /* 防止 iOS 自動縮放 */
+    padding: 12px 16px;
+  }
+  
+  /* 防止雙擊縮放 */
+  * {
+    touch-action: manipulation;
+  }
+  
+  /* 優化滾動 */
+  .App {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* PWA 狀態列適配 */
+  .App {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+  
+  /* 全螢幕模式優化 */
+  @media (display-mode: standalone) {
+    .App-header {
+      padding-top: max(15px, env(safe-area-inset-top));
+    }
+  }
+  
+  /* iOS 特定優化 */
+  @supports (-webkit-touch-callout: none) {
+    /* iOS Safari 特定樣式 */
+    .App {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    /* iOS 狀態列適配 */
+    .App-header {
+      padding-top: max(15px, env(safe-area-inset-top));
+    }
+    
+    /* iOS 底部安全區域 */
+    .App {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    
+    /* iOS 彈性滾動 */
+    .App {
+      -webkit-overflow-scrolling: touch;
+    }
   }
 }
 

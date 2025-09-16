@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import Lobby from './components/Lobby';
 import GameRoom from './components/GameRoom';
 import MusicControl from './components/MusicControl';
+import OfflineIndicator from './components/OfflineIndicator';
 import './components/MusicControl.css';
 import { DEV_CONFIG } from './config/devConfig';
 
@@ -41,6 +42,35 @@ function App() {
     DEV_MODE && SKIP_TO_GAMEROOM ? DEV_CONFIG.PLAYER_NAME : ''
   );
   const [errorMessage, setErrorMessage] = useState<string>('');
+
+  // 註冊 Service Worker
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js', {
+        scope: '/'
+      })
+        .then((registration) => {
+          console.log('SW registered successfully: ', registration);
+          
+          // 檢查更新
+          registration.addEventListener('updatefound', () => {
+            const newWorker = registration.installing;
+            if (newWorker) {
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  console.log('New content is available; please refresh.');
+                }
+              });
+            }
+          });
+        })
+        .catch((registrationError) => {
+          console.error('SW registration failed: ', registrationError);
+        });
+    } else {
+      console.log('Service Worker not supported');
+    }
+  }, []);
 
   const handleJoinRoom = (roomId: string, name: string) => {
     setCurrentRoom(roomId);
@@ -106,8 +136,11 @@ function App() {
           onRoomError={handleRoomError}
         />
       )}
-    </div>
-  );
-}
-
-export default App;
+      
+            {/* 離線狀態指示器 */}
+            <OfflineIndicator />
+          </div>
+        );
+      }
+      
+      export default App;

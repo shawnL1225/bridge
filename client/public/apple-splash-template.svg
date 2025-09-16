@@ -1,0 +1,89 @@
+<svg width="1125" height="2436" viewBox="0 0 1125 2436" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#16213e;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- 背景 -->
+  <rect width="1125" height="2436" fill="url(#bg)"/>
+  
+  <!-- 撲克牌符號裝飾 -->
+  <g opacity="0.1">
+    <!-- 左上角黑桃 -->
+    <g transform="translate(100, 200)" fill="#fff">
+      <path d="M0,0 L-40,-60 L-20,-100 L20,-100 L40,-60 Z M0,-40 L-30,-70 L-10,-90 L10,-90 L30,-70 Z"/>
+    </g>
+    
+    <!-- 右上角紅心 -->
+    <g transform="translate(1025, 200)" fill="#ff4444">
+      <path d="M0,-60 C-30,-90 -60,-60 -40,-30 C-20,-10 0,-10 0,10 C0,-10 20,-10 40,-30 C60,-60 30,-90 0,-60 Z"/>
+    </g>
+    
+    <!-- 左下角方塊 -->
+    <g transform="translate(100, 2236)" fill="#ff4444">
+      <path d="M0,-60 L-40,-20 L-40,20 L0,60 L40,20 L40,-20 Z"/>
+    </g>
+    
+    <!-- 右下角梅花 -->
+    <g transform="translate(1025, 2236)" fill="#fff">
+      <circle cx="0" cy="-40" r="16"/>
+      <circle cx="-30" cy="-10" r="16"/>
+      <circle cx="30" cy="-10" r="16"/>
+      <path d="M0,10 L-20,50 L20,50 Z"/>
+    </g>
+  </g>
+  
+  <!-- 中央主要內容 -->
+  <g transform="translate(562.5, 1218)">
+    <!-- 主要圖示 -->
+    <g transform="translate(0, -100)">
+      <!-- 外圈裝飾 -->
+      <circle cx="0" cy="0" r="120" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
+      
+      <!-- 撲克牌符號 -->
+      <!-- 黑桃 -->
+      <g transform="translate(-50, -30)" fill="#fff">
+        <path d="M0,0 L-20,-30 L-10,-50 L10,-50 L20,-30 Z M0,-20 L-15,-35 L-5,-45 L5,-45 L15,-35 Z"/>
+      </g>
+      
+      <!-- 紅心 -->
+      <g transform="translate(50, -30)" fill="#ff4444">
+        <path d="M0,-30 C-15,-45 -30,-30 -20,-15 C-10,-5 0,-5 0,5 C0,-5 10,-5 20,-15 C30,-30 15,-45 0,-30 Z"/>
+      </g>
+      
+      <!-- 方塊 -->
+      <g transform="translate(-50, 30)" fill="#ff4444">
+        <path d="M0,-30 L-20,-10 L-20,10 L0,30 L20,10 L20,-10 Z"/>
+      </g>
+      
+      <!-- 梅花 -->
+      <g transform="translate(50, 30)" fill="#fff">
+        <circle cx="0" cy="-20" r="8"/>
+        <circle cx="-15" cy="-5" r="8"/>
+        <circle cx="15" cy="-5" r="8"/>
+        <path d="M0,5 L-10,25 L10,25 Z"/>
+      </g>
+    </g>
+    
+    <!-- 應用程式名稱 -->
+    <text x="0" y="80" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="48" font-weight="bold">CASINO BRIDGE</text>
+    
+    <!-- 副標題 -->
+    <text x="0" y="130" text-anchor="middle" fill="#ccc" font-family="Arial, sans-serif" font-size="24">Online Contract Bridge</text>
+    
+    <!-- 載入指示器 -->
+    <g transform="translate(0, 200)">
+      <circle cx="-20" cy="0" r="8" fill="#e94560">
+        <animate attributeName="opacity" values="1;0.3;1" dur="1.5s" repeatCount="indefinite" begin="0s"/>
+      </circle>
+      <circle cx="0" cy="0" r="8" fill="#e94560">
+        <animate attributeName="opacity" values="1;0.3;1" dur="1.5s" repeatCount="indefinite" begin="0.3s"/>
+      </circle>
+      <circle cx="20" cy="0" r="8" fill="#e94560">
+        <animate attributeName="opacity" values="1;0.3;1" dur="1.5s" repeatCount="indefinite" begin="0.6s"/>
+      </circle>
+    </g>
+  </g>
+</svg>
