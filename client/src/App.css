@@ -193,12 +193,95 @@ input:focus {
 }
 
 
-/* 手機版橫向顯示 */
+/* 強制橫向顯示 - 遊戲中 */
+@media (max-height: 1000px) and (orientation: portrait) {
+  .App.in-game {
+    transform: rotate(90deg);
+    transform-origin: center center;
+    width: 100vh;
+    height: 100vw;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    margin-left: -50vh;
+    margin-top: -50vw;
+    overflow: hidden;
+  }
+  
+  /* 隱藏 header 在遊戲中 */
+  .App.in-game .App-header {
+    display: none;
+  }
+}
+
+/* 大廳中不限制方向 - 讓用戶自由選擇 */
+
+/* 方向提示訊息 */
+.orientation-message {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  z-index: 9999;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+}
+
+.orientation-message i {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  color: #d4af37;
+  animation: rotate 2s linear infinite;
+}
+
+.orientation-message h2 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+  color: #d4af37;
+}
+
+.orientation-message p {
+  font-size: 1rem;
+  opacity: 0.8;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(90deg); }
+}
+
+@keyframes rotateBack {
+  from { transform: rotate(90deg); }
+  to { transform: rotate(0deg); }
+}
+
+/* 顯示方向提示 */
+@media (max-height: 1000px) and (orientation: portrait) {
+  .App.in-game .orientation-message {
+    display: flex;
+  }
+}
+
+/* 大廳中不顯示方向提示 */
+
+/* 手機版橫向顯示優化 */
 @media (max-height: 500px) and (orientation: landscape) {
   .App {
     font-size: 0.75rem;
     height: 100vh;
     overflow: hidden;
+    -webkit-overflow-scrolling: touch;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
   }
   
   .App-header {
@@ -228,19 +311,6 @@ input:focus {
     touch-action: manipulation;
   }
   
-  /* 優化滾動 */
-  .App {
-    -webkit-overflow-scrolling: touch;
-  }
-  
-  /* PWA 狀態列適配 */
-  .App {
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
-  }
-  
   /* iOS 特定優化 */
   @supports (-webkit-touch-callout: none) {
     .App {
@@ -248,11 +318,6 @@ input:focus {
       -webkit-user-select: none;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
-    }
-    
-    .App {
-      padding-bottom: env(safe-area-inset-bottom);
-      -webkit-overflow-scrolling: touch;
     }
   }
 }

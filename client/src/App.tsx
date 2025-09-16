@@ -91,7 +91,7 @@ function App() {
   };
 
   return (
-    <div className="App">
+    <div className={`App ${currentRoom ? 'in-game' : 'in-lobby'}`}>
       <header className="App-header">
         <div className="header-content">
           <div className="casino-brand">
@@ -139,6 +139,13 @@ function App() {
       
       {/* 離線狀態指示器 */}
       <OfflineIndicator />
+      
+      {/* 方向提示訊息 */}
+      <div className="orientation-message">
+        <i className="fas fa-mobile-alt"></i>
+        <h2>請旋轉您的設備</h2>
+        <p>為了獲得最佳遊戲體驗，請將設備轉為橫向模式</p>
+      </div>
     </div>
   );
 }
