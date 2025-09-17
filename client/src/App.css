@@ -269,7 +269,6 @@ input:focus {
   }
 }
 
-/* 大廳中不顯示方向提示 */
 
 /* 手機版橫向顯示優化 */
 @media (max-height: 500px) and (orientation: landscape) {

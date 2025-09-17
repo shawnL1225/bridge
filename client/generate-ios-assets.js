@@ -24,6 +24,7 @@ try {
 const sharp = require('sharp');
 
 const publicDir = path.join(__dirname, 'public');
+const appleAssetsDir = path.join(publicDir, 'apple-assets');
 
 // iOS 圖示尺寸
 const iconSizes = [
@@ -50,14 +51,14 @@ const splashSizes = [
 async function generateIcons() {
   console.log('🎨 生成 iOS 圖示...');
   
-  const iconSvg = fs.readFileSync(path.join(publicDir, 'apple-touch-icon.svg'));
+  const iconSvg = fs.readFileSync(path.join(appleAssetsDir, 'apple-touch-icon.svg'));
   
   for (const { size, name } of iconSizes) {
     try {
       await sharp(iconSvg)
         .resize(size, size)
         .png()
-        .toFile(path.join(publicDir, name));
+        .toFile(path.join(appleAssetsDir, name));
       
       console.log(`✅ 生成 ${name} (${size}x${size})`);
     } catch (error) {
@@ -69,14 +70,14 @@ async function generateIcons() {
 async function generateSplashScreens() {
   console.log('🖼️ 生成 iOS 啟動畫面...');
   
-  const splashSvg = fs.readFileSync(path.join(publicDir, 'apple-splash-template.svg'));
+  const splashSvg = fs.readFileSync(path.join(appleAssetsDir, 'apple-splash-template.svg'));
   
   for (const { width, height, name } of splashSizes) {
     try {
       await sharp(splashSvg)
         .resize(width, height)
         .png()
-        .toFile(path.join(publicDir, name));
+        .toFile(path.join(appleAssetsDir, name));
       
       console.log(`✅ 生成 ${name} (${width}x${height})`);
     } catch (error) {
@@ -88,13 +89,13 @@ async function generateSplashScreens() {
 async function generateDefaultIcon() {
   console.log('📱 生成預設圖示...');
   
-  const iconSvg = fs.readFileSync(path.join(publicDir, 'apple-touch-icon.svg'));
+  const iconSvg = fs.readFileSync(path.join(appleAssetsDir, 'apple-touch-icon.svg'));
   
   try {
     await sharp(iconSvg)
       .resize(180, 180)
       .png()
-      .toFile(path.join(publicDir, 'apple-touch-icon.png'));
+      .toFile(path.join(appleAssetsDir, 'apple-touch-icon.png'));
     
     console.log('✅ 生成 apple-touch-icon.png (180x180)');
   } catch (error) {
