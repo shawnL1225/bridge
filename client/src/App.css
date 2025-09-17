@@ -277,7 +277,7 @@ input:focus {
     height: 100vh;
     overflow: hidden;
     -webkit-overflow-scrolling: touch;
-    padding-top: env(safe-area-inset-top);
+    /* 橫向模式下移除頂部 padding，因為 header 已隱藏 */
     padding-bottom: env(safe-area-inset-bottom);
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
@@ -327,8 +327,8 @@ input:focus {
   }
   
   .App-header {
-    padding: 15px 10px;
-    min-height: 70px;
+    padding: 12px 10px; /* 恢復原始 padding */
+    min-height: auto; /* 移除固定的最小高度 */
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -397,18 +397,17 @@ input:focus {
     -webkit-overflow-scrolling: touch;
   }
   
-  /* PWA 狀態列適配 */
-  .App {
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
-  }
-  
-  /* 全螢幕模式優化 */
+  /* PWA 模式優化 - 處理安全區域 */
   @media (display-mode: standalone) {
+    .App {
+      padding-bottom: env(safe-area-inset-bottom);
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
+    }
+    
+    /* 只在 PWA 模式下處理 header 的安全區域 */
     .App-header {
-      padding-top: max(15px, env(safe-area-inset-top));
+      padding-top: max(12px, env(safe-area-inset-top));
     }
   }
   
@@ -420,20 +419,6 @@ input:focus {
       -webkit-user-select: none;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
-    }
-    
-    /* iOS 狀態列適配 */
-    .App-header {
-      padding-top: max(15px, env(safe-area-inset-top));
-    }
-    
-    /* iOS 底部安全區域 */
-    .App {
-      padding-bottom: env(safe-area-inset-bottom);
-    }
-    
-    /* iOS 彈性滾動 */
-    .App {
       -webkit-overflow-scrolling: touch;
     }
   }
@@ -486,6 +471,77 @@ input:focus {
 }
 
 .error-close-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* 更新提示橫幅樣式 */
+.update-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+  color: white;
+  padding: 16px;
+  box-shadow: 0 4px 20px rgba(76, 175, 80, 0.3);
+  border-bottom: 2px solid #388e3c;
+}
+
+.update-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.update-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.update-text {
+  font-size: 16px;
+  font-weight: 600;
+  flex-grow: 1;
+}
+
+.update-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.update-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.update-close-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.update-close-btn:hover {
   background: rgba(255, 255, 255, 0.3);
   transform: none;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);

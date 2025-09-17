@@ -143,11 +143,7 @@ const BiddingBoard: React.FC<BiddingBoardProps> = ({
       })()}
 
       {/* 叫墩歷史和遊戲訊息 - Grid 中間位置 */}
-      <div className="bidding-center">
-        <div className="bidding-message">
-          <span className="message-text">{message}</span>
-        </div>
-        
+      <div className="bidding-center">        
         <div className="bidding-history">
           <span className="text-label">Bidding History</span>
           <div className="bids-list">

@@ -1,10 +1,10 @@
 // 開發模式配置
 export const DEV_CONFIG = {
 
-  ENABLED: true,
-  
+  ENABLED: process.env.NODE_ENV === 'development',
+  // ENABLED: false,
   // 當前要測試的遊戲狀態
-  GAME_STATE: 'waiting' as 'waiting' | 'bidding' | 'playing' | 'finished',
+  GAME_STATE: 'finished' as 'waiting' | 'bidding' | 'playing' | 'finished',
   
   // 是否跳過大廳直接進入遊戲房間
   SKIP_TO_GAMEROOM: true,

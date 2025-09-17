@@ -42,6 +42,7 @@ function App() {
     DEV_MODE && SKIP_TO_GAMEROOM ? DEV_CONFIG.PLAYER_NAME : ''
   );
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [updateAvailable, setUpdateAvailable] = useState<boolean>(false);
 
   // 註冊 Service Worker
   useEffect(() => {
@@ -59,6 +60,7 @@ function App() {
               newWorker.addEventListener('statechange', () => {
                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                   console.log('New content is available; please refresh.');
+                  setUpdateAvailable(true);
                 }
               });
             }
@@ -71,6 +73,18 @@ function App() {
       console.log('Service Worker not supported');
     }
   }, []);
+
+  // 處理更新
+  const handleUpdate = () => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistration().then((registration) => {
+        if (registration && registration.waiting) {
+          registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+          window.location.reload();
+        }
+      });
+    }
+  };
 
   const handleJoinRoom = (roomId: string, name: string) => {
     setCurrentRoom(roomId);
@@ -120,6 +134,22 @@ function App() {
             <span className="error-icon">❌</span>
             <span className="error-text">{errorMessage}</span>
             <button onClick={() => setErrorMessage('')} className="error-close-btn">
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
+      
+      {/* 顯示更新提示 */}
+      {updateAvailable && (
+        <div className="update-banner">
+          <div className="update-content">
+            <span className="update-icon">🔄</span>
+            <span className="update-text">有新版本可用，請重新載入以獲得最新功能</span>
+            <button onClick={handleUpdate} className="update-btn">
+              立即更新
+            </button>
+            <button onClick={() => setUpdateAvailable(false)} className="update-close-btn">
               ✕
             </button>
           </div>

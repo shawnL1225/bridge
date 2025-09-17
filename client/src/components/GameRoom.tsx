@@ -291,10 +291,6 @@ const GameRoom: React.FC<GameRoomProps> = ({
         console.log('遊戲開始 isMyTurn:', message.currentPlayer === playerId);
         setGameState('playing');
 
-        // if (message.hand && message.hand.length > 0 && myHand.length === 0) {
-        //   setMyHand(message.hand);
-        // }
-
         // 設置王牌和最終合約信息
         if (message.trumpSuit) {
           setTrumpSuit(message.trumpSuit);
@@ -415,6 +411,7 @@ const GameRoom: React.FC<GameRoomProps> = ({
         setGameState('waiting');
         setMessage(message.message || '您已重新開始遊戲，請重新準備');
         setPlayers(message.players || []);
+        setIsReady(false);
         // 清空所有遊戲相關狀態
         setFinalContract(null);
         setGameResult(null);

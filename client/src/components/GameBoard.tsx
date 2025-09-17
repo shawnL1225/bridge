@@ -108,7 +108,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
                 {player.id !== playerId && (
                   <div className={`player-info-container ${isWinner ? 'winner-info-glow' : ''}`}>
                     <div className="player-label">
-                      <span className={`other-label ${isWinner ? 'winner-name-glow' : ''}`}>{positionLabel}</span>
+                      <span className={`other-label ${isWinner ? 'winner-name-glow' : ''}`}>{player.name}</span>
                     </div>
 
                     
