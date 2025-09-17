@@ -571,21 +571,6 @@
 
 
 
-/* 遊戲結束 */
-.game-ended {
-  text-align: center;
-  background: rgba(255, 255, 255, 0.1);
-  padding: 40px;
-  border-radius: 15px;
-  backdrop-filter: blur(10px);
-}
-
-.game-ended h3 {
-  margin-bottom: 20px;
-  color: #fff;
-  font-size: 1.5rem;
-}
-
 .back-to-lobby-btn {
   background: linear-gradient(45deg, #667eea, #764ba2);
   color: white;
@@ -759,11 +744,19 @@
   font-size: 0.6rem;
   margin-top: 6px;
   display: inline-block;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-  animation: pulse 2s infinite;
+  box-shadow: 
+    0 8px 25px rgba(102, 126, 234, 0.4),
+    0 4px 12px rgba(118, 75, 162, 0.3),
+    0 2px 6px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 10;
+  animation: turnIndicatorPulse 2s infinite;
 }
 
-@keyframes pulse {
+
+@keyframes turnIndicatorPulse {
   0% { transform: scale(1); }
   50% { transform: scale(1.05); }
   100% { transform: scale(1); }
@@ -779,54 +772,11 @@
   justify-content: center;
   padding: 40px 20px;
   min-height: 70vh;
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%);
+  background: linear-gradient(135deg, #0a0a0a00 0%, #5361387b 50%, #0a0a0a52 100%);
   position: relative;
-  animation: gameEndPulse 6s ease-in-out infinite;
-}
-
-@keyframes gameEndPulse {
-  0%, 100% { 
-    transform: scale(1);
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
-  }
-  50% { 
-    transform: scale(1.01);
-    box-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
-  }
-}
-
-.game-ended::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: 
-    radial-gradient(circle at 25% 25%, rgba(255, 215, 0, 0.05) 0%, transparent 50%),
-    radial-gradient(circle at 75% 75%, rgba(46, 125, 50, 0.05) 0%, transparent 50%);
-  pointer-events: none;
 }
 
 
-@keyframes floatingCards {
-  0%, 100% { 
-    transform: translateY(0px) rotate(0deg);
-    opacity: 0.3;
-  }
-  25% { 
-    transform: translateY(-10px) rotate(5deg);
-    opacity: 0.5;
-  }
-  50% { 
-    transform: translateY(0px) rotate(0deg);
-    opacity: 0.3;
-  }
-  75% { 
-    transform: translateY(10px) rotate(-5deg);
-    opacity: 0.5;
-  }
-}
 
 .contract-result {
   background: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%);
@@ -1450,9 +1400,7 @@
 }
 /* 小手機版響應式設計 */
 @media (max-height: 500px) {
-  .game-room {
-    padding: 0px;
-  }
+
   
   .hand-player-and-room-info {
     display: none !important;
@@ -1495,24 +1443,121 @@
     top: 10px !important;
     left: 10px !important;
   }
-
-  .turn-indicator-3d {
-    background: linear-gradient(45deg, #667eea, #764ba2) !important;
-    color: white !important;
-    padding: 3px 6px !important;
-    border-radius: 8px !important;
-    font-weight: bold !important;
-    font-size: 0.6rem !important;
-    margin-top: 5px !important;
-    display: inline-block !important;
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3) !important;
-    animation: pulse 2s infinite !important;
-  }
   
   .player.player-shining {
     box-shadow: 
       0 0 8px rgba(78, 205, 196, 0.3),
       0 2px 4px rgba(0, 0, 0, 0.2),
       inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+  }
+
+
+  /* 減小 room-header 高度 */
+  .room-header {
+    min-height: 75px !important;
+  }
+  .status-text {
+    font-size: 0.6rem !important;
+  }
+
+  /* 重新設計 game-end 適合手機 */
+  .game-actions {
+    margin: 5px !important;
+  }
+
+  .team-results {
+    display: none !important;
+  }
+
+  .game-ended {
+    padding: 10px !important;
+  }
+    .game-actions button {
+    padding: 6px 12px !important;
+    font-size: 0.7rem !important;
+    border-radius: 8px !important;
+    min-width: 60px !important;
+    height: 32px !important;
+  }
+
+  /* 改良 contract-result 適合橫向手機 */
+  .contract-result {
+    height: 100% !important;
+    max-width: 80vw !important;
+    width: 80vw !important;
+    padding: 8px 16px !important;
+    margin: 5px auto !important;
+    border-radius: 6px !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    min-height: 40px !important;
+    box-sizing: border-box !important;
+    box-shadow: 
+      0 2px 8px rgba(255, 215, 0, 0.2),
+      0 1px 3px rgba(0, 0, 0, 0.3) !important;
+  }
+
+  .contract-result .result-banner {
+    flex-shrink: 0 !important;
+    padding: 4px 8px !important;
+    border-radius: 4px !important;
+    font-size: 0.7rem !important;
+    min-width: 50px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 90% !important;
+  }
+
+  .contract-result .result-banner h4 {
+    line-height: 1.2 !important;
+    writing-mode: vertical-rl !important;
+    letter-spacing: 20px !important;
+  }
+
+  .contract-result .result-details {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 8px !important;
+    align-items: center !important;
+    overflow: hidden !important;
+    height: 100% !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+
+
+
+
+  /* 重新設計 trick-records 適合橫向手機 */
+  .trick-records {
+    width: 80vw !important;
+    min-height: 140px !important;
+    overflow-y: auto !important;
+  }
+
+  /* 隱藏 contract-result 的偽元素 */
+  .contract-result::before {
+    display: none !important;
+  }
+
+  .contract-result::after {
+    display: none !important;
+  }
+
+
+
+
+
+  /* 隱藏 trick-records 的裝飾元素 */
+  .trick-records::before {
+    display: none !important;
   }
 }

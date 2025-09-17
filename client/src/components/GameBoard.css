@@ -448,19 +448,6 @@
   min-height: 120px;
 }
 
-/* 回合指示器 */
-.turn-indicator-3d {
-  background: linear-gradient(45deg, #667eea, #764ba2);
-  color: white;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-weight: bold;
-  font-size: 0.9rem;
-  margin-top: 10px;
-  display: inline-block;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-  animation: pulse 2s infinite;
-}
 
 /* 墩記錄顯示區域 - 位於game-board正下方 */
 .trick-records-display {

@@ -4,7 +4,7 @@ export const DEV_CONFIG = {
   ENABLED: true,
   
   // 當前要測試的遊戲狀態
-  GAME_STATE: 'bidding' as 'waiting' | 'bidding' | 'playing' | 'finished',
+  GAME_STATE: 'waiting' as 'waiting' | 'bidding' | 'playing' | 'finished',
   
   // 是否跳過大廳直接進入遊戲房間
   SKIP_TO_GAMEROOM: true,
