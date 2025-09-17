@@ -98,7 +98,14 @@
   min-width: 0;
 }
 .waiting-room .ready-text {
-  font-size: 0.5rem;
+  font-size: 0.7rem;
+}
+.waiting-room .player h3 {
+  margin: 0 0 8px 0;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.2;
 }
 
 /* 已準備狀態的字體顏色 - 使用更高特異性 */

@@ -64,7 +64,7 @@ const GameRoom: React.FC<GameRoomProps> = ({
   const [isMyTurn, setIsMyTurn] = useState(
     mockData?.isMyTurn || false
   );
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState(mockData?.message || '');
   const [isReady, setIsReady] = useState(false);
   const [playerId, setPlayerId] = useState<string>(
     DEV_MODE ? 'player1' : '' // 開發模式下設置默認 playerId
@@ -88,11 +88,13 @@ const GameRoom: React.FC<GameRoomProps> = ({
     playerName: string;
     level: number;
     suit: string;
-  } | null>(null);
+  } | null>(mockData?.finalContract || null);
   const [trumpSuit, setTrumpSuit] = useState<string | null>(null);
 
   // 添加每個玩家的出牌狀態
-  const [playerPlayedCards, setPlayerPlayedCards] = useState<{ [playerId: string]: Card[] }>({});
+  const [playerPlayedCards, setPlayerPlayedCards] = useState<{ [playerId: string]: Card[] }>(
+    mockData?.playerPlayedCards || {}
+  );
 
   // 添加墩贏家狀態，用於閃光效果
   const [trickWinner, setTrickWinner] = useState<{ playerId: string; playerName: string } | null>(null);
@@ -129,6 +131,12 @@ const GameRoom: React.FC<GameRoomProps> = ({
   const hasConnectedRef = useRef(false);
 
   useEffect(() => {
+    // 開發模式下跳過 WebSocket 連接
+    if (DEV_MODE) {
+      console.log('開發模式：跳過 WebSocket 連接，使用 mockData');
+      return;
+    }
+
     // 防止重複連線
     if (hasConnectedRef.current) {
       return;
@@ -581,25 +589,23 @@ const GameRoom: React.FC<GameRoomProps> = ({
             </div>
           )}
           {/* 手牌區域 */}
-          <div className="hand-main-area">
-            <div className={`hand-container ${trickWinner?.playerId === playerId ? 'winner-glow' : ''}`}>
-              {myHand.length > 0 ? (
-                myHand.map((card, index) => (
-                  <button
-                    key={index}
-                    className={`hand-card-3d ${getCardColor(card.suit)} ${isMyTurn && !isTrickCompleted && !isWaitingServerConfirm ? 'clickable' : ''} ${trickWinner?.playerId === playerId ? 'winner-card-glow' : ''}`}
-                    onClick={() => handlePlayCard(index)}
-                    disabled={!isMyTurn || isTrickCompleted || isWaitingServerConfirm}
-                  >
-                    {card.suit}{card.rank}
-                  </button>
-                ))
-              ) : (
-                <div style={{ color: 'white', padding: '20px' }}>
-                  手牌載入中... (gameState: {gameState}, myHand: {myHand.length} 張)
-                </div>
-              )}
-            </div>
+          <div className={`hand-container ${trickWinner?.playerId === playerId ? 'winner-glow' : ''}`}>
+            {myHand.length > 0 ? (
+              myHand.map((card, index) => (
+                <button
+                  key={index}
+                  className={`hand-card-3d ${getCardColor(card.suit)} ${isMyTurn && !isTrickCompleted && !isWaitingServerConfirm ? 'clickable' : ''} ${trickWinner?.playerId === playerId ? 'winner-card-glow' : ''}`}
+                  onClick={() => handlePlayCard(index)}
+                  disabled={!isMyTurn || isTrickCompleted || isWaitingServerConfirm}
+                >
+                  {card.suit}{card.rank}
+                </button>
+              ))
+            ) : (
+              <div style={{ color: 'white', padding: '20px' }}>
+                手牌載入中... (gameState: {gameState}, myHand: {myHand.length} 張)
+              </div>
+            )}
           </div>
         </div>
       );

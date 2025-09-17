@@ -14,13 +14,25 @@ export const mockHand: Card[] = [
   { suit: '♥', rank: 'K', value: 13 },
   { suit: '♦', rank: 'Q', value: 12 },
   { suit: '♣', rank: 'J', value: 11 },
-  { suit: '♠', rank: '10', value: 10 }
+  { suit: '♠', rank: '10', value: 10 },
+  { suit: '♥', rank: '9', value: 9 },
+  { suit: '♦', rank: '8', value: 8 },
+  { suit: '♣', rank: '7', value: 7 },
+  { suit: '♠', rank: '6', value: 6 },
+  { suit: '♥', rank: '5', value: 5 },
+  { suit: '♦', rank: '4', value: 4 },
+  { suit: '♣', rank: '3', value: 3 },
+  { suit: '♠', rank: '2', value: 2 }
 ];
 
 // 模擬叫墩數據
 export const mockBids = [
   { playerId: 'player1', playerName: '測試玩家1', level: 1, suit: 'NT', type: 'bid' as const },
-  { playerId: 'player2', playerName: '測試玩家2', type: 'pass' as const }
+  { playerId: 'player2', playerName: '測試玩家2', type: 'pass' as const },
+  { playerId: 'player1', playerName: '測試玩家1', level: 2, suit: 'NT', type: 'bid' as const },
+  { playerId: 'player2', playerName: '測試玩家3', type: 'pass' as const },
+  { playerId: 'player2', playerName: '測試玩家2', type: 'pass' as const },
+  { playerId: 'player2', playerName: '測試玩家2', type: 'pass' as const },
 ];
 
 // 模擬出牌數據
@@ -124,16 +136,6 @@ export const mockTrickRecordsFull = [
   }
 ];
 
-// 模擬墩記錄數據 - 叫墩階段（顯示之前的遊戲記錄）
-export const mockTrickRecordsBidding = [
-  {
-    playerId: 'player1',
-    trickNumber: 1,
-    isOurTeam: true,
-    winnerName: '測試玩家1',
-    winningCard: { suit: '♠', rank: 'A', value: 14 }
-  }
-];
 
 // 模擬墩記錄數據 - 遊戲進行中
 export const mockTrickRecordsPlaying = [
@@ -184,13 +186,13 @@ export const mockGameResult = {
 };
 
 // 根據遊戲狀態獲取對應的模擬數據
-export const getMockDataByGameState = (gameState: 'waiting' | 'bidding' | 'playing' | 'finished') => {
+export const getMockDataByGameState = (gameState: 'waiting' | 'bidding' | 'playing' | 'finished'): any => {
   const baseData = {
     players: mockPlayers,
     hand: mockHand,
-    currentBidder: 'player1',
+    currentBidder: 'player2', // 改為 player2，這樣在叫墩階段會顯示其他玩家
     bids: mockBids,
-    currentPlayer: 'player1',
+    currentPlayer: 'player2',
     playedCards: mockPlayedCards,
     isMyTurn: true,
     trickStats: {
@@ -216,15 +218,26 @@ export const getMockDataByGameState = (gameState: 'waiting' | 'bidding' | 'playi
       return {
         ...baseData,
         trickStats: {
-          declarerTeamTricks: 1,
+          declarerTeamTricks: 0,
           defenderTeamTricks: 0,
-          trickRecords: mockTrickRecordsBidding
+          trickRecords: []
         }
       };
 
     case 'playing':
       return {
         ...baseData,
+        message: '輪到您出牌了！',
+        finalContract: {
+          playerId: 'player1',
+          playerName: '測試玩家',
+          level: 2,
+          suit: '♠'
+        },
+        playerPlayedCards: {
+          'player2': [{ suit: '♠', rank: 'A', value: 14 }],
+          'player3': [{ suit: '♥', rank: 'K', value: 13 }]
+        },
         trickStats: {
           declarerTeamTricks: 2,
           defenderTeamTricks: 1,

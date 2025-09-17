@@ -101,6 +101,11 @@ const BiddingBoard: React.FC<BiddingBoardProps> = ({
         const playerIdx = players.findIndex(player => player.id === playerId);
 
         return players.map((player, index) => {
+          // 只顯示其他玩家，不顯示自己
+          if (player.id === playerId) {
+            return null;
+          }
+
           // 計算相對位置：(index - playerIdx + 4) % 4
           const relativePosition = (index - playerIdx + 4) % 4;
           let positionClass = '';
@@ -120,25 +125,18 @@ const BiddingBoard: React.FC<BiddingBoardProps> = ({
           }
 
           return (
-            <div key={player.id} className={`bidding-player ${positionClass} ${currentBidder && player.id === currentBidder ? 'current-bidder' : ''}`}>
-              {/* 只顯示其他玩家的玩家信息，自己不顯示 */}
-              {player.id !== playerId && (
-                <div className="bidding-player-info">
-                  <div className="player-label">
-                    <span className="other-label">{positionLabel}</span>
-                  </div>
-
-                  <h3 className="player-name">
-                    {player.name}
-                  </h3>
-
-                  {currentBidder && player.id === currentBidder && (
-                    <div className="current-turn-indicator">
-                      當前
-                    </div>
-                  )}
+            <div key={player.id} className={`player ${positionClass} ${currentBidder && player.id === currentBidder ? 'player-shining' : ''}`}>
+              <div className="player-info-container">
+                <div className="player-label">
+                  <span className="other-label">{player.name}</span>
                 </div>
-              )}
+
+                {currentBidder && player.id === currentBidder && (
+                  <div className="current-turn-indicator">
+                    當前
+                  </div>
+                )}
+              </div>
             </div>
           );
         });
