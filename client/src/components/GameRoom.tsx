@@ -360,19 +360,9 @@ const GameRoom: React.FC<GameRoomProps> = ({
           setIsMyTurn(message.currentPlayer === playerId);
         }
 
-        // 注意：為了遊戲公平性，不再追蹤或顯示其他玩家的手牌數量
-
         // 設定橋牌相關訊息
         if (message.currentTrick && message.trickCount !== undefined) {
-          if (message.currentPlayer === playerId) {
-            setMessage(`第 ${message.currentTrick} 墩 (${message.trickCount}/4) - 輪到您出牌！`);
-          } else {
-            const playerName = players.find(p => p.id === message.currentPlayer)?.name || '未知';
-            setMessage(`第 ${message.currentTrick} 墩 (${message.trickCount}/4) - 輪到 ${playerName}`);
-          }
-        } else if (message.card) {
-          const playerName = players.find(p => p.id === message.playerId)?.name || '未知玩家';
-          setMessage(`${playerName} 出牌：${message.card.suit}${message.card.rank}`);
+          setMessage(`第 ${message.currentTrick} 墩`);
         }
         break;
       case 'trick_completed':
