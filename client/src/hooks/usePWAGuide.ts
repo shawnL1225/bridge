@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 
 interface PWAGuideState {
   isVisible: boolean;
-  isMobile: boolean;
   canInstall: boolean;
   showGuide: () => void;
   hideGuide: () => void;
@@ -10,7 +9,6 @@ interface PWAGuideState {
 
 export const usePWAGuide = (): PWAGuideState => {
   const [isVisible, setIsVisible] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
   const [canInstall, setCanInstall] = useState(false);
 
 
@@ -20,13 +18,8 @@ export const usePWAGuide = (): PWAGuideState => {
     const isSafari = /safari/.test(userAgent) && !/chrome/.test(userAgent);
     const isIOS = /iphone|ipad|ipod/.test(userAgent);
     const isAndroid = /android/.test(userAgent);
-    const isMobileDevice = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
-    const isSmallScreen = window.innerWidth <= 768;
+    const isMobileDevice = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini|mobile|tablet/i.test(userAgent);
 
-    // 檢測是否為手機
-    const checkMobile = () => {
-      setIsMobile(isMobileDevice || isSmallScreen);
-    };
 
     // 檢測是否為 PWA 模式（一次性檢測，避免重複呼叫）
     const checkPWAStatus = () => {
@@ -42,17 +35,21 @@ export const usePWAGuide = (): PWAGuideState => {
       
       // 3. Safari 特殊檢測：檢查是否有瀏覽器 UI
       if (isSafari && isIOS) {
-        const hasBrowserUI = window.outerHeight - window.innerHeight > 50;
-        if (!hasBrowserUI) {
+        // Safari iOS 的瀏覽器 UI 檢測更複雜，我們使用更保守的方法
+        const isStandaloneMode = (window.navigator as any).standalone === true;
+        
+        // 只依賴 navigator.standalone，不使用瀏覽器 UI 檢測
+        if (isStandaloneMode) {
           return true;
         }
       }
       
-      // 4. 檢查是否有瀏覽器 UI 元素 (通用檢測)
-      const hasBrowserUI = window.outerHeight - window.innerHeight > 100;
-      if (!hasBrowserUI && window.screen.height === window.innerHeight) {
-        return true;
-      }
+      // 4. 檢查是否有瀏覽器 UI 元素 (通用檢測) - 暫時禁用，容易誤判
+      // const hasBrowserUI = window.outerHeight - window.innerHeight > 100;
+      // const screenHeightMatch = window.screen.height === window.innerHeight;
+      // if (!hasBrowserUI && screenHeightMatch) {
+      //   return true;
+      // }
       
       // 5. 檢查 URL 是否包含 PWA 相關參數
       if (window.location.search.includes('pwa=1') || window.location.search.includes('standalone=1')) {
@@ -69,7 +66,6 @@ export const usePWAGuide = (): PWAGuideState => {
 
     // 一次性檢測所有狀態
     const isPWA = checkPWAStatus();
-    const isMobile = isMobileDevice || isSmallScreen;
 
     // 檢測 PWA 安裝支援
     const checkInstallSupport = () => {
@@ -96,6 +92,8 @@ export const usePWAGuide = (): PWAGuideState => {
       const isSupported = 'serviceWorker' in navigator && 'PushManager' in window;
       setCanInstall(isSupported);
     };
+    // 執行檢測
+    checkInstallSupport();
 
     // 檢查是否應該顯示引導
     const shouldShowGuide = () => {
@@ -104,8 +102,13 @@ export const usePWAGuide = (): PWAGuideState => {
         return false;
       }
       
+      // 重新檢測手機設備狀態
+      const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      const isSmallScreen = window.innerWidth <= 768;
+      const currentIsMobile = isMobileDevice || isSmallScreen || hasTouch;
+      
       // 手機設備：每次都顯示引導（PWA 對手機體驗提升很大）
-      if (isMobile) {
+      if (currentIsMobile) {
         return true;
       }
       
@@ -123,9 +126,7 @@ export const usePWAGuide = (): PWAGuideState => {
       return shouldShowDesktop || forceShow;
     };
 
-    // 執行檢測
-    checkMobile();
-    checkInstallSupport();
+    
 
     // 延遲顯示引導，讓頁面先載入
     const timer = setTimeout(() => {
@@ -150,7 +151,6 @@ export const usePWAGuide = (): PWAGuideState => {
 
   return {
     isVisible,
-    isMobile,
     canInstall,
     showGuide,
     hideGuide

@@ -21,11 +21,11 @@ const MusicControl: React.FC<MusicControlProps> = ({
       
       // 監聽載入進度
       audio.addEventListener('loadstart', () => {
-        console.log('開始載入音樂檔案...');
+        // 音樂開始載入
       });
       
       audio.addEventListener('canplay', () => {
-        console.log('音樂檔案可以播放了');
+        // 音樂可以播放
       });
       
       audio.addEventListener('error', (e) => {
@@ -40,7 +40,6 @@ const MusicControl: React.FC<MusicControlProps> = ({
       const playAudio = async () => {
         try {
           await audio.play();
-          console.log('背景音樂開始播放');
           setIsPlaying(true);
         } catch (error) {
           console.log('自動播放被瀏覽器阻止，需要用戶互動後才能播放');
