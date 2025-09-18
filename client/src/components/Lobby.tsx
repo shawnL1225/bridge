@@ -109,25 +109,6 @@ const Lobby: React.FC<LobbyProps> = ({ onJoinRoom }) => {
             <span>♦</span>
             <span>♣</span>
           </div>
-          
-          {/* 測試按鈕 - 僅在開發模式下顯示 */}
-          {process.env.NODE_ENV === 'development' && (
-            <button 
-              onClick={showGuide}
-              style={{
-                marginTop: '10px',
-                padding: '8px 16px',
-                background: 'rgba(212, 175, 55, 0.2)',
-                border: '1px solid #d4af37',
-                borderRadius: '6px',
-                color: '#d4af37',
-                fontSize: '0.8rem',
-                cursor: 'pointer'
-              }}
-            >
-              測試 PWA 引導
-            </button>
-          )}
         </div>
       </div>
       
