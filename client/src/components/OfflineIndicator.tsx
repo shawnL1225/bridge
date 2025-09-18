@@ -17,10 +17,10 @@ const OfflineIndicator: React.FC = () => {
         clearTimeout(hideTimeout);
       }
       
-      // 3秒後隱藏指示器
+      // 1秒後隱藏指示器
       const timeout = setTimeout(() => {
         setShowIndicator(false);
-      }, 3000);
+      }, 1000);
       setHideTimeout(timeout);
     };
 
@@ -63,9 +63,12 @@ const OfflineIndicator: React.FC = () => {
     <div className={`offline-indicator ${isOnline ? 'online' : 'offline'}`}>
       <div className="indicator-content">
         <i className={`fas ${isOnline ? 'fa-wifi' : 'fa-wifi-slash'}`}></i>
-        <span>
+        <div className="indicator-text">
           {isOnline ? '已重新連線' : '目前離線'}
-        </span>
+        </div>
+        <div className="indicator-subtitle">
+          {isOnline ? '網路連線已恢復' : '請檢查網路連線'}
+        </div>
       </div>
     </div>
   );

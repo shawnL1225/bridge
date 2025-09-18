@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import './Lobby.css';
+import PWAGuideModal from './PWAGuideModal';
+import { usePWAGuide } from '../hooks/usePWAGuide';
 
 interface LobbyProps {
   onJoinRoom: (roomId: string, playerName: string) => void;
@@ -9,6 +11,9 @@ const Lobby: React.FC<LobbyProps> = ({ onJoinRoom }) => {
   const [roomId, setRoomId] = useState('');
   const [playerName, setPlayerName] = useState('');
   const [isJoining, setIsJoining] = useState(false);
+  
+  // PWA 引導功能
+  const { isVisible: showPwaGuide, hideGuide, showGuide, canInstall } = usePWAGuide();
 
   const handleJoinRoom = (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,6 +109,25 @@ const Lobby: React.FC<LobbyProps> = ({ onJoinRoom }) => {
             <span>♦</span>
             <span>♣</span>
           </div>
+          
+          {/* 測試按鈕 - 僅在開發模式下顯示 */}
+          {process.env.NODE_ENV === 'development' && (
+            <button 
+              onClick={showGuide}
+              style={{
+                marginTop: '10px',
+                padding: '8px 16px',
+                background: 'rgba(212, 175, 55, 0.2)',
+                border: '1px solid #d4af37',
+                borderRadius: '6px',
+                color: '#d4af37',
+                fontSize: '0.8rem',
+                cursor: 'pointer'
+              }}
+            >
+              測試 PWA 引導
+            </button>
+          )}
         </div>
       </div>
       
@@ -124,6 +148,13 @@ const Lobby: React.FC<LobbyProps> = ({ onJoinRoom }) => {
           </div>
         </div>
       </div>
+      
+      {/* PWA 引導模態框 */}
+      <PWAGuideModal 
+        isVisible={showPwaGuide} 
+        onClose={hideGuide}
+        canInstall={canInstall}
+      />
     </div>
   );
 };

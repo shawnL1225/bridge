@@ -1,0 +1,385 @@
+/* PWA 引導模態框樣式 */
+.pwa-guide-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.pwa-guide-modal {
+  background: linear-gradient(145deg, 
+    rgba(15, 15, 15, 0.95) 0%, 
+    rgba(25, 25, 25, 0.95) 50%, 
+    rgba(15, 15, 15, 0.95) 100%);
+  border: 2px solid rgba(212, 175, 55, 0.3);
+  border-radius: 20px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(212, 175, 55, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-50px) scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.pwa-guide-header {
+  text-align: center;
+  padding: 30px 30px 20px;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.pwa-guide-icon {
+  font-size: 3rem;
+  color: #d4af37;
+  margin-bottom: 15px;
+  animation: iconPulse 2s ease-in-out infinite;
+}
+
+@keyframes iconPulse {
+  0%, 100% {
+    transform: scale(1);
+    color: #d4af37;
+  }
+  50% {
+    transform: scale(1.1);
+    color: #f4d03f;
+  }
+}
+
+.pwa-guide-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 8px 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.pwa-guide-subtitle {
+  font-size: 0.9rem;
+  color: #cccccc;
+  margin: 0;
+  opacity: 0.8;
+}
+
+.pwa-guide-content {
+  padding: 25px 30px;
+}
+
+/* 直接安裝按鈕樣式 */
+.pwa-install-section {
+  margin-bottom: 25px;
+}
+
+.install-btn-container {
+  text-align: center;
+  padding: 20px;
+  background: rgba(212, 175, 55, 0.1);
+  border: 2px solid rgba(212, 175, 55, 0.3);
+  border-radius: 15px;
+}
+
+.install-btn {
+  background: linear-gradient(135deg, #d4af37, #f4d03f);
+  color: #1a1a1a;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 0 auto 10px;
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.install-btn:hover {
+  background: linear-gradient(135deg, #f4d03f, #d4af37);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+}
+
+.install-btn:active {
+  transform: translateY(0);
+}
+
+.install-btn i {
+  font-size: 1.2rem;
+}
+
+.install-note {
+  color: #d4af37;
+  font-size: 0.85rem;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* 手動安裝指南 */
+.pwa-manual-install h3 {
+  color: #d4af37;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 20px 0;
+  text-align: center;
+}
+
+.pwa-guide-steps {
+  margin-bottom: 25px;
+}
+
+.step {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  transition: all 0.3s ease;
+}
+
+.step:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(212, 175, 55, 0.3);
+  transform: translateX(5px);
+}
+
+.step-number {
+  background: linear-gradient(135deg, #d4af37, #f4d03f);
+  color: #1a1a1a;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-right: 15px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+}
+
+.step-content {
+  flex: 1;
+}
+
+.step-content p {
+  margin: 0;
+  color: #ffffff;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.step-content i {
+  color: #d4af37;
+  margin: 0 3px;
+}
+
+.pwa-benefits {
+  background: rgba(212, 175, 55, 0.1);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.pwa-benefits h3 {
+  color: #d4af37;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 15px 0;
+  text-align: center;
+}
+
+.pwa-benefits ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.pwa-benefits li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  color: #ffffff;
+  font-size: 0.9rem;
+}
+
+.pwa-benefits li:last-child {
+  margin-bottom: 0;
+}
+
+.pwa-benefits li i {
+  color: #4CAF50;
+  margin-right: 10px;
+  font-size: 0.8rem;
+}
+
+.pwa-guide-footer {
+  display: flex;
+  gap: 15px;
+  padding: 20px 30px 30px;
+  border-top: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.pwa-guide-btn {
+  flex: 1;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pwa-guide-btn.secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: #cccccc;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.pwa-guide-btn.secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+.pwa-guide-btn.primary {
+  background: linear-gradient(135deg, #d4af37, #f4d03f);
+  color: #1a1a1a;
+  border: 1px solid #d4af37;
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+}
+
+.pwa-guide-btn.primary:hover {
+  background: linear-gradient(135deg, #f4d03f, #d4af37);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+}
+
+/* 手機版適配 */
+@media (max-width: 768px) {
+  .pwa-guide-modal {
+    margin: 10px;
+    max-width: none;
+    border-radius: 15px;
+  }
+  
+  .pwa-guide-header {
+    padding: 25px 20px 15px;
+  }
+  
+  .pwa-guide-icon {
+    font-size: 2.5rem;
+  }
+  
+  .pwa-guide-title {
+    font-size: 1.3rem;
+  }
+  
+  .pwa-guide-content {
+    padding: 20px;
+  }
+  
+  .step {
+    padding: 12px;
+    margin-bottom: 15px;
+  }
+  
+  .step-number {
+    width: 25px;
+    height: 25px;
+    font-size: 0.8rem;
+    margin-right: 12px;
+  }
+  
+  .step-content p {
+    font-size: 0.9rem;
+  }
+  
+  .pwa-guide-footer {
+    padding: 15px 20px 25px;
+    flex-direction: column;
+  }
+  
+  .pwa-guide-btn {
+    padding: 14px 20px;
+    font-size: 0.9rem;
+  }
+}
+
+/* 橫向手機適配 */
+@media (max-height: 500px) {
+  .pwa-guide-modal {
+    max-height: 95vh;
+  }
+  
+  .pwa-guide-header {
+    padding: 20px 30px 15px;
+  }
+  
+  .pwa-guide-icon {
+    font-size: 2rem;
+    margin-bottom: 10px;
+  }
+  
+  .pwa-guide-title {
+    font-size: 1.2rem;
+  }
+  
+  .pwa-guide-content {
+    padding: 15px 30px;
+  }
+  
+  .step {
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .pwa-benefits {
+    padding: 15px;
+  }
+  
+  .pwa-guide-footer {
+    padding: 15px 30px 20px;
+  }
+}

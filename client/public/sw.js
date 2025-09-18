@@ -1,15 +1,24 @@
-const CACHE_NAME = 'casino-bridge-v2';
+const CACHE_NAME = 'casino-bridge-v3';
 const urlsToCache = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/static/css/main.fc8da8cb.css',
-  '/static/js/main.fa85f374.js',
-  '/static/media/background.604b3ab17a4f408360a6.jpg',
-  '/backgroudmusic.mp3',
-  '/apple-touch-icon.png',
+  '/apple-assets/apple-touch-icon.png',
+  '/apple-assets/apple-touch-icon-152x152.png',
+  '/apple-assets/apple-touch-icon-167x167.png',
+  '/apple-assets/apple-touch-icon-180x180.png',
+  '/apple-assets/apple-splash-1125-2436.png',
+  '/apple-assets/apple-splash-1170-2532.png',
+  '/apple-assets/apple-splash-1179-2556.png',
+  '/apple-assets/apple-splash-1242-2688.png',
+  '/apple-assets/apple-splash-1284-2778.png',
+  '/apple-assets/apple-splash-1290-2796.png',
+  '/apple-assets/apple-splash-1536-2048.png',
+  '/apple-assets/apple-splash-1668-2388.png',
+  '/apple-assets/apple-splash-2048-2732.png',
   '/icon-192.png',
   '/icon-512.png',
+  '/icon.svg',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
 ];
 
