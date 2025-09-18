@@ -36,18 +36,8 @@ const MusicControl: React.FC<MusicControlProps> = ({
       audio.addEventListener('play', () => setIsPlaying(true));
       audio.addEventListener('pause', () => setIsPlaying(false));
       
-      // 嘗試自動播放
-      const playAudio = async () => {
-        try {
-          await audio.play();
-          setIsPlaying(true);
-        } catch (error) {
-          console.log('自動播放被瀏覽器阻止，需要用戶互動後才能播放');
-          setIsPlaying(false);
-        }
-      };
-      
-      playAudio();
+      // 預設不自動播放音樂，等待用戶手動開啟
+      setIsPlaying(false);
     }
   }, [currentVolume]);
 

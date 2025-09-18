@@ -92,10 +92,21 @@ function App() {
     setErrorMessage(''); // 清除之前的錯誤訊息
   };
 
+  const handleRandomMatch = (name: string) => {
+    // 設置特殊標識，讓 GameRoom 知道這是隨機配對
+    setCurrentRoom('RANDOM_MATCH');
+    setPlayerName(name);
+    setErrorMessage(''); // 清除之前的錯誤訊息
+  };
+
   const handleLeaveRoom = () => {
     setCurrentRoom(null);
     setPlayerName('');
     setErrorMessage(''); // 清除錯誤訊息
+  };
+
+  const handleRoomIdUpdate = (newRoomId: string) => {
+    setCurrentRoom(newRoomId);
   };
 
   const handleRoomError = (errorMsg: string) => {
@@ -157,13 +168,14 @@ function App() {
       )}
       
       {!currentRoom ? (
-        <Lobby onJoinRoom={handleJoinRoom} />
+        <Lobby onJoinRoom={handleJoinRoom} onRandomMatch={handleRandomMatch} />
       ) : (
         <GameRoom
           roomId={currentRoom}
           playerName={playerName}
           onLeaveRoom={handleLeaveRoom}
           onRoomError={handleRoomError}
+          onRoomIdUpdate={handleRoomIdUpdate}
         />
       )}
       

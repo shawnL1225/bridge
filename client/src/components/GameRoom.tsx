@@ -13,6 +13,7 @@ interface GameRoomProps {
   playerName: string;
   onLeaveRoom: () => void;
   onRoomError: (errorMsg: string) => void;
+  onRoomIdUpdate?: (newRoomId: string) => void;
 }
 
 interface GameMessage {
@@ -38,7 +39,8 @@ const GameRoom: React.FC<GameRoomProps> = ({
   roomId,
   playerName,
   onLeaveRoom,
-  onRoomError
+  onRoomError,
+  onRoomIdUpdate
 }) => {
   // 開發模式：直接設定要測試的畫面
   const DEV_MODE = DEV_CONFIG.ENABLED;
@@ -149,14 +151,26 @@ const GameRoom: React.FC<GameRoomProps> = ({
 
     ws.onopen = () => {
       console.log('WebSocket 連線成功，連線URL:', config.wsUrl);
-      // 連線成功後立即加入房間
-      const joinMessage = {
-        type: 'join_room',
-        roomId: roomId,
-        playerName: playerName
-      };
-      console.log('發送加入房間消息:', joinMessage);
-      ws.send(JSON.stringify(joinMessage));
+      
+      // 根據 roomId 決定發送哪種消息
+      if (roomId === 'RANDOM_MATCH') {
+        // 隨機配對
+        const randomMatchMessage = {
+          type: 'random_match',
+          playerName: playerName
+        };
+        console.log('發送隨機配對消息:', randomMatchMessage);
+        ws.send(JSON.stringify(randomMatchMessage));
+      } else {
+        // 手動加入房間
+        const joinMessage = {
+          type: 'join_room',
+          roomId: roomId,
+          playerName: playerName
+        };
+        console.log('發送加入房間消息:', joinMessage);
+        ws.send(JSON.stringify(joinMessage));
+      }
     };
 
     ws.onerror = (error) => {
@@ -194,6 +208,11 @@ const GameRoom: React.FC<GameRoomProps> = ({
       case 'room_info': // load room players info
         if (message.players) setPlayers(message.players);
         if (message.playerId) setPlayerId(message.playerId);
+        // 如果是隨機配對，更新實際的房間號
+        if (roomId === 'RANDOM_MATCH' && message.roomId && onRoomIdUpdate) {
+          console.log('隨機配對成功，更新房間號:', message.roomId);
+          onRoomIdUpdate(message.roomId);
+        }
         break;
       case 'player_joined': // A new player joined
         if (message.player) {

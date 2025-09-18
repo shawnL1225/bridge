@@ -90,9 +90,11 @@ function createGame(roomId) {
     currentPlayer: 0,
     playedCards: [],
     gameState: 'waiting', // waiting, bidding, playing, finished
-    turnOrder: [],
+    playOrder: [],        // 出牌順序 (0-3)
+    biddingOrder: [],     // 叫墩順序 (3-0)
     lastPlayedCard: null,
     lastPlayerId: null,
+    lastActivity: Date.now(), // 最後活動時間
     // 橋牌相關狀態
     currentTrick: 1,  // 當前墩數
     trickCards: [],   // 當前墩的牌
@@ -237,6 +239,9 @@ function handleMessage(playerId, data) {
     case 'join_room':
       handleJoinRoom(playerId, data.roomId, data.playerName);
       break;
+    case 'random_match':
+      handleRandomMatch(playerId, data.playerName);
+      break;
     case 'play_card':
       handlePlayCard(playerId, data.cardIndex);
       break;
@@ -268,9 +273,8 @@ function handleJoinRoom(playerId, roomId, playerName) {
   if (!game) {
     game = createGame(roomId);
   }
-
+  // 房間已滿
   if (game.players.length >= 4) {
-    // 房間已滿
     const player = players.get(playerId);
     player.ws.send(JSON.stringify({
       type: 'error',
@@ -303,6 +307,9 @@ function handleJoinRoom(playerId, roomId, playerName) {
   };
 
   game.players.push(playerInfo);
+  
+  // 更新房間活動時間
+  game.lastActivity = Date.now();
 
   // 發送房間資訊
   player.ws.send(JSON.stringify({
@@ -321,6 +328,67 @@ function handleJoinRoom(playerId, roomId, playerName) {
   console.log(`玩家 ${playerName} 加入房間 ${roomId}`);
 }
 
+// 處理隨機配對
+function handleRandomMatch(playerId, playerName) {
+  const now = Date.now();
+  const INACTIVE_THRESHOLD = 10 * 60 * 1000; // 10分鐘
+  
+  // 尋找有空位的等待中房間，同時清理閒置房間
+  let availableRoom = null;
+  let bestRoom = null;
+  let maxActivePlayers = 0;
+  const roomsToDelete = [];
+  
+  for (let [roomId, game] of games) {
+    // 檢查房間是否閒置
+    const isInactive = (now - game.lastActivity) > INACTIVE_THRESHOLD;
+    if (isInactive) {
+      roomsToDelete.push(roomId);
+      continue; // 跳過這個房間
+    }
+    
+    if (game.gameState === 'waiting' && game.players.length < 4) {
+      // 檢查是否有重複的玩家名稱
+      const existingPlayer = game.players.find(p => p.name === playerName);
+      if (!existingPlayer) {
+        // 計算活躍玩家數量（有準備狀態的玩家）
+        const activePlayers = game.players.filter(p => p.ready).length;
+        
+        // 優先選擇有最多活躍玩家的房間
+        if (activePlayers > maxActivePlayers) {
+          maxActivePlayers = activePlayers;
+          bestRoom = roomId;
+        }
+        
+        // 如果沒有找到最佳房間，選擇第一個可用的房間
+        if (!availableRoom) {
+          availableRoom = roomId;
+        }
+      }
+    }
+  }
+  
+  // 清理閒置房間
+  roomsToDelete.forEach(roomId => {
+    console.log(`清理閒置房間: ${roomId}`);
+    games.delete(roomId);
+  });
+  
+  // 優先選擇有最多活躍玩家的房間，否則選擇第一個可用房間
+  const targetRoom = bestRoom || availableRoom;
+  
+  if (targetRoom) {
+    // 加入現有房間
+    console.log(`隨機配對：玩家 ${playerName} 加入房間 ${targetRoom} (活躍玩家: ${maxActivePlayers})`);
+    handleJoinRoom(playerId, targetRoom, playerName);
+  } else {
+    // 建立新房間
+    const newRoomId = Math.random().toString(36).substr(2, 6).toUpperCase();
+    console.log(`隨機配對：為玩家 ${playerName} 建立新房間 ${newRoomId}`);
+    handleJoinRoom(playerId, newRoomId, playerName);
+  }
+}
+
 // 處理玩家準備
 function handlePlayerReady(playerId) {
   const player = players.get(playerId);
@@ -332,6 +400,9 @@ function handlePlayerReady(playerId) {
   const gamePlayer = game.players.find(p => p.id === playerId);
   if (gamePlayer) {
     gamePlayer.ready = true;
+    
+    // 更新房間活動時間
+    game.lastActivity = Date.now();
 
     // 檢查是否所有玩家都準備好了
     if (game.players.length === 4 && game.players.every(p => p.ready)) {
@@ -374,29 +445,41 @@ function startGame(roomId) {
 
   game.gameState = 'bidding';
   
-  // 隨機選擇第一個開始叫墩的玩家
-  const firstBidderIndex = Math.floor(Math.random() * 4);
-  game.biddingState.currentBidder = firstBidderIndex
-  // 建立叫墩順序（從隨機選擇的玩家開始）
-  game.turnOrder = [
+  // 更新房間活動時間
+  game.lastActivity = Date.now();
+  
+  // 建立出牌順序 (0-3)
+  game.playOrder = [
     game.players[0].id,
     game.players[1].id,
     game.players[2].id,
     game.players[3].id
   ];
+  
+  // 建立叫墩順序 (3-0)
+  game.biddingOrder = [
+    game.players[3].id,
+    game.players[2].id,
+    game.players[1].id,
+    game.players[0].id
+  ];
+  
+  // 隨機選擇第一個開始叫墩的玩家
+  const firstBidderIndex = Math.floor(Math.random() * 4);
+  game.biddingState.currentBidder = firstBidderIndex;
 
   // 為每個玩家發送叫墩開始訊息和手牌
   game.players.forEach((player, index) => {
     player.ws.send(JSON.stringify({
       type: 'bidding_started',
-      currentBidder: game.turnOrder[firstBidderIndex],
+      currentBidder: game.biddingOrder[firstBidderIndex],
       currentBidderName: game.players[firstBidderIndex].name,
       hand: game.hands[index],  // 發送手牌供叫墩參考
       bids: game.biddingState.bids
     }));
   });
 
-  console.log(`房間 ${roomId} 開始叫墩，第一個叫墩者：${game.players[firstBidderIndex].name}，叫墩順序：`, game.turnOrder);
+  console.log(`房間 ${roomId} 開始叫墩，第一個叫墩者：${game.players[firstBidderIndex].name}，叫墩順序：`, game.biddingOrder);
 }
 
 // 處理叫墩
@@ -407,8 +490,11 @@ function handleMakeBid(playerId, level, suit) {
   const game = games.get(player.roomId);
   if (!game || game.gameState !== 'bidding') return;
 
+  // 更新房間活動時間
+  game.lastActivity = Date.now();
+
   // 檢查是否輪到該玩家叫墩
-  if (game.turnOrder[game.biddingState.currentBidder] !== playerId) {
+  if (game.biddingOrder[game.biddingState.currentBidder] !== playerId) {
     player.ws.send(JSON.stringify({
       type: 'error',
       message: '還沒輪到您叫墩'
@@ -440,7 +526,7 @@ function handleMakeBid(playerId, level, suit) {
 
   // 移動到下一個玩家
   game.biddingState.currentBidder = (game.biddingState.currentBidder + 1) % 4;
-  const nextBidderId = game.turnOrder[game.biddingState.currentBidder];
+  const nextBidderId = game.biddingOrder[game.biddingState.currentBidder];
 
   // 廣播叫墩結果
   broadcastToRoom(player.roomId, {
@@ -462,8 +548,11 @@ function handlePassBid(playerId) {
   const game = games.get(player.roomId);
   if (!game || game.gameState !== 'bidding') return;
 
+  // 更新房間活動時間
+  game.lastActivity = Date.now();
+
   // 檢查是否輪到該玩家叫墩
-  if (game.turnOrder[game.biddingState.currentBidder] !== playerId) {
+  if (game.biddingOrder[game.biddingState.currentBidder] !== playerId) {
     player.ws.send(JSON.stringify({
       type: 'error',
       message: '還沒輪到您叫墩'
@@ -515,7 +604,7 @@ function handlePassBid(playerId) {
   } else {
     // 移動到下一個玩家
     game.biddingState.currentBidder = (game.biddingState.currentBidder + 1) % 4;
-    const nextBidderId = game.turnOrder[game.biddingState.currentBidder];
+    const nextBidderId = game.biddingOrder[game.biddingState.currentBidder];
 
     // 廣播pass結果
     broadcastToRoom(player.roomId, {
@@ -565,12 +654,15 @@ function startPlayingPhase(roomId, contractPlayerId) {
   if (!game) return;
 
   game.gameState = 'playing';
+  
+  // 更新房間活動時間
+  game.lastActivity = Date.now();
 
   // 找到合約玩家的索引
   const contractPlayerIndex = game.players.findIndex(p => p.id === contractPlayerId);
 
-  // 從喊到王牌的前一個玩家開始出牌
-  const firstPlayerIndex = (contractPlayerIndex - 1 + 4) % 4;
+  // 從喊到王牌的下一個玩家開始出牌
+  const firstPlayerIndex = (contractPlayerIndex + 1) % 4;
   game.currentPlayer = firstPlayerIndex;
 
   // 廣播出牌開始
@@ -595,12 +687,15 @@ function handlePlayCard(playerId, cardIndex) {
   const game = games.get(player.roomId);
   if (!game || game.gameState !== 'playing') return;
 
+  // 更新房間活動時間
+  game.lastActivity = Date.now();
+
   const playerIndex = game.players.findIndex(p => p.id === playerId);
   const hand = game.hands[playerIndex];
   const card = hand[cardIndex];
 
   // 檢查是否輪到該玩家
-  if (game.turnOrder[game.currentPlayer] !== playerId) {
+  if (game.playOrder[game.currentPlayer] !== playerId) {
     player.ws.send(JSON.stringify({
       type: 'error',
       message: '還沒輪到您出牌'
@@ -654,7 +749,7 @@ function handlePlayCard(playerId, cardIndex) {
   if (game.trickCount < 4) {
     // 墩還沒完成，移動到下一個玩家
     game.currentPlayer = (game.currentPlayer + 1) % 4;
-    nextPlayerForBroadcast = game.turnOrder[game.currentPlayer];
+    nextPlayerForBroadcast = game.playOrder[game.currentPlayer];
   } else {
     // 墩完成了，下一個玩家由贏家決定，暫時不設定
     nextPlayerForBroadcast = null;
@@ -766,7 +861,7 @@ function clearTrickAndStartNext(roomId, winnerId) {
   game.trickCount = 0;
   game.currentTrick++;
 
-  const winnerIndex = game.turnOrder.findIndex(id => id === winnerId);
+  const winnerIndex = game.playOrder.findIndex(id => id === winnerId);
   if (winnerIndex !== -1) {
     game.currentPlayer = winnerIndex;  // 設定為索引，不是玩家ID
   }
@@ -986,7 +1081,8 @@ function resetGameState(game) {
 
   // 重置基本遊戲狀態
   game.currentPlayer = 0;
-  game.turnOrder = [];
+  game.playOrder = [];
+  game.biddingOrder = [];
   game.playedCards = [];
   game.lastPlayedCard = null;
   game.lastPlayerId = null;

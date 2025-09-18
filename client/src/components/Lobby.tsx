@@ -5,9 +5,10 @@ import { usePWAGuide } from '../hooks/usePWAGuide';
 
 interface LobbyProps {
   onJoinRoom: (roomId: string, playerName: string) => void;
+  onRandomMatch: (playerName: string) => void;
 }
 
-const Lobby: React.FC<LobbyProps> = ({ onJoinRoom }) => {
+const Lobby: React.FC<LobbyProps> = ({ onJoinRoom, onRandomMatch }) => {
   const [roomId, setRoomId] = useState('');
   const [playerName, setPlayerName] = useState('');
   const [isJoining, setIsJoining] = useState(false);
@@ -31,10 +32,20 @@ const Lobby: React.FC<LobbyProps> = ({ onJoinRoom }) => {
     }, 500);
   };
 
-  const generateRandomRoomId = () => {
-    const randomId = Math.random().toString(36).substr(2, 6).toUpperCase();
-    setRoomId(randomId);
+  const handleRandomMatch = () => {
+    if (!playerName.trim()) {
+      alert('請先輸入玩家名字');
+      return;
+    }
+
+    setIsJoining(true);
+    
+    setTimeout(() => {
+      onRandomMatch(playerName.trim());
+      setIsJoining(false);
+    }, 500);
   };
+
 
   return (
     <div className="lobby">
@@ -55,6 +66,19 @@ const Lobby: React.FC<LobbyProps> = ({ onJoinRoom }) => {
         
         <form onSubmit={handleJoinRoom} className="join-form">
           <div className="form-group">
+            <input
+              type="text"
+              id="playerName"
+              value={playerName}
+              onChange={(e) => setPlayerName(e.target.value)}
+              placeholder="玩家名字"
+              maxLength={20}
+              required
+              className="casino-input"
+            />
+          </div>
+          <div className="form-divider"></div>
+          <div className="form-group">
             <div className="input-container">
               <input
                 type="text"
@@ -67,40 +91,27 @@ const Lobby: React.FC<LobbyProps> = ({ onJoinRoom }) => {
                 className="casino-input"
               />
               <button
-                type="button"
-                onClick={generateRandomRoomId}
-                className="dice-btn"
-                title="隨機生成房間號"
+                type="submit"
+                className="join-btn"
+                disabled={isJoining}
               >
-                🎲
+                <span className="btn-icon">→</span>
               </button>
             </div>
           </div>
-          
-          <div className="form-group">
-            <input
-              type="text"
-              id="playerName"
-              value={playerName}
-              onChange={(e) => setPlayerName(e.target.value)}
-              placeholder="玩家名字"
-              maxLength={20}
-              required
-              className="casino-input"
-            />
-          </div>
-          
+        </form>
+        
+        <div className="random-match-section">
           <button
-            type="submit"
-            className="join-btn"
+            type="button"
+            className="random-match-btn"
+            onClick={handleRandomMatch}
             disabled={isJoining}
           >
-            <span className="btn-text">
-              {isJoining ? '加入中...' : '進入賭場'}
-            </span>
-            <span className="btn-icon">→</span>
+            <span className="btn-icon">🎲</span>
+            <span className="btn-text">隨機配對</span>
           </button>
-        </form>
+        </div>
         
         <div className="casino-footer">
           <div className="card-symbols">
