@@ -94,7 +94,7 @@ function App() {
 
   const handleRandomMatch = (name: string) => {
     // 設置特殊標識，讓 GameRoom 知道這是隨機配對
-    setCurrentRoom('RANDOM_MATCH');
+    setCurrentRoom('MATCH');
     setPlayerName(name);
     setErrorMessage(''); // 清除之前的錯誤訊息
   };

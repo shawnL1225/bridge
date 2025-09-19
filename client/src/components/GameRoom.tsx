@@ -209,10 +209,7 @@ const GameRoom: React.FC<GameRoomProps> = ({
         if (message.players) setPlayers(message.players);
         if (message.playerId) setPlayerId(message.playerId);
         // 如果是隨機配對，更新實際的房間號
-        if (roomId === 'RANDOM_MATCH' && message.roomId && onRoomIdUpdate) {
-          console.log('隨機配對成功，更新房間號:', message.roomId);
-          onRoomIdUpdate(message.roomId);
-        }
+        if (roomId === 'RANDOM_MATCH' && message.roomId && onRoomIdUpdate) {}
         break;
       case 'player_joined': // A new player joined
         if (message.player) {

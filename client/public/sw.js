@@ -1,4 +1,4 @@
-const CACHE_NAME = 'casino-bridge-v3';
+const CACHE_NAME = 'casino-bridge-v4';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -68,6 +68,9 @@ self.addEventListener('activate', (event) => {
           }
         })
       );
+    }).then(() => {
+      // 強制控制所有客戶端
+      return self.clients.claim();
     })
   );
 });
