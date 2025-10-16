@@ -208,8 +208,11 @@ const GameRoom: React.FC<GameRoomProps> = ({
       case 'room_info': // load room players info
         if (message.players) setPlayers(message.players);
         if (message.playerId) setPlayerId(message.playerId);
-        // 如果是隨機配對，更新實際的房間號
-        if (roomId === 'RANDOM_MATCH' && message.roomId && onRoomIdUpdate) {}
+        // 如果是隨機配對，記錄實際的房間號（但不更新 roomId 避免重新連線）
+        if (roomId === 'RANDOM_MATCH' && message.roomId) {
+          console.log('隨機配對成功，實際房間號:', message.roomId);
+          // 可以在這裡設置一個本地狀態來顯示實際房間號
+        }
         break;
       case 'player_joined': // A new player joined
         if (message.player) {

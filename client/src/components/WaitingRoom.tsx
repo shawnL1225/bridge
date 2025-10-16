@@ -23,13 +23,9 @@ const WaitingRoom: React.FC<WaitingRoomProps> = ({
   onCancelReady,
   onResortPlayers
 }) => {
-  // 添加log來確認props變化
-  console.log('WaitingRoom渲染 - players:', players.map(p => p.name));
-  console.log('WaitingRoom渲染 - players順序:', players.map((p, i) => `${i}: ${p.name}`));
+
   // 檢查當前玩家是否為index 0（房間創建者）
   const isRoomCreator = players.length > 0 && players[0].id === playerId;
-  console.log('isRoomCreator:', isRoomCreator, 'playerId:', playerId, 'firstPlayerId:', players[0]?.id);
-  console.log('onResortPlayers存在:', !!onResortPlayers);
   return (
     <div className="waiting-room">
       {message && (
